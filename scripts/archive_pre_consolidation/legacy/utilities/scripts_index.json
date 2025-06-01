@@ -1,0 +1,627 @@
+{
+  "scripts": [
+    {
+      "name": "main_pipeline.py",
+      "path": "scripts/main_pipeline.py",
+      "category": "core_processing",
+      "description": "Main document processing pipeline that orchestrates the entire OCR to Neo4j workflow",
+      "key_functions": {
+        "process_single_document": "Main function that processes a document through all phases: OCR, chunking, entity extraction, canonicalization, and relationship staging",
+        "validate_stage1_requirements": "Validates Stage 1 deployment requirements for cloud-only processing",
+        "update_document_state": "Updates document processing state in Redis for monitoring",
+        "get_document_state": "Retrieves document processing state from Redis",
+        "preload_critical_cache": "Preloads critical data into Redis cache for performance",
+        "main": "Entry point that handles different processing modes (direct, queue, s3)"
+      },
+      "dependencies": ["supabase_utils", "redis_utils", "ocr_extraction", "entity_extraction", "text_processing"],
+      "usage": "python scripts/main_pipeline.py --mode [direct|queue|s3]"
+    },
+    {
+      "name": "queue_processor.py",
+      "path": "scripts/queue_processor.py",
+      "category": "document_intake",
+      "description": "Document intake handler that watches for new documents and submits them to Celery for processing",
+      "key_functions": {
+        "DocumentIntakeHandler.process_new_document": "Processes newly detected documents by uploading to S3 and submitting to Celery",
+        "DirectCelerySubmitter.submit_existing_document": "Submits existing S3 documents directly to Celery",
+        "main": "Entry point supporting watch mode (file monitoring) or direct submission"
+      },
+      "dependencies": ["supabase_utils", "celery_submission", "s3_storage"],
+      "usage": "python scripts/queue_processor.py --mode [watch|submit] --file <s3_path> --type <file_type>"
+    },
+    {
+      "name": "celery_submission.py",
+      "path": "scripts/celery_submission.py",
+      "category": "task_management",
+      "description": "Utility for submitting documents to Celery task queue",
+      "key_functions": {
+        "submit_document_to_celery": "Submits a document to Celery for OCR processing and updates database with task ID"
+      },
+      "dependencies": ["celery_tasks.ocr_tasks", "supabase_utils"],
+      "usage": "Called by queue_processor.py to submit documents"
+    },
+    {
+      "name": "celery_app.py",
+      "path": "scripts/celery_app.py",
+      "category": "task_management",
+      "description": "Celery application configuration for distributed task processing",
+      "key_functions": {
+        "app": "Configured Celery application instance with Redis broker/backend"
+      },
+      "configuration": {
+        "queues": ["default", "ocr", "text", "entity", "graph"],
+        "task_routes": "Routes tasks to specialized queues based on type",
+        "time_limits": "1 hour soft limit, 1h 5min hard limit",
+        "retry_policy": "Exponential backoff with jitter"
+      },
+      "usage": "celery -A scripts.celery_app worker --loglevel=info --queue=ocr"
+    },
+    {
+      "name": "pipeline_monitor.py",
+      "path": "scripts/pipeline_monitor.py",
+      "category": "monitoring",
+      "description": "Comprehensive real-time monitoring dashboard for the entire document processing pipeline",
+      "key_functions": {
+        "PipelineMonitor.get_supabase_queue_stats": "Gets statistics from document_processing_queue table",
+        "PipelineMonitor.get_celery_queue_stats": "Gets Celery queue lengths and active task counts",
+        "PipelineMonitor.get_redis_cache_stats": "Gets Redis cache metrics and connection status",
+        "PipelineMonitor.get_database_table_stats": "Gets counts and status breakdowns from all database tables",
+        "PipelineMonitor.get_pipeline_throughput": "Calculates throughput metrics and error rates",
+        "PipelineMonitor.display_dashboard": "Displays formatted monitoring dashboard in terminal",
+        "PipelineMonitor.run": "Main monitoring loop with configurable refresh interval"
+      },
+      "dependencies": ["supabase_utils", "redis_utils", "celery_app"],
+      "usage": "python scripts/pipeline_monitor.py --refresh 10"
+    },
+    {
+      "name": "standalone_pipeline_monitor.py",
+      "path": "scripts/standalone_pipeline_monitor.py",
+      "category": "monitoring",
+      "description": "Standalone version of pipeline monitor with additional features",
+      "key_functions": {
+        "Similar to pipeline_monitor.py": "Extended monitoring capabilities"
+      },
+      "usage": "python scripts/standalone_pipeline_monitor.py"
+    },
+    {
+      "name": "redis_utils.py",
+      "path": "scripts/redis_utils.py",
+      "category": "infrastructure",
+      "description": "Redis connection management and utility functions for caching and distributed operations",
+      "key_functions": {
+        "RedisManager.get_client": "Gets Redis client from connection pool",
+        "RedisManager.get_cached": "Retrieves value from cache with JSON deserialization",
+        "RedisManager.set_cached": "Sets value in cache with optional TTL",
+        "RedisManager.lock": "Context manager for distributed locking",
+        "RedisManager.check_rate_limit": "Checks if action is within rate limit window",
+        "RedisManager.invalidate_document_cache": "Invalidates all caches related to a document",
+        "RedisManager.batch_set_cached": "Sets multiple cache entries in a pipeline",
+        "RedisManager.produce_to_stream": "Produces message to Redis Stream",
+        "redis_cache": "Decorator for automatic function result caching",
+        "with_redis_lock": "Decorator for distributed locking on functions",
+        "rate_limit": "Decorator for rate limiting function calls",
+        "get_redis_manager": "Gets singleton RedisManager instance"
+      },
+      "dependencies": ["config", "cache_keys"],
+      "usage": "from scripts.redis_utils import get_redis_manager, redis_cache"
+    },
+    {
+      "name": "supabase_utils.py",
+      "path": "scripts/supabase_utils.py",
+      "category": "database",
+      "description": "Manages all Supabase database operations for the document processing pipeline",
+      "key_functions": {
+        "get_supabase_client": "Gets configured Supabase client instance",
+        "generate_document_url": "Generates signed or public URLs for documents in storage",
+        "SupabaseManager.get_or_create_project": "Gets existing project or creates new one",
+        "SupabaseManager.create_source_document_entry": "Creates source document record",
+        "SupabaseManager.update_source_document_text": "Updates document with OCR results",
+        "SupabaseManager.create_neo4j_document_entry": "Creates neo4j document record",
+        "SupabaseManager.create_chunk_entry": "Creates document chunk record",
+        "SupabaseManager.create_entity_mention_entry": "Creates entity mention record",
+        "SupabaseManager.create_canonical_entity_entry": "Creates canonical entity record",
+        "SupabaseManager.create_relationship_staging": "Creates relationship staging record",
+        "SupabaseManager.create_textract_job_entry": "Creates Textract job tracking record",
+        "SupabaseManager.update_textract_job_status": "Updates Textract job status"
+      },
+      "dependencies": ["supabase", "uuid"],
+      "usage": "from scripts.supabase_utils import SupabaseManager"
+    },
+    {
+      "name": "ocr_extraction.py",
+      "path": "scripts/ocr_extraction.py",
+      "category": "text_extraction",
+      "description": "Handles text extraction from various document formats using multiple OCR engines",
+      "key_functions": {
+        "extract_text_from_pdf_qwen_vl_ocr": "Extracts text from PDF using Qwen2-VL vision model (local)",
+        "extract_text_from_pdf_textract": "Extracts text from PDF using AWS Textract with caching",
+        "extract_text_from_docx": "Extracts text from Word documents",
+        "extract_text_from_txt": "Extracts text from plain text files",
+        "extract_text_from_eml": "Extracts text from email files",
+        "transcribe_audio_whisper": "Transcribes audio using Whisper model",
+        "transcribe_audio_openai_whisper": "Transcribes audio using OpenAI Whisper API"
+      },
+      "dependencies": ["textract_utils", "s3_storage", "models_init", "redis_utils"],
+      "usage": "Called by main_pipeline.py based on file type"
+    },
+    {
+      "name": "textract_utils.py",
+      "path": "scripts/textract_utils.py",
+      "category": "text_extraction",
+      "description": "AWS Textract integration for document text detection and analysis",
+      "key_functions": {
+        "TextractProcessor.start_document_text_detection": "Starts async Textract job for PDF processing",
+        "TextractProcessor.get_text_detection_results": "Polls and retrieves Textract job results",
+        "TextractProcessor.process_textract_blocks_to_text": "Converts Textract blocks to text",
+        "TextractProcessor.get_cached_ocr_result": "Retrieves cached OCR results from Redis",
+        "TextractProcessor._cache_ocr_result": "Caches OCR results in Redis"
+      },
+      "dependencies": ["boto3", "supabase_utils", "redis_utils"],
+      "usage": "Called by ocr_extraction.py for PDF processing"
+    },
+    {
+      "name": "entity_extraction.py",
+      "path": "scripts/entity_extraction.py",
+      "category": "nlp_processing",
+      "description": "Extracts named entities from text chunks using local NER or OpenAI",
+      "key_functions": {
+        "extract_entities_from_chunk": "Stage-aware entity extraction with OpenAI fallback",
+        "extract_entities_openai": "OpenAI-based entity extraction with caching and rate limiting",
+        "extract_entities_local_ner": "Local NER pipeline extraction using BERT models"
+      },
+      "dependencies": ["models_init", "openai", "redis_utils"],
+      "usage": "Called by main_pipeline.py for each text chunk"
+    },
+    {
+      "name": "entity_resolution.py",
+      "path": "scripts/entity_resolution.py",
+      "category": "nlp_processing",
+      "description": "Resolves entity mentions to canonical entities within documents",
+      "key_functions": {
+        "resolve_document_entities": "Main function that resolves all entities in a document to canonical forms",
+        "resolve_entities_with_llm": "Uses LLM to resolve entities to canonical forms"
+      },
+      "dependencies": ["openai", "config"],
+      "usage": "Called by main_pipeline.py after entity extraction"
+    },
+    {
+      "name": "structured_extraction.py",
+      "path": "scripts/structured_extraction.py",
+      "category": "nlp_processing",
+      "description": "Extracts structured data from text using schema-based prompts",
+      "key_functions": {
+        "extract_structured_data": "Main function for structured data extraction",
+        "extract_structured_data_openai": "OpenAI-based structured extraction with caching",
+        "extract_structured_data_local": "Local model-based structured extraction",
+        "get_extraction_prompt": "Generates extraction prompts based on document category"
+      },
+      "dependencies": ["openai", "redis_utils", "models_init"],
+      "usage": "Called during text processing for structured data extraction"
+    },
+    {
+      "name": "text_processing.py",
+      "path": "scripts/text_processing.py",
+      "category": "nlp_processing",
+      "description": "Text cleaning, categorization, and semantic chunking",
+      "key_functions": {
+        "clean_extracted_text": "Cleans and normalizes extracted text",
+        "categorize_document_text": "Categorizes documents based on content",
+        "process_document_with_semantic_chunking": "Performs semantic chunking with optional structured extraction",
+        "process_and_insert_chunks": "Processes chunks and inserts them into database"
+      },
+      "dependencies": ["chunking_utils", "structured_extraction", "supabase_utils"],
+      "usage": "Called by main_pipeline.py for text processing"
+    },
+    {
+      "name": "chunking_utils.py",
+      "path": "scripts/chunking_utils.py",
+      "category": "nlp_processing",
+      "description": "Document chunking utilities with various strategies",
+      "key_functions": {
+        "chunk_document_hierarchical": "Performs hierarchical chunking with overlap",
+        "chunk_by_pages": "Chunks document based on page boundaries",
+        "chunk_by_sections": "Chunks document based on section headers",
+        "chunk_by_semantic_similarity": "Chunks based on semantic similarity",
+        "merge_small_chunks": "Merges small chunks to meet minimum size"
+      },
+      "dependencies": ["nltk", "config"],
+      "usage": "Called by text_processing.py for document chunking"
+    },
+    {
+      "name": "relationship_builder.py",
+      "path": "scripts/relationship_builder.py",
+      "category": "graph_processing",
+      "description": "Builds and stages relationships between entities for Neo4j",
+      "key_functions": {
+        "stage_structural_relationships": "Creates all structural relationships between document components"
+      },
+      "dependencies": ["supabase_utils"],
+      "usage": "Called by main_pipeline.py after entity resolution"
+    },
+    {
+      "name": "s3_storage.py",
+      "path": "scripts/s3_storage.py",
+      "category": "storage",
+      "description": "S3 storage management for documents",
+      "key_functions": {
+        "S3Storage.upload_document": "Uploads document to S3 with metadata",
+        "S3Storage.download_document": "Downloads document from S3",
+        "S3Storage.generate_presigned_url": "Generates presigned URL for document access",
+        "S3Storage.check_document_exists": "Checks if document exists in S3"
+      },
+      "dependencies": ["boto3", "config"],
+      "usage": "from scripts.s3_storage import S3Storage"
+    },
+    {
+      "name": "config.py",
+      "path": "scripts/config.py",
+      "category": "configuration",
+      "description": "Central configuration management with stage-aware settings",
+      "key_functions": {
+        "validate_deployment_stage": "Validates and returns deployment stage",
+        "StageConfig": "Class for stage-specific configuration management",
+        "get_redis_config_for_stage": "Gets Redis configuration based on deployment stage",
+        "validate_cloud_services": "Validates cloud service configurations",
+        "get_stage_info": "Gets comprehensive stage information",
+        "reset_stage_config": "Resets stage configuration for testing"
+      },
+      "environment_variables": [
+        "DEPLOYMENT_STAGE", "PROJECT_ID", "OPENAI_API_KEY", "AWS_ACCESS_KEY_ID",
+        "SUPABASE_URL", "REDIS_HOST", "S3_PRIMARY_DOCUMENT_BUCKET"
+      ],
+      "usage": "from scripts.config import DEPLOYMENT_STAGE, OPENAI_API_KEY"
+    },
+    {
+      "name": "models_init.py",
+      "path": "scripts/models_init.py",
+      "category": "ml_models",
+      "description": "Initializes and manages ML models based on deployment stage",
+      "key_functions": {
+        "should_load_local_models": "Determines if local models should be loaded",
+        "initialize_all_models": "Initializes all required models based on stage",
+        "get_qwen2_vl_ocr_model": "Gets Qwen2-VL OCR model instance",
+        "get_ner_pipeline": "Gets NER pipeline instance",
+        "get_whisper_model": "Gets Whisper model instance"
+      },
+      "dependencies": ["transformers", "torch", "config"],
+      "usage": "from scripts.models_init import initialize_all_models"
+    },
+    {
+      "name": "cache_keys.py",
+      "path": "scripts/cache_keys.py",
+      "category": "infrastructure",
+      "description": "Centralized cache key management for Redis",
+      "key_functions": {
+        "CacheKeys.format_key": "Formats cache key with parameters",
+        "CacheKeys.get_pattern": "Gets pattern for cache key type",
+        "CacheKeys.get_all_document_patterns": "Gets all cache patterns for a document",
+        "CacheKeys.get_cache_type_from_key": "Extracts cache type from key"
+      },
+      "cache_types": [
+        "DOC_STATE", "DOC_PROCESSING_LOCK", "TEXTRACT_JOB_STATUS",
+        "OCR_RESULT", "ENTITY_EXTRACTION", "STRUCTURED_EXTRACTION"
+      ],
+      "usage": "from scripts.cache_keys import CacheKeys"
+    },
+    {
+      "name": "cache_warmer.py",
+      "path": "scripts/cache_warmer.py",
+      "category": "performance",
+      "description": "Preloads frequently accessed data into Redis cache",
+      "key_functions": {
+        "run_cache_warming": "Main function to warm cache with recent documents",
+        "warm_document_cache": "Warms cache for a specific document",
+        "warm_entity_cache": "Preloads entity extraction results",
+        "warm_structured_cache": "Preloads structured extraction results"
+      },
+      "dependencies": ["redis_utils", "supabase_utils"],
+      "usage": "python scripts/cache_warmer.py or called by main_pipeline.py"
+    },
+    {
+      "name": "health_check.py",
+      "path": "scripts/health_check.py",
+      "category": "monitoring",
+      "description": "System health checks for all components",
+      "key_functions": {
+        "check_supabase_health": "Checks Supabase database connectivity",
+        "check_redis_health": "Checks Redis connectivity and performance",
+        "check_s3_health": "Checks S3 bucket accessibility",
+        "check_celery_health": "Checks Celery worker status",
+        "run_all_health_checks": "Runs all health checks and returns status"
+      },
+      "dependencies": ["supabase_utils", "redis_utils", "s3_storage"],
+      "usage": "python scripts/health_check.py"
+    },
+    {
+      "name": "logging_config.py",
+      "path": "scripts/logging_config.py",
+      "category": "infrastructure",
+      "description": "Centralized logging configuration",
+      "key_functions": {
+        "setup_logging": "Configures logging with file and console handlers",
+        "get_logger": "Gets configured logger instance for module"
+      },
+      "log_levels": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+      "usage": "from scripts.logging_config import get_logger"
+    },
+    {
+      "name": "task_coordinator.py",
+      "path": "scripts/task_coordinator.py",
+      "category": "task_management",
+      "description": "Coordinates complex multi-step processing tasks",
+      "key_functions": {
+        "coordinate_document_processing": "Orchestrates full document processing workflow",
+        "handle_task_failure": "Handles task failures with retry logic",
+        "update_task_progress": "Updates task progress in Redis"
+      },
+      "dependencies": ["celery_app", "redis_utils"],
+      "usage": "Called by Celery tasks for workflow coordination"
+    },
+    {
+      "name": "live_document_test.py",
+      "path": "scripts/live_document_test.py",
+      "category": "testing",
+      "description": "End-to-end testing script for document processing",
+      "key_functions": {
+        "test_document_upload": "Tests document upload to S3/Supabase",
+        "test_ocr_processing": "Tests OCR extraction",
+        "test_entity_extraction": "Tests entity extraction",
+        "run_full_pipeline_test": "Runs complete pipeline test"
+      },
+      "usage": "python scripts/live_document_test.py --document test.pdf"
+    },
+    {
+      "name": "test_multiple_documents.py",
+      "path": "scripts/test_multiple_documents.py",
+      "category": "testing",
+      "description": "Tests processing of multiple documents concurrently",
+      "key_functions": {
+        "test_batch_processing": "Tests batch document processing",
+        "measure_throughput": "Measures processing throughput"
+      },
+      "usage": "python scripts/test_multiple_documents.py --count 10"
+    },
+    {
+      "name": "monitor_live_test.py",
+      "path": "scripts/monitor_live_test.py",
+      "category": "testing",
+      "description": "Monitors live testing of document processing",
+      "key_functions": {
+        "monitor_test_progress": "Monitors test execution progress",
+        "collect_test_metrics": "Collects performance metrics during tests"
+      },
+      "usage": "python scripts/monitor_live_test.py"
+    },
+    {
+      "name": "generate_test_report.py",
+      "path": "scripts/generate_test_report.py",
+      "category": "testing",
+      "description": "Generates test reports from pipeline execution",
+      "key_functions": {
+        "generate_html_report": "Generates HTML test report",
+        "collect_test_results": "Collects test results from database",
+        "calculate_metrics": "Calculates performance metrics"
+      },
+      "usage": "python scripts/generate_test_report.py --output report.html"
+    },
+    {
+      "name": "migrate_to_celery.py",
+      "path": "scripts/migrate_to_celery.py",
+      "category": "migration",
+      "description": "Migrates existing queue items to Celery",
+      "key_functions": {
+        "migrate_pending_items": "Migrates pending queue items to Celery",
+        "verify_migration": "Verifies migration completeness"
+      },
+      "usage": "python scripts/migrate_to_celery.py"
+    },
+    {
+      "name": "migrate_to_optimized_redis.py",
+      "path": "scripts/migrate_to_optimized_redis.py",
+      "category": "migration",
+      "description": "Migrates Redis data to optimized structure",
+      "key_functions": {
+        "migrate_cache_keys": "Migrates cache keys to new format",
+        "optimize_data_structures": "Optimizes Redis data structures"
+      },
+      "usage": "python scripts/migrate_to_optimized_redis.py"
+    },
+    {
+      "name": "apply_celery_migrations.py",
+      "path": "scripts/apply_celery_migrations.py",
+      "category": "migration",
+      "description": "Applies Celery-related database migrations",
+      "key_functions": {
+        "apply_migrations": "Applies pending database migrations"
+      },
+      "usage": "python scripts/apply_celery_migrations.py"
+    },
+    {
+      "name": "execute_migration_steps.py",
+      "path": "scripts/execute_migration_steps.py",
+      "category": "migration",
+      "description": "Executes database migration steps",
+      "key_functions": {
+        "execute_migration": "Executes specific migration step"
+      },
+      "usage": "python scripts/execute_migration_steps.py --step 1"
+    },
+    {
+      "name": "recover_stuck_documents.py",
+      "path": "scripts/recover_stuck_documents.py",
+      "category": "maintenance",
+      "description": "Recovers documents stuck in processing",
+      "key_functions": {
+        "find_stuck_documents": "Finds documents stuck in processing state",
+        "reset_document_status": "Resets document status for reprocessing",
+        "resubmit_to_queue": "Resubmits stuck documents to processing queue"
+      },
+      "usage": "python scripts/recover_stuck_documents.py --hours 24"
+    },
+    {
+      "name": "fix_common_errors.py",
+      "path": "scripts/fix_common_errors.py",
+      "category": "maintenance",
+      "description": "Fixes common processing errors automatically",
+      "key_functions": {
+        "fix_encoding_errors": "Fixes text encoding issues",
+        "fix_missing_relationships": "Creates missing entity relationships",
+        "fix_orphaned_records": "Cleans up orphaned database records"
+      },
+      "usage": "python scripts/fix_common_errors.py --fix-all"
+    },
+    {
+      "name": "fix_triggers.py",
+      "path": "scripts/fix_triggers.py",
+      "category": "maintenance",
+      "description": "Fixes database triggers",
+      "key_functions": {
+        "fix_timestamp_triggers": "Fixes timestamp update triggers"
+      },
+      "usage": "python scripts/fix_triggers.py"
+    },
+    {
+      "name": "fix_celery_imports.py",
+      "path": "scripts/fix_celery_imports.py",
+      "category": "maintenance",
+      "description": "Fixes Celery import issues",
+      "key_functions": {
+        "fix_import_paths": "Fixes import paths for Celery tasks"
+      },
+      "usage": "python scripts/fix_celery_imports.py"
+    },
+    {
+      "name": "fix_openai_params.py",
+      "path": "scripts/fix_openai_params.py",
+      "category": "maintenance",
+      "description": "Fixes OpenAI API parameter issues",
+      "key_functions": {
+        "update_openai_params": "Updates OpenAI API calls to latest format"
+      },
+      "usage": "python scripts/fix_openai_params.py"
+    },
+    {
+      "name": "extract_current_schema.py",
+      "path": "scripts/extract_current_schema.py",
+      "category": "database",
+      "description": "Extracts current database schema",
+      "key_functions": {
+        "extract_schema": "Extracts complete database schema",
+        "generate_schema_docs": "Generates schema documentation"
+      },
+      "usage": "python scripts/extract_current_schema.py --output schema.sql"
+    },
+    {
+      "name": "apply_migration.py",
+      "path": "scripts/apply_migration.py",
+      "category": "database",
+      "description": "Applies database migrations",
+      "key_functions": {
+        "apply_migration_file": "Applies SQL migration file to database"
+      },
+      "usage": "python scripts/apply_migration.py --file migration.sql"
+    },
+    {
+      "name": "test_redis_connection.py",
+      "path": "scripts/test_redis_connection.py",
+      "category": "testing",
+      "description": "Tests Redis connection and basic operations",
+      "key_functions": {
+        "test_connection": "Tests Redis connectivity",
+        "test_operations": "Tests basic Redis operations"
+      },
+      "usage": "python scripts/test_redis_connection.py"
+    },
+    {
+      "name": "test_redis_cloud_connection.py",
+      "path": "scripts/test_redis_cloud_connection.py",
+      "category": "testing",
+      "description": "Tests Redis Cloud connection with advanced features",
+      "key_functions": {
+        "test_cloud_connection": "Tests Redis Cloud connectivity",
+        "test_performance": "Tests Redis Cloud performance",
+        "test_features": "Tests Redis Cloud specific features"
+      },
+      "usage": "python scripts/test_redis_cloud_connection.py"
+    },
+    {
+      "name": "start_celery_workers.sh",
+      "path": "scripts/start_celery_workers.sh",
+      "category": "deployment",
+      "description": "Shell script to start Celery workers with proper configuration",
+      "usage": "./scripts/start_celery_workers.sh"
+    },
+    {
+      "name": "stop_celery_workers.sh",
+      "path": "scripts/stop_celery_workers.sh",
+      "category": "deployment",
+      "description": "Shell script to stop all Celery workers",
+      "usage": "./scripts/stop_celery_workers.sh"
+    },
+    {
+      "name": "monitor_celery_workers.sh",
+      "path": "scripts/monitor_celery_workers.sh",
+      "category": "deployment",
+      "description": "Shell script to monitor Celery worker status",
+      "usage": "./scripts/monitor_celery_workers.sh"
+    },
+    {
+      "name": "start_flower_monitor.sh",
+      "path": "scripts/start_flower_monitor.sh",
+      "category": "monitoring",
+      "description": "Shell script to start Flower web-based Celery monitor",
+      "usage": "./scripts/start_flower_monitor.sh"
+    }
+  ],
+  "categories": {
+    "core_processing": "Main document processing pipeline components",
+    "document_intake": "Document ingestion and queue management",
+    "task_management": "Celery task queue and coordination",
+    "monitoring": "System monitoring and health checks",
+    "infrastructure": "Core infrastructure components (Redis, logging)",
+    "database": "Database operations and management",
+    "storage": "File storage operations (S3, Supabase)",
+    "text_extraction": "OCR and text extraction from documents",
+    "nlp_processing": "Natural language processing and analysis",
+    "graph_processing": "Neo4j graph relationship building",
+    "configuration": "System configuration management",
+    "ml_models": "Machine learning model management",
+    "performance": "Performance optimization utilities",
+    "testing": "Testing and validation scripts",
+    "migration": "Database and system migration scripts",
+    "maintenance": "System maintenance and error fixing",
+    "deployment": "Deployment and operational scripts"
+  },
+  "usage_patterns": {
+    "process_single_document": {
+      "description": "Process a single document through the entire pipeline",
+      "command": "python scripts/main_pipeline.py --mode direct --file /path/to/document.pdf"
+    },
+    "start_workers": {
+      "description": "Start Celery workers for distributed processing",
+      "command": "./scripts/start_celery_workers.sh"
+    },
+    "monitor_pipeline": {
+      "description": "Monitor pipeline status in real-time",
+      "command": "python scripts/pipeline_monitor.py --refresh 5"
+    },
+    "submit_documents": {
+      "description": "Submit documents from S3 to processing queue",
+      "command": "python scripts/queue_processor.py --mode submit --file s3://bucket/document.pdf --type pdf"
+    },
+    "health_check": {
+      "description": "Check health of all system components",
+      "command": "python scripts/health_check.py"
+    },
+    "recover_stuck": {
+      "description": "Recover documents stuck in processing",
+      "command": "python scripts/recover_stuck_documents.py --hours 24"
+    }
+  },
+  "dependencies_graph": {
+    "core": ["config.py", "redis_utils.py", "supabase_utils.py"],
+    "processing": ["main_pipeline.py", "ocr_extraction.py", "entity_extraction.py", "text_processing.py"],
+    "infrastructure": ["celery_app.py", "s3_storage.py", "cache_keys.py", "logging_config.py"],
+    "monitoring": ["pipeline_monitor.py", "health_check.py"]
+  }
+} 

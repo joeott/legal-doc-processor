@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(python:*)",
+      "Bash(apt-get:*)",
+      "Bash(apt-get install:*)",
+      "Bash(ls:*)",
+      "Bash(dpkg:*)",
+      "Bash(apt list:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(cp:*)",
+      "Bash(sed:*)",
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(sudo supervisorctl:*)",
+      "Bash(mv:*)",
+      "Bash(PYTHONPATH=/opt/legal-doc-processor python scripts/tests/test_schema_alignment.py)",
+      "Bash(PYTHONPATH=/opt/legal-doc-processor python3 scripts/tests/test_schema_alignment.py)",
+      "Bash(pip3 install:*)",
+      "Bash(PYTHONPATH=/opt/legal-doc-processor python3 scripts/tests/process_single_document.py \"/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf\")",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
