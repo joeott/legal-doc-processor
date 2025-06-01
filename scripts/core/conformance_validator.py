@@ -146,10 +146,17 @@ class ConformanceValidator:
         errors_found: int
     ):
         """Record validation metrics."""
+        # Calculate total fields checked from the models defined in the conformance engine
+        total_fields_checked_count = 0
+        if self.engine and hasattr(self.engine, 'MODEL_TABLE_MAP'):
+            for model_class in self.engine.MODEL_TABLE_MAP.keys():
+                if hasattr(model_class, 'model_fields'):
+                    total_fields_checked_count += len(model_class.model_fields)
+
         metrics = ValidationMetrics(
             validation_time=validation_time,
             tables_checked=report.total_tables,
-            fields_validated=sum(1 for _ in report.validation_results),
+            fields_validated=total_fields_checked_count, # Use the new calculation
             errors_found=errors_found,
             auto_fixable=sum(1 for i in report.issues if i.fix_sql),
             manual_required=sum(1 for i in report.issues if not i.fix_sql and i.severity == "error")

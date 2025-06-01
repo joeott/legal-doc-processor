@@ -2,6 +2,7 @@
 Consolidated PDF Processing Tasks for Celery.
 Combines all PDF processing tasks into a single module.
 """
+import os
 import uuid
 import logging
 from datetime import datetime
@@ -22,7 +23,7 @@ from scripts.chunking_utils import simple_chunk_text
 # from scripts.s3_storage import upload_to_s3, generate_s3_key  # Not used currently
 from scripts.core.pdf_models import PDFDocumentModel, ProcessingStatus
 from scripts.core.processing_models import ProcessingResultStatus
-from scripts.config import OPENAI_API_KEY, S3_PRIMARY_DOCUMENT_BUCKET
+from scripts.config import OPENAI_API_KEY, S3_PRIMARY_DOCUMENT_BUCKET, get_database_url
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +95,14 @@ class PDFTask(Task):
     @property
     def db_manager(self):
         if self._db_manager is None:
+            # Log database URL information before initialization
+            logger.info(f"PDFTask ({self.name}): Initializing db_manager. Raw DATABASE_URL from env: {os.getenv('DATABASE_URL')}")
+            try:
+                effective_url = get_database_url()
+                logger.info(f"PDFTask ({self.name}): Effective DATABASE_URL from config.get_database_url(): {effective_url}")
+            except Exception as e:
+                logger.error(f"PDFTask ({self.name}): Could not determine effective_url from get_database_url(): {e}")
+
             # Initialize with conformance validation
             self._db_manager = DatabaseManager(validate_conformance=True)
             self._conformance_validated = True

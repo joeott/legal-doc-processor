@@ -2,9 +2,18 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import logging
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file in the current script's directory
+load_dotenv(Path(__file__).resolve().parent / '.env')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# SQLAlchemy imports
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # Project Identification
 PROJECT_ID_GLOBAL = os.getenv("PROJECT_ID", "legal-docs-processing")
@@ -232,6 +241,17 @@ def get_database_url():
     
     # For development/staging, use tunnel connection
     return DATABASE_URL
+
+EFFECTIVE_DATABASE_URL = get_database_url()
+
+# Log the effective database URL
+logger.info(f"EFFECTIVE_DATABASE_URL: {EFFECTIVE_DATABASE_URL}")
+
+# Global SQLAlchemy engine
+db_engine = create_engine(EFFECTIVE_DATABASE_URL, **DB_POOL_CONFIG)
+
+# Global session factory
+DBSessionLocal = sessionmaker(bind=db_engine)
 
 # Apply stage-specific overrides
 FORCE_CLOUD_LLMS = stage_config.get("force_cloud_llms")
