@@ -35,28 +35,16 @@ T = TypeVar('T', bound=BaseModel)
 
 # ========== Connection Management ==========
 
-# Global engine and session factory
-DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL must be set in environment")
+# Import global engine and session factory from config
+from scripts.config import db_engine, DBSessionLocal
 
-from scripts.config import DB_POOL_CONFIG
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=DB_POOL_CONFIG['pool_size'],
-    max_overflow=DB_POOL_CONFIG['max_overflow'],
-    pool_timeout=DB_POOL_CONFIG['pool_timeout'],
-    pool_recycle=DB_POOL_CONFIG['pool_recycle'],
-    pool_pre_ping=DB_POOL_CONFIG['pool_pre_ping'],
-    connect_args=DB_POOL_CONFIG['connect_args']
-)
-
-SessionLocal = sessionmaker(bind=engine)
+# The engine is now db_engine from scripts.config
+engine = db_engine  # For backward compatibility if other modules import 'engine' from 'scripts.db'
+# SessionLocal is now DBSessionLocal from scripts.config
 
 def get_db():
     """Get database session with automatic cleanup."""
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         yield db
         db.commit()
@@ -351,36 +339,39 @@ class DatabaseManager:
             return True
             
         try:
-            from scripts.core.conformance_validator import ConformanceValidator, ConformanceError
-            
+            from scripts.core.conformance_validator import ConformanceValidator, ConformanceError # Keep import here
+
             validator = ConformanceValidator()
+            # Assuming validate_with_recovery returns: success (bool), report (ConformanceReport), recovery_actions (list)
             success, report, recovery_actions = validator.validate_with_recovery(auto_fix=False)
-            
+
             if not success:
+                # Extract critical issues from the report's issues list
                 error_issues = [i for i in report.issues if i.severity == "error"]
+                # Raise ConformanceError with the report for detailed diagnostics
                 raise ConformanceError(
-                    f"Schema conformance failure: {len(error_issues)} critical issues found",
+                    f"Schema conformance failure: {len(error_issues)} critical issues found. Recovery actions taken: {recovery_actions}",
                     report
                 )
-            
+
             self.conformance_validated = True
             logger.info("Database schema conformance validated successfully")
             return True
-            
+
         except ImportError:
-            # Conformance engine not available, continue without validation
-            logger.warning("Conformance engine not available, skipping validation")
-            self.conformance_validated = True
-            return True
-        except Exception as e:
-            logger.error(f"Conformance validation failed: {e}")
-            if "ConformanceError" in str(type(e)):
-                raise  # Re-raise conformance errors
-            else:
-                # Other errors, log but continue
-                logger.warning(f"Conformance validation error (continuing): {e}")
-                self.conformance_validated = True
-                return False
+            logger.warning("ConformanceValidator or related components import failed. Proceeding without schema conformance validation. THIS IS A DEGRADED STATE and may lead to runtime errors if the schema is incompatible.")
+            self.conformance_validated = True # Consistent with original behavior of allowing operation
+            return True # Indicate that, for the purpose of this check, we are proceeding as if validated (degraded mode)
+
+        except ConformanceError as ce:
+            logger.error(f"Caught schema conformance failure: {ce}") # Log the error message from ConformanceError
+            self.conformance_validated = False # Mark as not conformant
+            raise # Re-raise the ConformanceError to be handled by the caller
+
+        except Exception as e: # Catch any other unexpected exceptions during the validation process
+            logger.critical(f"Unexpected critical error during conformance validation: {e}", exc_info=True)
+            self.conformance_validated = False # Do not mark as validated
+            raise # Re-raise to prevent proceeding with a potentially compromised DatabaseManager
     
     def get_session(self):
         """Get database session with automatic cleanup and conformance validation."""
@@ -403,7 +394,7 @@ class DatabaseManager:
         if not self.conformance_validated:
             self.validate_conformance()
             
-        session = SessionLocal()
+        session = DBSessionLocal()
         try:
             result = operations(session, *args, **kwargs)
             session.commit()
@@ -783,5 +774,6 @@ __all__ = [
     # Functions
     'get_database_manager',
     'get_supabase_manager',
-    'get_db'  # Export the RDS session getter instead
+    'get_db',  # Export the RDS session getter instead
+    'engine'   # Export the engine for backward compatibility
 ]

@@ -16,46 +16,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Load environment variables
-from dotenv import load_dotenv
+# Import global engine and session factory from config
+from scripts.config import db_engine, DBSessionLocal
 
-# Try to find and load .env file
-env_path = Path(__file__).parent.parent / '.env'
-if env_path.exists():
-    load_dotenv(env_path)
-
-# Get connection from environment
-DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL must be set in environment")
-
-try:
-    from scripts.config import DB_POOL_CONFIG
-except ImportError:
-    # Fallback if config not available
-    DB_POOL_CONFIG = {
-        'pool_size': 20,
-        'max_overflow': 40,
-        'pool_timeout': 30,
-        'pool_recycle': 3600,
-        'pool_pre_ping': True,
-        'connect_args': {
-            'connect_timeout': 10,
-            'options': '-c statement_timeout=30000'
-        }
-    }
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=DB_POOL_CONFIG['pool_size'],
-    max_overflow=DB_POOL_CONFIG['max_overflow'],
-    pool_timeout=DB_POOL_CONFIG['pool_timeout'],
-    pool_recycle=DB_POOL_CONFIG['pool_recycle'],
-    pool_pre_ping=DB_POOL_CONFIG['pool_pre_ping'],
-    connect_args=DB_POOL_CONFIG['connect_args']
-)
-
-SessionLocal = sessionmaker(bind=engine)
+# DATABASE_URL, engine, SessionLocal, and DB_POOL_CONFIG are now sourced from scripts.config
+# The engine is db_engine from scripts.config
+# SessionLocal is DBSessionLocal from scripts.config
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +29,7 @@ logger = logging.getLogger(__name__)
 def test_connection() -> bool:
     """Test database connection"""
     try:
-        db = SessionLocal()
+        db = DBSessionLocal()
         result = db.execute(text("SELECT 1"))
         db.close()
         return bool(result.scalar())
@@ -74,7 +40,7 @@ def test_connection() -> bool:
 
 def execute_query(query: str, params: dict = None) -> List[Dict[str, Any]]:
     """Execute a query - direct replacement for supabase.rpc()"""
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Serialize dict/list parameters to JSON
         if params:
@@ -270,7 +236,7 @@ def insert_record(table_name: str, data: Dict[str, Any]) -> Optional[Dict[str, A
             else:
                 filtered_data[key] = value
     
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Build insert query with filtered data
         columns = ', '.join(filtered_data.keys())
@@ -310,7 +276,7 @@ def update_record(table_name: str, data: Dict[str, Any], where: Dict[str, Any]) 
         if isinstance(value, (dict, list)):
             mapped_data[key] = json.dumps(value)
     
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Build update query
         set_clause = ', '.join([f"{k} = :{k}" for k in mapped_data.keys()])
@@ -355,7 +321,7 @@ def select_records(
     actual_table = map_table_name(table_name)
     mapped_where = map_columns(table_name, where) if where else None
     
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Build select query
         query_str = f"SELECT * FROM {actual_table}"
@@ -398,7 +364,7 @@ def delete_records(table_name: str, where: Dict[str, Any]) -> int:
     actual_table = map_table_name(table_name)
     mapped_where = map_columns(table_name, where)
     
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         where_clause = ' AND '.join([f"{k} = :{k}" for k in mapped_where.keys()])
         query = text(f"""
@@ -452,7 +418,7 @@ def batch_insert(table_name: str, records: List[Dict[str, Any]]) -> int:
     if not records:
         return 0
     
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Use executemany for efficiency
         columns = list(records[0].keys())
@@ -480,7 +446,7 @@ def batch_insert(table_name: str, records: List[Dict[str, Any]]) -> int:
 # Health check
 def health_check() -> Dict[str, Any]:
     """Check database health and return stats"""
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         # Check connection
         result = db.execute(text("SELECT version()"))
@@ -517,7 +483,7 @@ def health_check() -> Dict[str, Any]:
 # Utility function to check if table exists
 def table_exists(table_name: str) -> bool:
     """Check if a table exists in the database"""
-    db = SessionLocal()
+    db = DBSessionLocal()
     try:
         query = text("""
             SELECT EXISTS (
