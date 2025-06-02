@@ -1,0 +1,333 @@
+{
+  "verification_timestamp": "2025-06-02T22:30:08.124552",
+  "documents_tested": 5,
+  "fully_processed": 0,
+  "stage_completions": {
+    "OCR Extraction": 1,
+    "Text Chunking": 1,
+    "Entity Extraction": 1,
+    "Entity Resolution": 1,
+    "Relationship Building": 0,
+    "Pipeline Completion": 0
+  },
+  "detailed_results": [
+    {
+      "document_uuid": "51416a32-49e2-43ed-a18a-66aecfd12e4d",
+      "file_name": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "stages_completed": "0/6",
+      "fully_processed": false,
+      "stages": [
+        {
+          "stage": "OCR Extraction",
+          "completed": false,
+          "has_text": false,
+          "text_length": 0,
+          "provider": null,
+          "textract_job_id": null,
+          "textract_status": null,
+          "cached": false
+        },
+        {
+          "stage": "Text Chunking",
+          "completed": false,
+          "chunk_count": 0,
+          "total_characters": 0,
+          "chunk_indices": "0-0",
+          "unique_chunks": 0,
+          "sample_chunk_length": 0,
+          "cached": false
+        },
+        {
+          "stage": "Entity Extraction",
+          "completed": false,
+          "total_mentions": 0,
+          "unique_texts": 0,
+          "entity_types": {},
+          "types_found": [],
+          "cached": false
+        },
+        {
+          "stage": "Entity Resolution",
+          "completed": false,
+          "mentions_resolved": 0,
+          "total_mentions": 0,
+          "resolution_rate": "0%",
+          "canonical_entities": 0,
+          "deduplication_rate": "0%",
+          "by_type": {}
+        },
+        {
+          "stage": "Relationship Building",
+          "completed": false,
+          "status": "not_started",
+          "relationship_count": 0,
+          "relationship_types": "unknown"
+        },
+        {
+          "stage": "Pipeline Completion",
+          "completed": false,
+          "database_status": "pending",
+          "redis_status": "unknown",
+          "completion_time": null
+        }
+      ]
+    },
+    {
+      "document_uuid": "5805f7b5-09ca-4f95-a990-da2dd758fd9e",
+      "file_name": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "stages_completed": "4/6",
+      "fully_processed": false,
+      "stages": [
+        {
+          "stage": "OCR Extraction",
+          "completed": true,
+          "has_text": true,
+          "text_length": 3278,
+          "provider": "AWS Textract",
+          "textract_job_id": "3b2052d56be96b739a7245ea1a36a6e434993b63b02bb98fa7034cb544cca8ad",
+          "textract_status": "SUCCEEDED",
+          "cached": true
+        },
+        {
+          "stage": "Text Chunking",
+          "completed": true,
+          "chunk_count": 4,
+          "total_characters": 3878,
+          "chunk_indices": "0-3",
+          "unique_chunks": 4,
+          "sample_chunk_length": 1000,
+          "cached": false
+        },
+        {
+          "stage": "Entity Extraction",
+          "completed": true,
+          "total_mentions": 8,
+          "unique_texts": 8,
+          "entity_types": {
+            "ORG": 6,
+            "DATE": 1,
+            "PERSON": 1
+          },
+          "types_found": [
+            "ORG",
+            "DATE",
+            "PERSON"
+          ],
+          "cached": false
+        },
+        {
+          "stage": "Entity Resolution",
+          "completed": true,
+          "mentions_resolved": 8,
+          "total_mentions": 8,
+          "resolution_rate": "100.0%",
+          "canonical_entities": 0,
+          "deduplication_rate": "0%",
+          "by_type": {
+            "unresolved": {
+              "canonical": 0,
+              "mentions": 8
+            }
+          }
+        },
+        {
+          "stage": "Relationship Building",
+          "completed": false,
+          "status": "not_started",
+          "relationship_count": 0,
+          "relationship_types": "unknown"
+        },
+        {
+          "stage": "Pipeline Completion",
+          "completed": false,
+          "database_status": "pending",
+          "redis_status": "processing",
+          "completion_time": null
+        }
+      ]
+    },
+    {
+      "document_uuid": "1bdb406f-d9a4-4bc2-9d57-85354be89e15",
+      "file_name": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "stages_completed": "0/6",
+      "fully_processed": false,
+      "stages": [
+        {
+          "stage": "OCR Extraction",
+          "completed": false,
+          "has_text": false,
+          "text_length": 0,
+          "provider": null,
+          "textract_job_id": null,
+          "textract_status": null,
+          "cached": false
+        },
+        {
+          "stage": "Text Chunking",
+          "completed": false,
+          "chunk_count": 0,
+          "total_characters": 0,
+          "chunk_indices": "0-0",
+          "unique_chunks": 0,
+          "sample_chunk_length": 0,
+          "cached": false
+        },
+        {
+          "stage": "Entity Extraction",
+          "completed": false,
+          "total_mentions": 0,
+          "unique_texts": 0,
+          "entity_types": {},
+          "types_found": [],
+          "cached": false
+        },
+        {
+          "stage": "Entity Resolution",
+          "completed": false,
+          "mentions_resolved": 0,
+          "total_mentions": 0,
+          "resolution_rate": "0%",
+          "canonical_entities": 0,
+          "deduplication_rate": "0%",
+          "by_type": {}
+        },
+        {
+          "stage": "Relationship Building",
+          "completed": false,
+          "status": "not_started",
+          "relationship_count": 0,
+          "relationship_types": "unknown"
+        },
+        {
+          "stage": "Pipeline Completion",
+          "completed": false,
+          "database_status": "pending",
+          "redis_status": "unknown",
+          "completion_time": null
+        }
+      ]
+    },
+    {
+      "document_uuid": "b5110970-2234-489b-b55d-2c7ddd8f3db3",
+      "file_name": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "stages_completed": "0/6",
+      "fully_processed": false,
+      "stages": [
+        {
+          "stage": "OCR Extraction",
+          "completed": false,
+          "has_text": false,
+          "text_length": 0,
+          "provider": null,
+          "textract_job_id": null,
+          "textract_status": null,
+          "cached": false
+        },
+        {
+          "stage": "Text Chunking",
+          "completed": false,
+          "chunk_count": 0,
+          "total_characters": 0,
+          "chunk_indices": "0-0",
+          "unique_chunks": 0,
+          "sample_chunk_length": 0,
+          "cached": false
+        },
+        {
+          "stage": "Entity Extraction",
+          "completed": false,
+          "total_mentions": 0,
+          "unique_texts": 0,
+          "entity_types": {},
+          "types_found": [],
+          "cached": false
+        },
+        {
+          "stage": "Entity Resolution",
+          "completed": false,
+          "mentions_resolved": 0,
+          "total_mentions": 0,
+          "resolution_rate": "0%",
+          "canonical_entities": 0,
+          "deduplication_rate": "0%",
+          "by_type": {}
+        },
+        {
+          "stage": "Relationship Building",
+          "completed": false,
+          "status": "not_started",
+          "relationship_count": 0,
+          "relationship_types": "unknown"
+        },
+        {
+          "stage": "Pipeline Completion",
+          "completed": false,
+          "database_status": "pending",
+          "redis_status": "unknown",
+          "completion_time": null
+        }
+      ]
+    },
+    {
+      "document_uuid": "969ae521-f539-48e6-b83d-2397fe2a4148",
+      "file_name": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "stages_completed": "0/6",
+      "fully_processed": false,
+      "stages": [
+        {
+          "stage": "OCR Extraction",
+          "completed": false,
+          "has_text": false,
+          "text_length": 0,
+          "provider": null,
+          "textract_job_id": null,
+          "textract_status": null,
+          "cached": false
+        },
+        {
+          "stage": "Text Chunking",
+          "completed": false,
+          "chunk_count": 0,
+          "total_characters": 0,
+          "chunk_indices": "0-0",
+          "unique_chunks": 0,
+          "sample_chunk_length": 0,
+          "cached": false
+        },
+        {
+          "stage": "Entity Extraction",
+          "completed": false,
+          "total_mentions": 0,
+          "unique_texts": 0,
+          "entity_types": {},
+          "types_found": [],
+          "cached": false
+        },
+        {
+          "stage": "Entity Resolution",
+          "completed": false,
+          "mentions_resolved": 0,
+          "total_mentions": 0,
+          "resolution_rate": "0%",
+          "canonical_entities": 0,
+          "deduplication_rate": "0%",
+          "by_type": {}
+        },
+        {
+          "stage": "Relationship Building",
+          "completed": false,
+          "status": "not_started",
+          "relationship_count": 0,
+          "relationship_types": "unknown"
+        },
+        {
+          "stage": "Pipeline Completion",
+          "completed": false,
+          "database_status": "pending",
+          "redis_status": "unknown",
+          "completion_time": null
+        }
+      ]
+    }
+  ]
+}

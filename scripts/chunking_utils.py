@@ -1,5 +1,5 @@
 """
-Utilities for chunking document text into semantic chunks that align with the Supabase schema.
+Utilities for chunking document text into semantic chunks that align with the RDS schema.
 """
 import logging
 import re

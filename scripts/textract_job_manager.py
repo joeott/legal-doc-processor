@@ -37,6 +37,11 @@ class TextractJobManager:
             job_id if successful, None otherwise
         """
         try:
+            # Log environment check
+            import os
+            logger.info(f"AWS_ACCESS_KEY_ID available: {bool(os.getenv('AWS_ACCESS_KEY_ID'))}")
+            logger.info(f"S3_BUCKET_REGION: {os.getenv('S3_BUCKET_REGION')}")
+            
             # Parse S3 location
             if not file_path.startswith('s3://'):
                 logger.error(f"File path must be S3 URI, got: {file_path}")
@@ -87,6 +92,17 @@ class TextractJobManager:
                 
         except Exception as e:
             logger.error(f"Failed to start Textract job: {e}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            logger.error(f"S3 location was: s3://{bucket_name}/{s3_key}")
+            
+            # Check if it's a credentials issue
+            import botocore.exceptions
+            if isinstance(e, botocore.exceptions.NoCredentialsError):
+                logger.error("NO AWS CREDENTIALS FOUND!")
+            elif isinstance(e, botocore.exceptions.ClientError):
+                error_code = e.response.get('Error', {}).get('Code', 'Unknown')
+                logger.error(f"AWS Client Error Code: {error_code}")
+                
             return None
     
     def check_job_status(self, job_id: str) -> Optional[str]:
@@ -203,9 +219,11 @@ class TextractJobManager:
                              error_message: Optional[str] = None):
         """Update document status in database"""
         try:
+            logger.info(f"Attempting to update document {document_uuid} with job_id={job_id}, status={status}")
             db_manager = DatabaseManager(validate_conformance=False)
             
-            with db_manager.get_session() as session:
+            session = next(db_manager.get_session())
+            try:
                 from sqlalchemy import text
                 
                 update_query = text("""
@@ -217,16 +235,21 @@ class TextractJobManager:
                     WHERE document_uuid = :doc_uuid
                 """)
                 
-                session.execute(update_query, {
+                result = session.execute(update_query, {
                     'job_id': job_id,
                     'status': status,
                     'error_msg': error_message,
-                    'doc_uuid': document_uuid
+                    'doc_uuid': str(document_uuid)  # Ensure string conversion
                 })
                 session.commit()
+                logger.info(f"Updated {result.rowcount} rows for document {document_uuid}")
+            finally:
+                session.close()
                 
         except Exception as e:
             logger.error(f"Failed to update document status: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
     
     def cache_ocr_results(self, document_uuid: str, text: str, metadata: Dict[str, Any]):
         """Cache OCR results for document"""

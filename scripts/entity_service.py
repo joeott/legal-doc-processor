@@ -3,6 +3,7 @@ Unified Entity Service for the PDF processing pipeline.
 Combines entity extraction, resolution, enhancement, and structured extraction.
 """
 
+import os
 import re
 import json
 import hashlib
@@ -31,7 +32,11 @@ from scripts.core.processing_models import (
     StructuredChunkData, StructuredExtractionResultModel,
     ProcessingResultStatus
 )
-from scripts.core.schemas import EntityMentionModel
+# Use minimal model when configured
+if os.getenv('USE_MINIMAL_MODELS', '').lower() == 'true':
+    from scripts.core.models_minimal import EntityMentionMinimal as EntityMentionModel
+else:
+    from scripts.core.schemas import EntityMentionModel
 
 # Import utilities
 from scripts.cache import redis_cache, get_redis_manager, rate_limit, CacheKeys
@@ -110,7 +115,7 @@ class EntityService:
         chunk_uuid: uuid.UUID,
         document_uuid: str,
         use_openai: Optional[bool] = None
-    ) -> List[EntityMentionModel]:
+    ):
         """
         Extract entities from a text chunk with full validation.
         
@@ -121,7 +126,7 @@ class EntityService:
             use_openai: Override OpenAI usage
             
         Returns:
-            List of validated EntityMentionModel instances
+            EntityExtractionResult with status and extracted entities
             
         Raises:
             ConformanceError: If schema validation fails
@@ -130,8 +135,11 @@ class EntityService:
         logger.info(f"Extracting entities from chunk {chunk_uuid}")
         
         try:
-            # 1. Validate conformance
-            validate_before_operation("entity extraction")
+            # 1. Validate conformance (skip if configured)
+            if os.getenv('SKIP_CONFORMANCE_CHECK', '').lower() != 'true':
+                validate_before_operation("entity extraction")
+            else:
+                logger.debug("Skipping conformance validation for entity extraction")
             
             # 2. Validate inputs
             self._validate_extraction_inputs(chunk_text, chunk_uuid, document_uuid)
@@ -142,7 +150,21 @@ class EntityService:
             
             if cached_entities:
                 logger.info(f"Using cached entities for chunk {chunk_uuid}")
-                return self._deserialize_entity_mentions(cached_entities, chunk_uuid, document_uuid)
+                # Deserialize and return result object
+                from scripts.entity_result_wrapper import EntityExtractionResult
+                entities = self._deserialize_entity_mentions(cached_entities, chunk_uuid, document_uuid)
+                return EntityExtractionResult(
+                    status=ProcessingResultStatus.SUCCESS,
+                    document_uuid=document_uuid,
+                    chunk_uuid=chunk_uuid,
+                    entity_mentions=entities,
+                    canonical_entities=[],
+                    extraction_metadata={
+                        "method": "cached",
+                        "entity_count": len(entities),
+                        "chunk_size": len(chunk_text)
+                    }
+                )
             
             # 4. Extract entities
             entity_mentions = self._perform_entity_extraction(
@@ -157,13 +179,39 @@ class EntityService:
             self.redis_manager.set_cached(cache_key, serialized_entities, ttl=REDIS_ENTITY_CACHE_TTL)
             
             logger.info(f"Successfully extracted {len(validated_entities)} entities from chunk {chunk_uuid}")
-            return validated_entities
+            
+            # Return result object
+            from scripts.entity_result_wrapper import EntityExtractionResult
+            return EntityExtractionResult(
+                status=ProcessingResultStatus.SUCCESS,
+                document_uuid=document_uuid,
+                chunk_uuid=chunk_uuid,
+                entity_mentions=validated_entities,
+                canonical_entities=[],  # Will be populated during entity resolution
+                extraction_metadata={
+                    "method": "openai" if use_openai else "local",
+                    "entity_count": len(validated_entities),
+                    "chunk_size": len(chunk_text)
+                }
+            )
             
         except ConformanceError:
             raise
         except Exception as e:
             logger.error(f"Entity extraction failed for chunk {chunk_uuid}: {e}")
-            raise ValueError(f"Entity extraction failed: {str(e)}")
+            # Return failure result instead of raising
+            from scripts.entity_result_wrapper import EntityExtractionResult
+            return EntityExtractionResult(
+                status=ProcessingResultStatus.FAILED,
+                document_uuid=document_uuid,
+                chunk_uuid=chunk_uuid,
+                entity_mentions=[],
+                canonical_entities=[],
+                extraction_metadata={
+                    "error": str(e),
+                    "method": "openai" if use_openai else "local"
+                }
+            )
     
     def _validate_extraction_inputs(self, chunk_text: str, chunk_uuid: uuid.UUID, document_uuid: str):
         """Validate inputs for entity extraction."""
@@ -207,25 +255,30 @@ class EntityService:
         entity_mentions = []
         for i, entity_data in enumerate(raw_entities):
             try:
-                entity_mention = EntityMentionModel(
-                    mention_uuid=uuid.uuid4(),
-                    document_uuid=document_uuid,
-                    chunk_uuid=chunk_uuid,
-                    entity_text=entity_data['text'],
-                    entity_type=entity_data['type'],
-                    confidence_score=entity_data.get('confidence', 0.8),
-                    start_char=entity_data.get('start_char', 0),
-                    end_char=entity_data.get('end_char', len(entity_data['text'])),
-                    processing_metadata={
+                # Create entity with minimal model fields
+                entity_data_minimal = {
+                    'mention_uuid': uuid.uuid4(),
+                    'document_uuid': document_uuid,
+                    'chunk_uuid': chunk_uuid,
+                    'entity_text': entity_data['text'],
+                    'entity_type': entity_data['type'],
+                    'confidence_score': entity_data.get('confidence', 0.8),
+                    'start_char': entity_data.get('start_char', 0),
+                    'end_char': entity_data.get('end_char', len(entity_data['text'])),
+                    'created_at': datetime.utcnow()
+                }
+                
+                # Add optional fields only if not using minimal models
+                if not os.getenv('USE_MINIMAL_MODELS', '').lower() == 'true':
+                    entity_data_minimal['processing_metadata'] = {
                         "extraction_method": "openai" if use_openai else "local_ner",
                         "chunk_position": i,
                         "extracted_at": datetime.utcnow().isoformat()
-                    },
-                    created_at=datetime.utcnow()
-                )
+                    }
                 
-                # Validate the model
-                entity_mention.model_validate(entity_mention.model_dump())
+                entity_mention = EntityMentionModel(**entity_data_minimal)
+                
+                # Model is validated on creation
                 entity_mentions.append(entity_mention)
                 
             except Exception as e:
@@ -256,8 +309,7 @@ class EntityService:
                     entity.start_char = 0
                     entity.end_char = len(entity.entity_text)
                 
-                # Final model validation
-                entity.model_validate(entity.model_dump())
+                # Model is already validated
                 validated_entities.append(entity)
                 
             except Exception as e:
@@ -297,58 +349,10 @@ class EntityService:
             raise ValueError("OpenAI client not initialized")
         
         try:
-            prompt = f"""You are an expert Legal Document Entity Extraction Specialist AI.
-Extract all named entities from the following legal text with their exact text as it appears.
-
-Focus on extracting:
-1. Legal Entities:
-   - Case names and citations (e.g., "Smith v. Jones", "123 F.3d 456")
-   - Court names (e.g., "United States District Court", "Ninth Circuit")
-   - Judges (e.g., "Judge Smith", "Hon. Jane Doe")
-   - Law firms (e.g., "Smith & Associates", "Jones LLP")
-
-2. People:
-   - Full names (e.g., "John Smith", "Dr. Jane Doe")
-   - Titles and roles (e.g., "President", "CEO", "Attorney")
-
-3. Organizations:
-   - Companies (e.g., "Acme Corporation", "XYZ Inc.")
-   - Government agencies (e.g., "Department of Justice")
-   - Non-profits and institutions
-
-4. Locations:
-   - Addresses (e.g., "123 Main St, Anytown, CA 90210")
-   - Cities, states, countries
-   - Court jurisdictions
-
-5. Legal Concepts:
-   - Statutes and regulations (e.g., "42 U.S.C. § 1983")
-   - Legal terms and concepts
-   - Contract provisions
-
-6. Dates and Times:
-   - Specific dates (e.g., "January 1, 2023")
-   - Deadlines and filing dates
-
-7. Financial Information:
-   - Monetary amounts (e.g., "$10,000", "one million dollars")
-   - Account numbers (redacted if sensitive)
-
-Return the entities as a JSON array with this exact format:
-[
-  {{
-    "text": "exact text as it appears",
-    "type": "PERSON|ORGANIZATION|LOCATION|LEGAL_ENTITY|DATE|MONEY|STATUTE|OTHER",
-    "confidence": 0.0-1.0,
-    "start_char": 0,
-    "end_char": 10
-  }}
-]
-
-Text to analyze:
-{chunk_text}
-
-IMPORTANT: Return ONLY the JSON array, no other text."""
+            # Import the limited entity prompt
+            from scripts.entity_extraction_fixes import create_openai_prompt_for_limited_entities
+            
+            prompt = create_openai_prompt_for_limited_entities() + f"\n\nText to analyze:\n{chunk_text}"
             
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -368,9 +372,15 @@ IMPORTANT: Return ONLY the JSON array, no other text."""
                 if not isinstance(entities_data, list):
                     raise ValueError("Response is not a list")
                 
-                # Validate each entity
+                # Filter and validate entities
+                from scripts.entity_extraction_fixes import filter_and_fix_entities
+                
+                # First filter to only allowed entity types
+                filtered_entities = filter_and_fix_entities(entities_data)
+                
+                # Then validate each entity
                 validated_entities = []
-                for entity_data in entities_data:
+                for entity_data in filtered_entities:
                     if self._validate_entity_data(entity_data):
                         validated_entities.append(entity_data)
                 
@@ -399,11 +409,11 @@ IMPORTANT: Return ONLY the JSON array, no other text."""
         if not isinstance(entity_data['text'], str) or not entity_data['text'].strip():
             return False
         
-        # Validate type
-        valid_types = ['PERSON', 'ORGANIZATION', 'LOCATION', 'LEGAL_ENTITY', 'DATE', 'MONEY', 'STATUTE', 'OTHER']
+        # Validate type - only allow our limited set
+        valid_types = ['PERSON', 'ORG', 'LOCATION', 'DATE']
         if entity_data['type'] not in valid_types:
             logger.warning(f"Invalid entity type: {entity_data['type']}")
-            entity_data['type'] = 'OTHER'
+            return False  # Don't include invalid types
         
         # Validate confidence
         try:

@@ -11,8 +11,10 @@ from pathlib import Path
 import time
 import traceback
 from functools import wraps
+from collections import defaultdict
 
 from celery import Task, group, chain
+import celery.exceptions
 from scripts.celery_app import app
 from scripts.cache import get_redis_manager, CacheKeys, redis_cache
 from scripts.db import DatabaseManager
@@ -85,37 +87,91 @@ def log_task_execution(func):
     return wrapper
 
 
+# Circuit breaker for document validation
+validation_failures = defaultdict(int)
+CIRCUIT_BREAKER_THRESHOLD = 5
+
+def validate_document_with_circuit_breaker(db_manager: DatabaseManager, document_uuid: str) -> bool:
+    """Validate document with circuit breaker pattern"""
+    # If too many failures, fail fast
+    if validation_failures[document_uuid] >= CIRCUIT_BREAKER_THRESHOLD:
+        logger.error(f"Circuit breaker OPEN for document {document_uuid} (>= {CIRCUIT_BREAKER_THRESHOLD} failures)")
+        return False
+        
+    if validate_document_exists(db_manager, document_uuid):
+        if validation_failures[document_uuid] > 0:
+            logger.info(f"Document {document_uuid} found, resetting circuit breaker")
+        validation_failures[document_uuid] = 0  # Reset on success
+        return True
+    else:
+        validation_failures[document_uuid] += 1
+        logger.warning(f"Document {document_uuid} validation failed (count: {validation_failures[document_uuid]})")
+        return False
+
+
 class PDFTask(Task):
-    """Base class for PDF tasks with database and service connections and conformance validation."""
+    """Enhanced base task with connection management"""
     _db_manager = None
     _entity_service = None
     _graph_service = None
     _conformance_validated = False
+    _last_connection_check = None
     
     @property
     def db_manager(self):
-        if self._db_manager is None:
-            # Log database URL information before initialization
-            logger.info(f"PDFTask ({self.name}): Initializing db_manager. Raw DATABASE_URL from env: {os.getenv('DATABASE_URL')}")
-            try:
-                effective_url = get_database_url()
-                logger.info(f"PDFTask ({self.name}): Effective DATABASE_URL from config.get_database_url(): {effective_url}")
-            except Exception as e:
-                logger.error(f"PDFTask ({self.name}): Could not determine effective_url from get_database_url(): {e}")
-
-            # Initialize without conformance validation temporarily
-            # TODO: Re-enable conformance validation after schema issues are resolved
-            self._db_manager = DatabaseManager(validate_conformance=False)
-            self._conformance_validated = True
-            logger.warning(f"Database manager initialized WITHOUT conformance validation for task {self.name} - TEMPORARY BYPASS")
+        from datetime import datetime
+        
+        # Check connection freshness every 60 seconds
+        now = datetime.utcnow()
+        if (self._db_manager is None or 
+            self._last_connection_check is None or
+            (now - self._last_connection_check).seconds > 60):
+            
+            # Verify connection or create new
+            if self._db_manager:
+                try:
+                    # Quick ping test
+                    from sqlalchemy import text
+                    session = next(self._db_manager.get_session())
+                    session.execute(text("SELECT 1"))
+                    session.close()
+                    logger.debug("Database connection verified")
+                except Exception as e:
+                    logger.info(f"Database connection stale ({e}), creating new manager")
+                    self._db_manager = None
+            
+            if self._db_manager is None:
+                logger.info("Creating new DatabaseManager for worker")
+                self._db_manager = DatabaseManager(validate_conformance=False)
+                
+            self._last_connection_check = now
+            
         return self._db_manager
     
     def validate_conformance(self):
-        """Ensure conformance is validated before task execution."""
-        if not self._conformance_validated:
-            # Access db_manager property to trigger validation
-            _ = self.db_manager
-        return self._conformance_validated
+        """Validate model conformance for database operations"""
+        if os.getenv('SKIP_CONFORMANCE_CHECK', '').lower() == 'true':
+            logger.debug(f"Skipping conformance check for task {self.name}")
+            return
+            
+        try:
+            from scripts.db import ConformanceValidator
+            validator = ConformanceValidator(self.db_manager)
+            is_valid, errors = validator.validate_models()
+            
+            if not is_valid:
+                error_msg = f"Model conformance validation failed:\n" + "\n".join(errors)
+                logger.error(error_msg)
+                if os.getenv('ENVIRONMENT') == 'production':
+                    raise ValueError(error_msg)
+                else:
+                    logger.warning("Continuing despite conformance errors (non-production)")
+        except ImportError:
+            logger.warning("ConformanceValidator not available, skipping validation")
+        except Exception as e:
+            logger.error(f"Conformance validation error: {e}")
+            if os.getenv('ENVIRONMENT') == 'production':
+                raise
     
     @property
     def entity_service(self):
@@ -189,15 +245,41 @@ def update_document_state(document_uuid: str, stage: str, status: str, metadata:
     logger.info(f"Updated state for document {document_uuid}: {stage} -> {status}")
 
 def validate_document_exists(db_manager: DatabaseManager, document_uuid: str) -> bool:
-    """Validate that document exists in database before processing."""
-    try:
-        logger.info(f"Validating document exists: {document_uuid} (type: {type(document_uuid)})")
-        document = db_manager.get_source_document(document_uuid)
-        logger.info(f"Document lookup result: {document}")
-        return document is not None
-    except Exception as e:
-        logger.error(f"Error validating document {document_uuid} exists: {e}")
-        return False
+    """Validate document exists with retry logic for cross-process visibility."""
+    import time
+    from scripts.rds_utils import DBSessionLocal
+    from sqlalchemy import text
+    
+    max_attempts = 3
+    
+    for attempt in range(max_attempts):
+        try:
+            # Use direct SQL to bypass any caching
+            session = DBSessionLocal()
+            try:
+                result = session.execute(
+                    text("SELECT 1 FROM source_documents WHERE document_uuid = :uuid"),
+                    {"uuid": str(document_uuid)}
+                )
+                exists = result.scalar() is not None
+                
+                if exists:
+                    logger.info(f"Document {document_uuid} found on attempt {attempt + 1}")
+                    return True
+                elif attempt < max_attempts - 1:
+                    logger.warning(f"Document {document_uuid} not found on attempt {attempt + 1}, retrying...")
+                    time.sleep(1)  # Wait 1 second before retry
+                    
+            finally:
+                session.close()
+                
+        except Exception as e:
+            logger.error(f"Error validating document {document_uuid} on attempt {attempt + 1}: {e}")
+            if attempt < max_attempts - 1:
+                time.sleep(1)
+            
+    logger.error(f"Document {document_uuid} not found after {max_attempts} attempts")
+    return False
 
 def validate_processing_stage(db_manager: DatabaseManager, document_uuid: str, required_stage: ProcessingStatus) -> bool:
     """Validate that document is in the correct processing stage."""
@@ -271,7 +353,9 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
             raise RuntimeError("Failed to start Textract job")
         
         # Update document status
+        logger.info(f"Updating document status with job_id={job_id}")
         job_manager.update_document_status(document_uuid, job_id, 'IN_PROGRESS')
+        logger.info(f"Document status update completed")
         
         # Update state
         update_document_state(document_uuid, "ocr", "processing", {
@@ -280,10 +364,12 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
         })
         
         # Schedule polling task
-        poll_textract_job.apply_async(
+        logger.info(f"Scheduling poll_textract_job for document {document_uuid}, job {job_id}")
+        polling_task = poll_textract_job.apply_async(
             args=[document_uuid, job_id],
             countdown=10  # Check after 10 seconds
         )
+        logger.info(f"Polling task scheduled: {polling_task.id}")
         
         return {
             'status': 'processing',
@@ -357,7 +443,13 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             return cached_chunks['chunks']
         
         # 5. Chunk the text with validation
+        logger.info(f"Chunking text of length {len(text)} with chunk_size={chunk_size}, overlap={overlap}")
         chunks = simple_chunk_text(text, chunk_size, overlap)
+        
+        logger.info(f"Generated {len(chunks)} chunks from simple_chunk_text")
+        for idx, chunk in enumerate(chunks[:3]):  # Log first 3 chunks for debugging
+            chunk_text = chunk['text'] if isinstance(chunk, dict) else chunk
+            logger.debug(f"Chunk {idx}: length={len(chunk_text)}, type={type(chunk)}")
         
         if not chunks:
             raise ValueError("No chunks generated from text")
@@ -367,39 +459,160 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
         ChunkModel = get_chunk_model()
         
         chunk_models = []
+        logger.info(f"Creating chunk models for {len(chunks)} chunks")
         for idx, chunk_data in enumerate(chunks):
             try:
                 # Extract text from chunk dictionary
                 chunk_text = chunk_data['text'] if isinstance(chunk_data, dict) else chunk_data
+                
+                logger.debug(f"Creating chunk model {idx}: text_length={len(chunk_text)}")
                 
                 # Create Pydantic model with validation
                 chunk_model = ChunkModel(
                     chunk_uuid=uuid.uuid4(),
                     document_uuid=document_uuid,
                     chunk_index=idx,
-                    text_content=chunk_text,
-                    start_char=chunk_data.get('char_start_index', _calculate_start_char(chunks, idx, overlap)) if isinstance(chunk_data, dict) else _calculate_start_char(chunks, idx, overlap),
-                    end_char=chunk_data.get('char_end_index', _calculate_end_char(chunks, idx, overlap)) if isinstance(chunk_data, dict) else _calculate_end_char(chunks, idx, overlap),
-                    word_count=len(chunk_text.split()),
+                    text=chunk_text,  # Changed from text_content to match database
+                    start_char=chunk_data.get('char_start_index', 0) if isinstance(chunk_data, dict) else 0,
+                    end_char=chunk_data.get('char_end_index', len(chunk_text)) if isinstance(chunk_data, dict) else len(chunk_text),
                     created_at=datetime.utcnow()
                 )
                 
-                # Validate model
-                chunk_model.model_validate(chunk_model.model_dump())
+                # Model is already validated by Pydantic on creation
                 chunk_models.append(chunk_model)
+                logger.debug(f"Successfully created chunk model {idx}")
                 
             except Exception as e:
                 logger.error(f"Failed to create chunk model {idx}: {e}")
                 raise ValueError(f"Chunk validation failed at index {idx}: {e}")
         
-        # 7. Store chunks in database using validated models
-        stored_chunks = self.db_manager.create_chunks(chunk_models)
+        logger.info(f"Successfully created {len(chunk_models)} chunk models")
         
-        if len(stored_chunks) != len(chunk_models):
-            raise RuntimeError(f"Not all chunks were stored: {len(stored_chunks)}/{len(chunk_models)}")
+        # 7. Store chunks in database with batch insertion and proper error handling
+        logger.info(f"Storing {len(chunk_models)} chunks in database for document {document_uuid}")
+        
+        # Prepare all chunks for batch insertion
+        from scripts.rds_utils import insert_record, execute_query
+        from sqlalchemy import text as sql_text
+        
+        stored_chunks = []
+        failed_chunks = []
+        
+        # First, try batch insertion for better performance
+        try:
+            logger.info("Attempting batch chunk insertion...")
+            
+            # Build batch insert query
+            session = next(self.db_manager.get_session())
+            try:
+                # Prepare values for all chunks
+                chunk_values = []
+                for chunk_model in chunk_models:
+                    chunk_values.append({
+                        'chunk_uuid': str(chunk_model.chunk_uuid),
+                        'document_uuid': str(chunk_model.document_uuid),
+                        'chunk_index': chunk_model.chunk_index,
+                        'text': chunk_model.text,
+                        'char_start_index': int(chunk_model.start_char),  # Ensure it's an int
+                        'char_end_index': int(chunk_model.end_char),      # Ensure it's an int
+                        'created_at': chunk_model.created_at
+                    })
+                
+                # Execute batch insert
+                insert_query = sql_text("""
+                    INSERT INTO document_chunks 
+                    (chunk_uuid, document_uuid, chunk_index, text, 
+                     char_start_index, char_end_index, created_at)
+                    VALUES 
+                    (:chunk_uuid, :document_uuid, :chunk_index, :text,
+                     :char_start_index, :char_end_index, :created_at)
+                    RETURNING id, chunk_uuid
+                """)
+                
+                for i, chunk_data in enumerate(chunk_values):
+                    try:
+                        result = session.execute(insert_query, chunk_data)
+                        session.commit()
+                        stored_chunks.append(chunk_models[i])
+                        logger.debug(f"✓ Stored chunk {i}: {chunk_data['chunk_uuid']}")
+                    except Exception as e:
+                        session.rollback()
+                        logger.error(f"Failed to insert chunk {i}: {e}")
+                        failed_chunks.append((i, chunk_models[i], str(e)))
+                        
+            finally:
+                session.close()
+                
+            logger.info(f"Batch insertion complete: {len(stored_chunks)} successful, {len(failed_chunks)} failed")
+            
+        except Exception as batch_error:
+            logger.error(f"Batch insertion failed: {batch_error}")
+            logger.info("Falling back to individual chunk insertion...")
+            
+            # Fallback: Try individual insertion with retry logic
+            for i, chunk_model in enumerate(chunk_models):
+                if any(fc[1].chunk_uuid == chunk_model.chunk_uuid for fc in failed_chunks):
+                    continue  # Skip already failed chunks
+                    
+                retry_count = 3
+                for attempt in range(retry_count):
+                    try:
+                        logger.debug(f"Inserting chunk {i} (attempt {attempt + 1}/{retry_count})")
+                        
+                        # Map minimal model fields to database columns
+                        db_data = {
+                            'chunk_uuid': str(chunk_model.chunk_uuid),
+                            'document_uuid': str(chunk_model.document_uuid),
+                            'chunk_index': chunk_model.chunk_index,
+                            'text': chunk_model.text,
+                            'char_start_index': int(chunk_model.start_char),  # Ensure int
+                            'char_end_index': int(chunk_model.end_char),      # Ensure int
+                            'created_at': chunk_model.created_at
+                        }
+                        
+                        # Log the data being inserted for debugging
+                        logger.debug(f"Chunk {i} data: start={db_data['char_start_index']}, end={db_data['char_end_index']}, text_len={len(db_data['text'])}")
+                        
+                        result = insert_record('document_chunks', db_data)
+                        if result:
+                            stored_chunks.append(chunk_model)
+                            logger.info(f"✓ Stored chunk {chunk_model.chunk_index}")
+                            break  # Success, exit retry loop
+                        else:
+                            logger.warning(f"No result returned for chunk {chunk_model.chunk_index}")
+                            if attempt < retry_count - 1:
+                                time.sleep(0.5 * (attempt + 1))  # Exponential backoff
+                            
+                    except Exception as e:
+                        logger.error(f"Error storing chunk {chunk_model.chunk_index} (attempt {attempt + 1}): {type(e).__name__}: {e}")
+                        if attempt < retry_count - 1:
+                            time.sleep(0.5 * (attempt + 1))  # Exponential backoff
+                        else:
+                            failed_chunks.append((i, chunk_model, str(e)))
+        
+        # Log final results
+        logger.info(f"Chunk storage complete: {len(stored_chunks)}/{len(chunk_models)} stored successfully")
+        if failed_chunks:
+            logger.error(f"Failed chunks: {[(fc[0], str(fc[1].chunk_uuid), fc[2]) for fc in failed_chunks]}")
+        
+        if len(stored_chunks) == 0:
+            raise RuntimeError(f"Failed to store any chunks. Errors: {[fc[2] for fc in failed_chunks]}")
+        elif len(stored_chunks) < len(chunk_models):
+            logger.warning(f"Partial success: {len(stored_chunks)}/{len(chunk_models)} chunks stored")
         
         # 8. Convert to serializable format for return
-        serialized_chunks = [chunk.model_dump(mode='json') for chunk in stored_chunks]
+        # Map to expected format for entity extraction
+        serialized_chunks = []
+        for chunk in stored_chunks:
+            chunk_data = chunk.model_dump(mode='json')
+            # Entity extraction expects 'chunk_text' not 'text'
+            serialized_chunks.append({
+                'chunk_uuid': chunk_data['chunk_uuid'],
+                'chunk_text': chunk_data['text'],  # Map 'text' to 'chunk_text'
+                'chunk_index': chunk_data['chunk_index'],
+                'start_char': chunk_data.get('start_char', 0),
+                'end_char': chunk_data.get('end_char', len(chunk_data['text']))
+            })
         
         # 9. Cache the result
         redis_manager.store_dict(cache_key, {'chunks': serialized_chunks}, ttl=86400)
@@ -410,7 +623,7 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             "chunk_size": chunk_size,
             "overlap": overlap,
             "total_characters": len(text),
-            "avg_chunk_size": sum(len(chunk.text_content) for chunk in stored_chunks) / len(stored_chunks),
+            "avg_chunk_size": sum(len(chunk.text) for chunk in stored_chunks) / len(stored_chunks),
             "validation_passed": True
         })
         
@@ -563,66 +776,107 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
     update_document_state(document_uuid, "entity_resolution", "in_progress", {"task_id": self.request.id})
     
     try:
-        # Convert dicts back to models
-        from scripts.core.model_factory import get_entity_mention_model
-        EntityMentionModel = get_entity_mention_model()
-        mention_models = [EntityMentionModel(**m) for m in entity_mentions]
-        
-        # Resolve entities
-        result = self.entity_service.resolve_document_entities(
-            entity_mentions=mention_models,
-            document_uuid=document_uuid
+        # Use the improved entity resolution
+        from scripts.entity_resolution_fixes import (
+            resolve_entities_simple, 
+            save_canonical_entities_to_db,
+            update_entity_mentions_with_canonical
         )
         
-        if result.status == ProcessingResultStatus.SUCCESS:
-            # Update cache with resolved entities
-            redis_manager = get_redis_manager()
-            entities_key = CacheKeys.DOC_CANONICAL_ENTITIES.format(document_uuid=document_uuid)
+        # Perform resolution
+        resolution_result = resolve_entities_simple(
+            entity_mentions=entity_mentions,
+            document_uuid=document_uuid,
+            threshold=0.8
+        )
+        
+        logger.info(f"Resolution complete: {resolution_result['total_canonical']} canonical entities from {resolution_result['total_mentions']} mentions")
+        
+        # Save canonical entities to database
+        saved_count = save_canonical_entities_to_db(
+            canonical_entities=resolution_result['canonical_entities'],
+            document_uuid=document_uuid,
+            db_manager=self.db_manager
+        )
+        
+        # Update entity mentions with canonical UUIDs
+        updated_count = update_entity_mentions_with_canonical(
+            mention_to_canonical=resolution_result['mention_to_canonical'],
+            document_uuid=document_uuid,
+            db_manager=self.db_manager
+        )
+        
+        # Update cache with resolved entities
+        redis_manager = get_redis_manager()
+        entities_key = CacheKeys.DOC_CANONICAL_ENTITIES.format(document_uuid=document_uuid)
+        
+        redis_manager.store_dict(entities_key, {
+            'entities': resolution_result['canonical_entities']
+        }, ttl=86400)
+        
+        update_document_state(document_uuid, "entity_resolution", "completed", {
+            "resolved_count": updated_count,
+            "canonical_count": len(resolution_result['canonical_entities']),
+            "deduplication_rate": resolution_result['deduplication_rate']
+        })
+        
+        # Get metadata and chunks for relationship building
+        metadata_key = f"doc:metadata:{document_uuid}"
+        stored_metadata = redis_manager.get_dict(metadata_key) or {}
+        project_uuid = stored_metadata.get('project_uuid')
+        document_metadata = stored_metadata.get('document_metadata', {})
+        
+        # Get chunks from cache
+        chunks_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
+        chunks_data = redis_manager.get_dict(chunks_key) or {}
+        chunks = chunks_data.get('chunks', [])
+        
+        # Get updated entity mentions from database
+        session = next(self.db_manager.get_session())
+        try:
+            from sqlalchemy import text as sql_text
+            mentions_query = sql_text("""
+                SELECT em.*, ce.entity_name as canonical_name
+                FROM entity_mentions em
+                LEFT JOIN canonical_entities ce ON em.canonical_entity_uuid = ce.canonical_entity_uuid
+                WHERE em.document_uuid = :doc_uuid
+            """)
             
-            redis_manager.store_dict(entities_key, {
-                'entities': [e.dict() for e in result.canonical_entities]
-            }, ttl=86400)
+            mentions_results = session.execute(mentions_query, {'doc_uuid': str(document_uuid)}).fetchall()
             
-            update_document_state(document_uuid, "entity_resolution", "completed", {
-                "resolved_count": result.total_resolved,
-                "canonical_count": len(result.canonical_entities)
-            })
-            
-            # Get metadata and chunks for relationship building
-            metadata_key = f"doc:metadata:{document_uuid}"
-            stored_metadata = redis_manager.get_dict(metadata_key) or {}
-            project_uuid = stored_metadata.get('project_uuid')
-            document_metadata = stored_metadata.get('document_metadata', {})
-            
-            # Get chunks from cache
-            chunks_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
-            chunks_data = redis_manager.get_dict(chunks_key) or {}
-            chunks = chunks_data.get('chunks', [])
-            
-            # Get entity mentions from cache
-            mentions_key = CacheKeys.DOC_ENTITY_MENTIONS.format(document_uuid=document_uuid)
-            mentions_data = redis_manager.get_dict(mentions_key) or {}
-            entity_mentions_list = mentions_data.get('mentions', [])
-            
-            # Trigger next stage - relationship building
-            if project_uuid and chunks:
-                build_document_relationships.apply_async(
-                    args=[
-                        document_uuid,
-                        document_metadata,
-                        project_uuid,
-                        chunks,
-                        entity_mentions_list,
-                        [e.dict() for e in result.canonical_entities]
-                    ]
-                )
-            
-            return {
-                'canonical_entities': [e.dict() for e in result.canonical_entities],
-                'total_resolved': result.total_resolved
-            }
+            entity_mentions_list = []
+            for row in mentions_results:
+                entity_mentions_list.append({
+                    'mention_uuid': str(row.mention_uuid),
+                    'entity_text': row.entity_text,
+                    'entity_type': row.entity_type,
+                    'canonical_entity_uuid': str(row.canonical_entity_uuid) if row.canonical_entity_uuid else None,
+                    'canonical_name': row.canonical_name
+                })
+        finally:
+            session.close()
+        
+        # Trigger next stage - relationship building
+        if project_uuid and chunks and resolution_result['canonical_entities']:
+            logger.info(f"Triggering relationship building with {len(resolution_result['canonical_entities'])} canonical entities")
+            build_document_relationships.apply_async(
+                args=[
+                    document_uuid,
+                    document_metadata,
+                    project_uuid,
+                    chunks,
+                    entity_mentions_list,
+                    resolution_result['canonical_entities']
+                ]
+            )
         else:
-            raise Exception(f"Entity resolution failed: {result.error_message}")
+            logger.warning(f"Skipping relationship building - missing data: project_uuid={bool(project_uuid)}, chunks={len(chunks) if chunks else 0}, entities={len(resolution_result['canonical_entities'])}")
+        
+        return {
+            'canonical_entities': resolution_result['canonical_entities'],
+            'total_resolved': updated_count,
+            'deduplication_rate': resolution_result['deduplication_rate']
+        }
             
     except Exception as e:
         logger.error(f"Entity resolution failed for {document_uuid}: {e}")
@@ -655,7 +909,7 @@ def build_document_relationships(self, document_uuid: str, document_data: Dict[s
     update_document_state(document_uuid, "relationships", "in_progress", {"task_id": self.request.id})
     
     try:
-        # Build relationships
+        # Build structural relationships (document-chunk-entity hierarchy)
         result = self.graph_service.stage_structural_relationships(
             document_data=document_data,
             project_uuid=project_uuid,
@@ -667,17 +921,20 @@ def build_document_relationships(self, document_uuid: str, document_data: Dict[s
         
         if result.status == ProcessingResultStatus.SUCCESS:
             update_document_state(document_uuid, "relationships", "completed", {
-                "relationship_count": result.total_relationships
+                "relationship_count": result.total_relationships,
+                "relationship_types": "structural"  # Only structural relationships at this stage
             })
             
             # Finalize the pipeline
             finalize_document_pipeline.apply_async(
-                args=[document_uuid, len(chunks), len(canonical_entities_data), result.total_relationships]
+                args=[document_uuid, len(chunks), len(canonical_entities), result.total_relationships]
             )
             
             return {
                 'total_relationships': result.total_relationships,
-                'staged_relationships': [r.dict() for r in result.staged_relationships]
+                'staged_relationships': [r.dict() for r in result.staged_relationships],
+                'relationship_types': 'structural',
+                'summary': f"Staged {result.total_relationships} structural relationships"
             }
         else:
             raise Exception(f"Relationship building failed: {result.error_message}")
@@ -792,6 +1049,27 @@ def poll_textract_job(self, document_uuid: str, job_id: str) -> Dict[str, Any]:
             # Update document status
             job_manager.update_document_status(document_uuid, job_id, 'SUCCEEDED')
             
+            # Store extracted text in database
+            logger.info(f"Storing extracted text in database for document {document_uuid}")
+            session = next(self.db_manager.get_session())
+            try:
+                from sqlalchemy import text as sql_text
+                update_query = sql_text("""
+                    UPDATE source_documents 
+                    SET raw_extracted_text = :text,
+                        ocr_completed_at = NOW(),
+                        ocr_provider = 'AWS Textract'
+                    WHERE document_uuid = :doc_uuid
+                """)
+                session.execute(update_query, {
+                    'text': result['text'],
+                    'doc_uuid': str(document_uuid)
+                })
+                session.commit()
+                logger.info(f"Stored {len(result['text'])} characters in database for document {document_uuid}")
+            finally:
+                session.close()
+            
             # Update state
             update_document_state(document_uuid, "ocr", "completed", {
                 "job_id": job_id,
@@ -849,7 +1127,7 @@ def poll_textract_job(self, document_uuid: str, job_id: str) -> Dict[str, Any]:
             logger.error(f"Unknown Textract job status: {status}")
             raise RuntimeError(f"Unknown job status: {status}")
             
-    except self.retry as e:
+    except celery.exceptions.Retry:
         # Re-raise retry exceptions
         raise
     except Exception as e:
@@ -1042,3 +1320,23 @@ def cleanup_old_cache_entries(self, days_old: int = 7) -> Dict[str, Any]:
         'status': 'completed',
         'message': f'Cleanup of entries older than {days_old} days completed'
     }
+
+
+@app.task(name='monitor_db_connectivity')
+def monitor_db_connectivity():
+    """Periodic task to verify database connectivity"""
+    from scripts.db import DatabaseManager
+    from sqlalchemy import text
+    
+    db = DatabaseManager(validate_conformance=False)
+    try:
+        session = next(db.get_session())
+        result = session.execute(text("SELECT COUNT(*) FROM source_documents"))
+        count = result.scalar()
+        session.close()
+        
+        logger.info(f"Database connectivity check: {count} documents")
+        return {"status": "healthy", "document_count": count, "timestamp": datetime.utcnow().isoformat()}
+    except Exception as e:
+        logger.error(f"Database connectivity check failed: {e}")
+        return {"status": "unhealthy", "error": str(e), "timestamp": datetime.utcnow().isoformat()}

@@ -88,12 +88,28 @@ def test_complete_pipeline():
         doc = db_manager.create_source_document(doc_model)
         print(f"   ✓ Document created in database")
         
-        # Add delay to ensure transaction visibility across connections
+        # Add visibility verification loop
         import time
-        time.sleep(1)  # Wait 1 second for transaction to be visible to other connections
+        max_retries = 5
+        document_visible = False
+        print(f"\n4. Verifying document visibility...")
         
-        # Verify document exists
-        print(f"\n4. Verifying document in database...")
+        for i in range(max_retries):
+            verify_db = DatabaseManager(validate_conformance=False)
+            if verify_db.get_source_document(doc_uuid):
+                document_visible = True
+                print(f"   ✓ Document visibility confirmed on attempt {i+1}")
+                break
+            time.sleep(0.5)
+            if i > 0:
+                print(f"   ⟳ Retrying visibility check (attempt {i+1}/{max_retries})...")
+        
+        if not document_visible:
+            print(f"   ❌ Document not visible after {max_retries} attempts")
+            raise RuntimeError(f"Document {doc_uuid} not visible after {max_retries} attempts")
+        
+        # Verify document details
+        print(f"\n5. Verifying document details...")
         for session in db_manager.get_session():
             result = session.execute(
                 text("SELECT document_uuid, file_name, s3_key FROM source_documents WHERE document_uuid = :uuid"),
@@ -110,7 +126,7 @@ def test_complete_pipeline():
             break
         
         # Store metadata in Redis
-        print(f"\n5. Storing metadata in Redis...")
+        print(f"\n6. Storing metadata in Redis...")
         metadata_key = f"doc:metadata:{doc_uuid}"
         redis_manager.store_dict(metadata_key, {
             'project_uuid': "e0c57112-c755-4798-bc1f-4ecc3f0eec78",
@@ -123,7 +139,7 @@ def test_complete_pipeline():
         print(f"   ✓ Metadata stored")
         
         # Submit OCR task
-        print(f"\n6. Submitting OCR task...")
+        print(f"\n7. Submitting OCR task...")
         s3_uri = f"s3://{s3_bucket}/{s3_key}"
         print(f"   S3 URI: {s3_uri}")
         print(f"   Region: {upload_result['s3_region']}")
@@ -135,7 +151,7 @@ def test_complete_pipeline():
         print(f"   ✓ Task submitted: {task.id}")
         
         # Monitor task
-        print(f"\n7. Monitoring task progress...")
+        print(f"\n8. Monitoring task progress...")
         for i in range(30):  # 30 seconds timeout
             if task.ready():
                 if task.successful():
@@ -160,7 +176,7 @@ def test_complete_pipeline():
             time.sleep(1)
         
         # Final status check
-        print(f"\n8. Final status check...")
+        print(f"\n9. Final status check...")
         for session in db_manager.get_session():
             # Check document
             result = session.execute(

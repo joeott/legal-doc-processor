@@ -48,7 +48,15 @@
       "Bash(export SKIP_CONFORMANCE_CHECK=true)",
       "Bash(USE_MINIMAL_MODELS=true SKIP_CONFORMANCE_CHECK=true python3 scripts/tests/test_minimal_models.py)",
       "Bash(bash:*)",
-      "Bash(sudo tail:*)"
+      "Bash(sudo tail:*)",
+      "Bash(sudo mkdir:*)",
+      "Bash(sudo service:*)",
+      "Bash(sudo systemctl status:*)",
+      "Bash(sudo journalctl:*)",
+      "Bash(sudo rm:*)",
+      "Bash(sudo systemctl:*)",
+      "Bash(export:*)",
+      "Bash(celery -A scripts.celery_app inspect active)"
     ],
     "deny": []
   }

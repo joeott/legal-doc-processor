@@ -101,14 +101,16 @@ COLUMN_MAPPINGS = {
         "document_id": "document_fk_id",  # Map to FK field
         "document_uuid": "document_uuid",
         "chunk_index": "chunk_index",
-        "text": "text_content",  # Map to actual column name
-        "text_content": "text_content",
+        "text": "text",  # Direct mapping - column is named "text" in RDS
+        "text_content": "text",  # Map text_content to text column
         
         # Character positions - direct mappings
         "char_start_index": "char_start_index",
         "char_end_index": "char_end_index",
         "charStartIndex": "char_start_index",
         "charEndIndex": "char_end_index",
+        "start_char": "char_start_index",  # Map minimal model field
+        "end_char": "char_end_index",      # Map minimal model field
         
         # Page info
         "page_number": "start_page",
@@ -385,9 +387,9 @@ def reverse_map_from_db(table: str, data: Dict[str, Any]) -> Dict[str, Any]:
         # Map chunk_uuid to chunkId alias
         if "chunk_uuid" in result and "chunk_id" not in result:
             result["chunk_id"] = result["chunk_uuid"]
-        # Map text_content to text
-        if "text_content" in result and "text" not in result:
-            result["text"] = result["text_content"]
+        # Map text to text_content for backward compatibility
+        if "text" in result and "text_content" not in result:
+            result["text_content"] = result["text"]
         
         # Debug final result
         logger.debug(f"Reverse mapping result: {result}")

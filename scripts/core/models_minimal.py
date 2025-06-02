@@ -53,9 +53,15 @@ class DocumentChunkMinimal(BaseModel):
     
     # Essential content
     chunk_index: int
-    text_content: str
+    text: str  # Changed from text_content to match database column
     start_char: int
     end_char: int
+    
+    # Alias for backward compatibility
+    @property
+    def text_content(self) -> str:
+        """Backward compatibility property"""
+        return self.text
     
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)

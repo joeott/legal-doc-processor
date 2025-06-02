@@ -157,18 +157,20 @@ DB_SSL_MODE = os.getenv("DB_SSL_MODE", "require")
 
 # Optimized connection pool configuration for SSH tunnel operations
 DB_POOL_CONFIG = {
-    'pool_size': DB_POOL_SIZE,
-    'max_overflow': DB_MAX_OVERFLOW,
+    'pool_size': 5,  # Reduced from 20 for better per-process handling
+    'max_overflow': 10,  # Reduced from 40
     'pool_timeout': DB_POOL_TIMEOUT,
-    'pool_recycle': DB_POOL_RECYCLE,
+    'pool_recycle': 300,  # Recycle every 5 minutes instead of 3600 (1 hour)
     'pool_pre_ping': True,  # Verify connections before use
+    'isolation_level': 'READ COMMITTED',  # Ensure fresh reads
     'connect_args': {
         'connect_timeout': 10,
         'options': '-c statement_timeout=300000',  # 5 min timeout
         'keepalives': 1,
         'keepalives_idle': 30,
         'keepalives_interval': 10,
-        'keepalives_count': 5
+        'keepalives_count': 5,
+        'sslmode': DB_SSL_MODE  # Ensure SSL mode is used
     }
 }
 
