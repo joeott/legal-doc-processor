@@ -50,6 +50,7 @@ class CacheKeys:
     DOC_CHUNKS_LIST = "doc:chunks_list:{document_uuid}"
     DOC_CHUNK_TEXT = "doc:chunk_text:{chunk_uuid}"
     DOC_ALL_EXTRACTED_MENTIONS = "doc:all_mentions:{document_uuid}"
+    DOC_ENTITY_MENTIONS = "doc:entity_mentions:{document_uuid}"  # Added for compatibility
     DOC_CANONICAL_ENTITIES = "doc:canonical_entities:{document_uuid}"
     DOC_RESOLVED_MENTIONS = "doc:resolved_mentions:{document_uuid}"
     DOC_CLEANED_TEXT = "doc:cleaned_text:{document_uuid}"

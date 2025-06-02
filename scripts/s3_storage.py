@@ -5,7 +5,7 @@ import hashlib
 from typing import Dict, Optional
 from datetime import datetime
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
-from scripts.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION, S3_PRIMARY_DOCUMENT_BUCKET
+from scripts.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION, S3_PRIMARY_DOCUMENT_BUCKET, S3_BUCKET_REGION
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,10 @@ class S3StorageManager:
     """Manages S3 operations for document storage"""
     
     def __init__(self):
+        # Use S3_BUCKET_REGION for S3 operations to match the bucket location
         self.s3_client = boto3.client(
             's3',
-            region_name=AWS_DEFAULT_REGION,
+            region_name=S3_BUCKET_REGION,
             aws_access_key_id=AWS_ACCESS_KEY_ID,
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY
         )
@@ -68,7 +69,7 @@ class S3StorageManager:
             return {
                 's3_key': s3_key,
                 's3_bucket': self.private_bucket_name,
-                's3_region': AWS_DEFAULT_REGION,
+                's3_region': S3_BUCKET_REGION,
                 'md5_hash': md5_hash,
                 'file_size': len(file_content),
                 'metadata': metadata  # S3 metadata, not to be confused with document's JSONB metadata

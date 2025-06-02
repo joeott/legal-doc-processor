@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 
 from scripts.db import DatabaseManager
 from scripts.config import (
-    AWS_DEFAULT_REGION, TEXTRACT_ASYNC_MAX_POLLING_TIME_SECONDS, TEXTRACT_ASYNC_POLLING_INTERVAL_SECONDS,
+    AWS_DEFAULT_REGION, S3_BUCKET_REGION, TEXTRACT_ASYNC_MAX_POLLING_TIME_SECONDS, TEXTRACT_ASYNC_POLLING_INTERVAL_SECONDS,
     TEXTRACT_ASYNC_INITIAL_DELAY_SECONDS, TEXTRACT_SNS_TOPIC_ARN, TEXTRACT_SNS_ROLE_ARN,
     TEXTRACT_OUTPUT_S3_BUCKET, TEXTRACT_OUTPUT_S3_PREFIX, TEXTRACT_KMS_KEY_ID,
     TEXTRACT_CONFIDENCE_THRESHOLD, TEXTRACT_MAX_RESULTS_PER_PAGE, TEXTRACT_FEATURE_TYPES,
@@ -37,8 +37,11 @@ def get_cloudwatch_logger():
 
 
 class TextractProcessor:
-    def __init__(self, db_manager: DatabaseManager, region_name: str = AWS_DEFAULT_REGION):
+    def __init__(self, db_manager: DatabaseManager, region_name: str = None):
         """Initialize TextractProcessor with database manager."""
+        # Use S3_BUCKET_REGION for Textract to match the S3 bucket location
+        if region_name is None:
+            region_name = S3_BUCKET_REGION
         self.client = boto3.client('textract', region_name=region_name)
         self.db_manager = db_manager
         logger.info(f"TextractProcessor initialized for region: {region_name} with DBManager.")

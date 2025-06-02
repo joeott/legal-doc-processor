@@ -196,7 +196,7 @@ def _process_with_textract(
         upload_info = s3_manager.upload_document_with_uuid_naming(
             local_file_path=pdf_path,
             document_uuid=str(document.document_uuid),
-            original_filename=document.original_filename
+            original_filename=document.original_file_name
         )
         s3_object_key = upload_info['s3_key']
         s3_bucket_name = upload_info['s3_bucket']

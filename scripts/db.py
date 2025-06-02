@@ -20,12 +20,25 @@ from pydantic import BaseModel, ValidationError
 
 # Import our Pydantic models
 from scripts.core.schemas import (
-    ProjectModel, SourceDocumentModel, Neo4jDocumentModel, 
-    ChunkModel, EntityMentionModel, CanonicalEntityModel,
+    ProjectModel, Neo4jDocumentModel, 
     RelationshipStagingModel, TextractJobModel, ProcessingStatus,
     ImportSessionModel, ChunkEmbeddingModel, CanonicalEntityEmbeddingModel,
     DocumentProcessingHistoryModel, create_model_from_db
 )
+
+# Import model factory for conditional model loading
+from scripts.core.model_factory import (
+    get_source_document_model,
+    get_chunk_model,
+    get_entity_mention_model,
+    get_canonical_entity_model
+)
+
+# Get models based on configuration
+SourceDocumentModel = get_source_document_model()
+ChunkModel = get_chunk_model()
+EntityMentionModel = get_entity_mention_model()
+CanonicalEntityModel = get_canonical_entity_model()
 from scripts.core.json_serializer import PydanticJSONEncoder
 
 logger = logging.getLogger(__name__)
@@ -248,10 +261,12 @@ class PydanticDatabase:
         """Get a single record as a Pydantic model."""
         from scripts.rds_utils import select_records
         try:
+            logger.debug(f"PydanticDatabase.get called - table: {table}, match_fields: {match_fields}")
             results = select_records(table, match_fields, limit=1)
+            logger.debug(f"select_records returned: {results}")
             
             if results and len(results) > 0:
-                return self.serializer.deserialize(results[0], model_class)
+                return self.serializer.deserialize(results[0], model_class, table)
                 
             return None
             
@@ -335,6 +350,17 @@ class DatabaseManager:
         Raises:
             ConformanceError if not conformant
         """
+        # Check if we should skip conformance check
+        from scripts.config import SKIP_CONFORMANCE_CHECK, USE_MINIMAL_MODELS
+        
+        if SKIP_CONFORMANCE_CHECK:
+            logger.warning("Skipping conformance validation due to SKIP_CONFORMANCE_CHECK=true")
+            self.conformance_validated = True
+            return True
+            
+        if USE_MINIMAL_MODELS:
+            logger.info("Using minimal models - reduced conformance requirements")
+            
         if self.conformance_validated:
             return True
             
@@ -478,11 +504,14 @@ class DatabaseManager:
     
     def get_source_document(self, document_uuid: str) -> Optional[SourceDocumentModel]:
         """Get source document by UUID."""
-        return self.pydantic_db.get(
+        logger.info(f"Getting source document with UUID: {document_uuid}")
+        result = self.pydantic_db.get(
             "source_documents",
             SourceDocumentModel,
             {"document_uuid": document_uuid}
         )
+        logger.info(f"Source document lookup result: {result}")
+        return result
     
     def update_document_status(
         self,

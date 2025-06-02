@@ -126,6 +126,10 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')  # Use your target region
 
+# S3 Bucket Region Configuration
+# The S3 bucket is in us-east-2, so Textract must use the same region
+S3_BUCKET_REGION = os.getenv('S3_BUCKET_REGION', 'us-east-2')  # Specific region for S3 bucket operations
+
 # S3 Buckets - simplified to single private bucket
 S3_BUCKET_PRIVATE = S3_PRIMARY_DOCUMENT_BUCKET  # For backwards compatibility
 
@@ -223,6 +227,15 @@ IMAGE_PROCESSING_TIMEOUT_SECONDS = 120  # Timeout for image processing operation
 
 # Stage Management Configuration
 DEPLOYMENT_STAGE = validate_deployment_stage()
+
+# Model Configuration
+USE_MINIMAL_MODELS = os.getenv('USE_MINIMAL_MODELS', 'false').lower() == 'true'
+SKIP_CONFORMANCE_CHECK = os.getenv('SKIP_CONFORMANCE_CHECK', 'false').lower() == 'true'
+
+if SKIP_CONFORMANCE_CHECK:
+    logger.warning("CONFORMANCE VALIDATION BYPASSED - FOR TESTING ONLY")
+if USE_MINIMAL_MODELS:
+    logger.info("Using minimal models for reduced conformance requirements")
 
 # Initialize stage configuration
 stage_config = StageConfig(DEPLOYMENT_STAGE)

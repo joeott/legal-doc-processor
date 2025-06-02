@@ -36,8 +36,9 @@ COLUMN_MAPPINGS = {
         "project_fk_id": "project_fk_id",
         
         # File information - use actual column names
-        "original_file_name": "original_filename",
-        "filename": "filename",  # Also map to filename (not-null column)
+        "original_file_name": "original_file_name",  # Direct mapping after rename
+        "filename": "file_name",  # Map to renamed column
+        "file_name": "file_name",  # Direct mapping for new name
         "file_size_bytes": "file_size_bytes",
         "detected_file_type": "detected_file_type", 
         "file_type": "file_type",
@@ -50,7 +51,8 @@ COLUMN_MAPPINGS = {
         "file_path": "file_path",
         
         # Processing status - map to specific status fields
-        "processing_status": "processing_status",
+        "processing_status": "status",  # Map to renamed column
+        "status": "status",  # Direct mapping for new name
         "initial_processing_status": "initial_processing_status", 
         "celery_status": "celery_status",
         "celery_task_id": "celery_task_id",

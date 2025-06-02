@@ -170,9 +170,9 @@ def map_columns(table: str, data: Dict[str, Any]) -> Dict[str, Any]:
             # Direct mapping
             mapped[mapped_key] = value
             
-            # Special case: if we're mapping original_filename, also populate filename
-            if mapped_key == "original_filename" and actual_table == "source_documents":
-                mapped["filename"] = value
+            # Special case: if we're mapping original_file_name, also populate file_name
+            if mapped_key == "original_file_name" and actual_table == "source_documents":
+                mapped["file_name"] = value
         elif key in ["created_at", "updated_at", "id"]:
             # Keep these common fields
             mapped[key] = value
@@ -321,6 +321,9 @@ def select_records(
     actual_table = map_table_name(table_name)
     mapped_where = map_columns(table_name, where) if where else None
     
+    logger.debug(f"select_records - original table: {table_name}, actual_table: {actual_table}")
+    logger.debug(f"select_records - original where: {where}, mapped_where: {mapped_where}")
+    
     db = DBSessionLocal()
     try:
         # Build select query
@@ -339,6 +342,7 @@ def select_records(
         if limit:
             query_str += f" LIMIT {limit}"
         
+        logger.debug(f"select_records - query: {query_str}")
         query = text(query_str)
         result = db.execute(query, mapped_where or {})
         
