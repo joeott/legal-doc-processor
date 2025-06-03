@@ -16,6 +16,9 @@ from dataclasses import dataclass, asdict
 import concurrent.futures
 from pathlib import Path
 
+# Add parent directory to Python path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -154,7 +157,7 @@ class ProductionVerifier:
         try:
             from scripts.cache import get_redis_manager
             redis = get_redis_manager()
-            redis.client.ping()
+            redis.get_client().ping()
             logger.info("✅ Redis connection successful")
             self.record_result(TestResult(
                 test_name="redis_connectivity",
@@ -371,13 +374,16 @@ class ProductionVerifier:
             from scripts.cache import get_redis_manager
             redis = get_redis_manager()
             test_key = f"perf_test_{int(time.time())}"
-            redis.set(test_key, {"test": "data"}, ttl=60)
-            redis.get_dict(test_key)
-            redis.delete(test_key)
+            # Use RedisManager methods properly
+            client = redis.get_client()
+            client.setex(test_key, 60, json.dumps({"test": "data"}))
+            client.get(test_key)
+            client.delete(test_key)
             cache_time = time.time() - start
             metrics["cache_operations"] = cache_time
             logger.info(f"Cache operations: {cache_time:.3f}s")
-        except:
+        except Exception as e:
+            logger.debug(f"Cache test error: {e}")
             metrics["cache_operations"] = None
         
         self.record_result(TestResult(
@@ -402,22 +408,22 @@ class ProductionVerifier:
         # Test Pydantic model validation
         start = time.time()
         try:
-            from scripts.models import SourceDocument
+            from scripts.models import SourceDocumentMinimal
             from uuid import uuid4
             
             # Valid document
-            doc = SourceDocument(
-                source_document_uuid=str(uuid4()),
-                project_uuid=str(uuid4()),
+            doc = SourceDocumentMinimal(
+                document_uuid=uuid4(),
+                project_uuid=uuid4(),
                 file_name="test.pdf",
                 file_size=1000
             )
             
             # Test invalid data
             try:
-                invalid_doc = SourceDocument(
-                    source_document_uuid="not-a-uuid",
-                    project_uuid=str(uuid4()),
+                invalid_doc = SourceDocumentMinimal(
+                    document_uuid="not-a-uuid",
+                    project_uuid=uuid4(),
                     file_name="test.pdf"
                 )
                 validation_works = False

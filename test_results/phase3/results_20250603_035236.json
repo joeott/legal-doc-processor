@@ -1,0 +1,74 @@
+[
+  {
+    "test_name": "sequential_batch_5",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 3.457069396972656e-05,
+    "error": null,
+    "details": {
+      "batch_size": 5,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530315"
+  },
+  {
+    "test_name": "sequential_batch_10",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 2.0503997802734375e-05,
+    "error": null,
+    "details": {
+      "batch_size": 10,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530379"
+  },
+  {
+    "test_name": "sequential_batch_25",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 1.8596649169921875e-05,
+    "error": null,
+    "details": {
+      "batch_size": 25,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530423"
+  },
+  {
+    "test_name": "concurrent_3",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 1.9311904907226562e-05,
+    "error": null,
+    "details": {
+      "concurrent_count": 3,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530485"
+  },
+  {
+    "test_name": "concurrent_5",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 1.8596649169921875e-05,
+    "error": null,
+    "details": {
+      "concurrent_count": 5,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530528"
+  },
+  {
+    "test_name": "concurrent_10",
+    "phase": "phase3",
+    "status": "SKIP",
+    "duration": 3.2901763916015625e-05,
+    "error": null,
+    "details": {
+      "concurrent_count": 10,
+      "reason": "Requires test documents"
+    },
+    "timestamp": "2025-06-03T03:52:36.530584"
+  }
+]

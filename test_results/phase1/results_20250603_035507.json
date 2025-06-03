@@ -1,0 +1,155 @@
+[
+  {
+    "test_name": "environment_variables",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00021529197692871094,
+    "error": "Missing variables: ['REDIS_HOST', 'REDIS_PORT', 'REDIS_PASSWORD']",
+    "details": null,
+    "timestamp": "2025-06-03T03:55:04.860726"
+  },
+  {
+    "test_name": "database_connectivity",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 1.1320281028747559,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:05.992973"
+  },
+  {
+    "test_name": "redis_connectivity",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.19631481170654297,
+    "error": "'RedisManager' object has no attribute 'client'",
+    "details": null,
+    "timestamp": "2025-06-03T03:55:06.189356"
+  },
+  {
+    "test_name": "s3_initialization",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 0.3246269226074219,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:06.514151"
+  },
+  {
+    "test_name": "import_scripts.celery_app",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 0.06010603904724121,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:06.574655"
+  },
+  {
+    "test_name": "import_scripts.pdf_tasks",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 0.9810492992401123,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.555858"
+  },
+  {
+    "test_name": "import_scripts.db",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 4.76837158203125e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556030"
+  },
+  {
+    "test_name": "import_scripts.cache",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.6226043701171875e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556112"
+  },
+  {
+    "test_name": "import_scripts.config",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.6226043701171875e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556167"
+  },
+  {
+    "test_name": "import_scripts.models",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 1.9073486328125e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556217"
+  },
+  {
+    "test_name": "import_scripts.graph_service",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.384185791015625e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556266"
+  },
+  {
+    "test_name": "import_scripts.entity_service",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.6226043701171875e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556319"
+  },
+  {
+    "test_name": "import_scripts.chunking_utils",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.1457672119140625e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556365"
+  },
+  {
+    "test_name": "import_scripts.ocr_extraction",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 1.6689300537109375e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556409"
+  },
+  {
+    "test_name": "import_scripts.textract_utils",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.384185791015625e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556454"
+  },
+  {
+    "test_name": "import_scripts.s3_storage",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 2.1457672119140625e-06,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.556499"
+  },
+  {
+    "test_name": "import_scripts.logging_config",
+    "phase": "phase1",
+    "status": "PASS",
+    "duration": 0.0026242733001708984,
+    "error": null,
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.559170"
+  }
+]

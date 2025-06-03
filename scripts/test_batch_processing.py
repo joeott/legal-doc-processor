@@ -5,6 +5,7 @@ Purpose: Test the system's ability to handle multiple documents
 """
 
 import os
+import sys
 import time
 import json
 import asyncio
@@ -13,6 +14,9 @@ from typing import List, Dict, Any
 from datetime import datetime
 from uuid import uuid4
 import concurrent.futures
+
+# Add parent directory to Python path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

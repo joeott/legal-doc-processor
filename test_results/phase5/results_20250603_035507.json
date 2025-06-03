@@ -1,0 +1,11 @@
+[
+  {
+    "test_name": "pydantic_validation",
+    "phase": "phase5",
+    "status": "FAIL",
+    "duration": 1.4781951904296875e-05,
+    "error": "cannot import name 'SourceDocument' from 'scripts.models' (/opt/legal-doc-processor/scripts/models.py)",
+    "details": null,
+    "timestamp": "2025-06-03T03:55:07.563471"
+  }
+]

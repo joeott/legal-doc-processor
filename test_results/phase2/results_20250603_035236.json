@@ -1,0 +1,79 @@
+[
+  {
+    "test_name": "single_document_e2e",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 9.5367431640625e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires actual document and running system"
+    },
+    "timestamp": "2025-06-03T03:52:36.522424"
+  },
+  {
+    "test_name": "stage_ocr_processing",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 4.76837158203125e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.522474"
+  },
+  {
+    "test_name": "stage_text_chunking",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 4.76837158203125e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.522535"
+  },
+  {
+    "test_name": "stage_entity_extraction",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 2.384185791015625e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.522561"
+  },
+  {
+    "test_name": "stage_entity_resolution",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 1.430511474609375e-06,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.529172"
+  },
+  {
+    "test_name": "stage_relationship_building",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 4.76837158203125e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.529227"
+  },
+  {
+    "test_name": "stage_pipeline_finalization",
+    "phase": "phase2",
+    "status": "SKIP",
+    "duration": 2.384185791015625e-07,
+    "error": null,
+    "details": {
+      "reason": "Requires mock data and stage isolation"
+    },
+    "timestamp": "2025-06-03T03:52:36.529258"
+  }
+]
