@@ -57,7 +57,9 @@
       "Bash(sudo systemctl:*)",
       "Bash(export:*)",
       "Bash(celery -A scripts.celery_app inspect active)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git tag:*)"
     ],
     "deny": []
   }
