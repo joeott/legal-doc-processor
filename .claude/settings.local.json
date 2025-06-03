@@ -59,7 +59,8 @@
       "Bash(celery -A scripts.celery_app inspect active)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(env)"
     ],
     "deny": []
   }

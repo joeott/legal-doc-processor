@@ -1,0 +1,142 @@
+{
+  "timestamp": "2025-06-03T04:20:24.691030",
+  "errors": [
+    {
+      "context": "Environment",
+      "error": "Redis variables missing: ['REDIS_HOST', 'REDIS_PORT', 'REDIS_PASSWORD']",
+      "recommendation": "Redis is configured via REDIS_CONFIG, individual vars not needed",
+      "timestamp": "2025-06-03T04:20:24.691669"
+    },
+    {
+      "context": "Database",
+      "error": "Connection failed: __enter__",
+      "recommendation": "Check DATABASE_URL and database accessibility",
+      "timestamp": "2025-06-03T04:20:25.352559"
+    },
+    {
+      "context": "Redis",
+      "error": "Read/write test failed",
+      "recommendation": "Check Redis permissions",
+      "timestamp": "2025-06-03T04:20:25.492613"
+    },
+    {
+      "context": "Textract",
+      "error": "Access test failed: 'Textract' object has no attribute 'describe_document_text_detection_job'",
+      "recommendation": "Check IAM permissions for Textract",
+      "timestamp": "2025-06-03T04:20:25.996017"
+    },
+    {
+      "context": "OpenAI",
+      "error": "API test failed: \n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n",
+      "recommendation": "Check API key validity and credits",
+      "timestamp": "2025-06-03T04:20:26.417469"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.process_pdf_document",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.487698"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.process_ocr_task",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.487796"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.chunk_document_task",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.487852"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.extract_entities_task",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.487907"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.resolve_entities_task",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.487968"
+    },
+    {
+      "context": "Celery",
+      "error": "Task not found: scripts.pdf_tasks.build_relationships_task",
+      "recommendation": "Check task registration in celery_app.py",
+      "timestamp": "2025-06-03T04:20:26.488026"
+    }
+  ],
+  "warnings": [],
+  "successes": [
+    {
+      "context": "Environment",
+      "message": "DATABASE_URL is set (Database connection string)",
+      "timestamp": "2025-06-03T04:20:24.691401"
+    },
+    {
+      "context": "Environment",
+      "message": "AWS_ACCESS_KEY_ID is set (AWS credentials for S3/Textract)",
+      "timestamp": "2025-06-03T04:20:24.691440"
+    },
+    {
+      "context": "Environment",
+      "message": "AWS_SECRET_ACCESS_KEY is set (AWS credentials)",
+      "timestamp": "2025-06-03T04:20:24.691476"
+    },
+    {
+      "context": "Environment",
+      "message": "S3_PRIMARY_DOCUMENT_BUCKET is set (S3 bucket for documents)",
+      "timestamp": "2025-06-03T04:20:24.691510"
+    },
+    {
+      "context": "Environment",
+      "message": "OPENAI_API_KEY is set (OpenAI API for entity extraction)",
+      "timestamp": "2025-06-03T04:20:24.691546"
+    },
+    {
+      "context": "Environment",
+      "message": "DEPLOYMENT_STAGE is set (Deployment configuration)",
+      "timestamp": "2025-06-03T04:20:24.691607"
+    },
+    {
+      "context": "Redis",
+      "message": "Connected to Redis successfully",
+      "timestamp": "2025-06-03T04:20:25.490599"
+    },
+    {
+      "context": "S3",
+      "message": "Bucket 'samu-docs-private-upload' is accessible",
+      "timestamp": "2025-06-03T04:20:25.928272"
+    },
+    {
+      "context": "S3",
+      "message": "Write permissions confirmed",
+      "timestamp": "2025-06-03T04:20:25.958430"
+    },
+    {
+      "context": "Documents",
+      "message": "Found 9 PDF files",
+      "timestamp": "2025-06-03T04:20:26.418307"
+    },
+    {
+      "context": "Documents",
+      "message": "Primary test document found: Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf (99.5KB)",
+      "timestamp": "2025-06-03T04:20:26.418460"
+    },
+    {
+      "context": "Celery",
+      "message": "Broker configured: redis://joe_ott:BHMb...",
+      "timestamp": "2025-06-03T04:20:26.488144"
+    }
+  ],
+  "recommendations": [],
+  "summary": {
+    "assessment": "NOT READY - Critical issues found",
+    "total_tests": 23,
+    "passed": 12,
+    "failed": 11,
+    "success_rate": 52.17391304347826
+  }
+}
