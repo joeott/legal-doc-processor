@@ -34,9 +34,6 @@ from scripts.core.model_factory import (
     get_canonical_entity_model
 )
 
-# Import minimal models for Option B compatibility
-from scripts.models import RelationshipStagingMinimal
-
 # Get models based on configuration
 SourceDocumentModel = get_source_document_model()
 ChunkModel = get_chunk_model()
@@ -602,7 +599,7 @@ class DatabaseManager:
     
     # ========== Relationship Operations ==========
     
-    def create_relationship_staging(self, relationship: RelationshipStagingMinimal) -> Optional[RelationshipStagingMinimal]:
+    def create_relationship_staging(self, relationship: RelationshipStagingModel) -> Optional[RelationshipStagingModel]:
         """Create a relationship in staging."""
         return self.pydantic_db.create("relationship_staging", relationship)
     

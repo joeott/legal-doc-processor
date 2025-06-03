@@ -247,12 +247,17 @@ def save_canonical_entities_to_db(
     db_manager: Any
 ) -> int:
     """Save canonical entities to database"""
+    logger.info(f"Starting save_canonical_entities_to_db with {len(canonical_entities)} entities")
+    
     session = next(db_manager.get_session())
+    logger.debug(f"Got database session: {session}")
     
     saved_count = 0
     try:
-        for entity in canonical_entities:
+        for i, entity in enumerate(canonical_entities):
             try:
+                logger.debug(f"Processing entity {i+1}/{len(canonical_entities)}: {entity.get('canonical_name', 'unknown')}")
+                
                 # Use SQLAlchemy to insert with proper JSON handling
                 from sqlalchemy import text as sql_text
                 insert_query = sql_text("""
@@ -271,7 +276,8 @@ def save_canonical_entities_to_db(
                 # Convert aliases list to JSON
                 import json
                 
-                result = session.execute(insert_query, {
+                # Log the data being saved
+                save_params = {
                     'canonical_entity_uuid': str(entity['canonical_entity_uuid']),
                     'canonical_name': entity['canonical_name'],
                     'entity_type': entity['entity_type'],
@@ -281,17 +287,26 @@ def save_canonical_entities_to_db(
                     'aliases': json.dumps(entity.get('aliases', [])),
                     'metadata': json.dumps(entity.get('metadata', {})),
                     'created_at': entity.get('created_at', datetime.utcnow())
-                })
+                }
+                logger.debug(f"Save params: uuid={save_params['canonical_entity_uuid']}, name={save_params['canonical_name']}")
+                
+                result = session.execute(insert_query, save_params)
                 
                 if result.rowcount > 0:
                     saved_count += 1
-                    logger.debug(f"Saved canonical entity: {entity['canonical_name']}")
+                    logger.info(f"✓ Saved canonical entity {i+1}: {entity['canonical_name']}")
+                else:
+                    logger.warning(f"✗ Entity {i+1} not saved (conflict?): {entity['canonical_name']}")
                     
             except Exception as e:
-                logger.error(f"Failed to save canonical entity {entity['canonical_name']}: {e}")
+                logger.error(f"Failed to save canonical entity {i+1} {entity.get('canonical_name', 'unknown')}: {e}")
+                logger.error(f"Entity data: {entity}")
+                import traceback
+                logger.error(f"Traceback: {traceback.format_exc()}")
         
+        logger.info(f"About to commit {saved_count} canonical entities...")
         session.commit()
-        logger.info(f"Saved {saved_count}/{len(canonical_entities)} canonical entities to database")
+        logger.info(f"✓ Successfully committed {saved_count}/{len(canonical_entities)} canonical entities to database")
         
     except Exception as e:
         session.rollback()

@@ -23,8 +23,7 @@ from scripts.graph_service import GraphService
 from scripts.ocr_extraction import extract_text_from_pdf
 from scripts.chunking_utils import simple_chunk_text
 # from scripts.s3_storage import upload_to_s3, generate_s3_key  # Not used currently
-from scripts.core.pdf_models import PDFDocumentModel, ProcessingStatus
-from scripts.core.processing_models import ProcessingResultStatus
+from scripts.models import ProcessingStatus, ProcessingResultStatus
 from scripts.config import OPENAI_API_KEY, S3_PRIMARY_DOCUMENT_BUCKET, get_database_url
 
 logger = logging.getLogger(__name__)
@@ -317,10 +316,18 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
         if not document_uuid or not file_path:
             raise ValueError("document_uuid and file_path are required")
         
-        # For S3 paths, skip local file existence check
+        # Handle S3 paths - convert S3 key to full URI if needed
         if not file_path.startswith('s3://'):
-            if not Path(file_path).exists():
-                raise FileNotFoundError(f"PDF file not found: {file_path}")
+            # Check if it's an S3 key (e.g., "documents/uuid.pdf")
+            if file_path.startswith('documents/') or '/' in file_path:
+                # Convert to full S3 URI using the configured bucket
+                from scripts.config import S3_PRIMARY_DOCUMENT_BUCKET
+                file_path = f"s3://{S3_PRIMARY_DOCUMENT_BUCKET}/{file_path}"
+                logger.info(f"Converted S3 key to URI: {file_path}")
+            else:
+                # It's a local file path - check existence
+                if not Path(file_path).exists():
+                    raise FileNotFoundError(f"PDF file not found: {file_path}")
         
         # 3. Validate document exists and is in correct state
         if not validate_document_exists(self.db_manager, document_uuid):
@@ -341,7 +348,17 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
         if cached_result:
             logger.info(f"Using cached OCR result for document {document_uuid}")
             update_document_state(document_uuid, "ocr", "completed", {"from_cache": True})
-            return cached_result
+            
+            # Continue the pipeline with cached text
+            continue_pipeline_after_ocr.apply_async(
+                args=[document_uuid, cached_result['text']]
+            )
+            
+            return {
+                'status': 'completed',
+                'text_length': len(cached_result['text']),
+                'from_cache': True
+            }
         
         # Start async Textract job
         from scripts.textract_job_manager import get_job_manager
@@ -455,8 +472,8 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             raise ValueError("No chunks generated from text")
         
         # 6. Create validated chunk models
-        from scripts.core.model_factory import get_chunk_model
-        ChunkModel = get_chunk_model()
+        from scripts.models import ModelFactory
+        ChunkModel = ModelFactory.get_chunk_model()
         
         chunk_models = []
         logger.info(f"Creating chunk models for {len(chunks)} chunks")
@@ -742,9 +759,13 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
             "canonical_count": len(canonical_entities)
         })
         
-        # Trigger next stage - entity resolution
+        # Trigger next stage - entity resolution using standalone task
         entity_mentions_data = [m.dict() for m in all_entity_mentions]
-        resolve_document_entities.apply_async(
+        
+        # Import the standalone resolution task
+        from scripts.resolution_task import resolve_entities_standalone
+        
+        resolve_entities_standalone.apply_async(
             args=[document_uuid, entity_mentions_data]
         )
         
@@ -783,6 +804,12 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             update_entity_mentions_with_canonical
         )
         
+        # Ensure entity_mentions are dicts, not Pydantic models
+        if entity_mentions and hasattr(entity_mentions[0], 'dict'):
+            # Convert Pydantic models to dicts
+            entity_mentions = [m.dict() if hasattr(m, 'dict') else m for m in entity_mentions]
+            logger.info("Converted entity mentions from Pydantic models to dicts")
+        
         # Perform resolution
         resolution_result = resolve_entities_simple(
             entity_mentions=entity_mentions,
@@ -792,19 +819,40 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         
         logger.info(f"Resolution complete: {resolution_result['total_canonical']} canonical entities from {resolution_result['total_mentions']} mentions")
         
+        # Log canonical entities before saving
+        logger.info(f"Canonical entities to save: {len(resolution_result.get('canonical_entities', []))}")
+        for i, entity in enumerate(resolution_result.get('canonical_entities', [])):
+            logger.debug(f"Entity {i}: {entity.get('canonical_name')} (type: {entity.get('entity_type')})")
+        
         # Save canonical entities to database
-        saved_count = save_canonical_entities_to_db(
-            canonical_entities=resolution_result['canonical_entities'],
-            document_uuid=document_uuid,
-            db_manager=self.db_manager
-        )
+        try:
+            saved_count = save_canonical_entities_to_db(
+                canonical_entities=resolution_result['canonical_entities'],
+                document_uuid=document_uuid,
+                db_manager=self.db_manager
+            )
+            logger.info(f"Successfully saved {saved_count} canonical entities to database")
+        except Exception as e:
+            logger.error(f"Failed to save canonical entities: {e}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise
         
         # Update entity mentions with canonical UUIDs
-        updated_count = update_entity_mentions_with_canonical(
-            mention_to_canonical=resolution_result['mention_to_canonical'],
-            document_uuid=document_uuid,
-            db_manager=self.db_manager
-        )
+        try:
+            updated_count = update_entity_mentions_with_canonical(
+                mention_to_canonical=resolution_result['mention_to_canonical'],
+                document_uuid=document_uuid,
+                db_manager=self.db_manager
+            )
+            logger.info(f"Successfully updated {updated_count} entity mentions with canonical UUIDs")
+        except Exception as e:
+            logger.error(f"Failed to update entity mentions: {e}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise
         
         # Update cache with resolved entities
         redis_manager = get_redis_manager()
@@ -831,7 +879,7 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         chunks_data = redis_manager.get_dict(chunks_key) or {}
         chunks = chunks_data.get('chunks', [])
         
-        # Get updated entity mentions from database
+        # Get updated entity mentions from database with ALL required fields
         session = next(self.db_manager.get_session())
         try:
             from sqlalchemy import text as sql_text
@@ -848,8 +896,13 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             for row in mentions_results:
                 entity_mentions_list.append({
                     'mention_uuid': str(row.mention_uuid),
+                    'chunk_uuid': str(row.chunk_uuid),
+                    'document_uuid': str(row.document_uuid),
                     'entity_text': row.entity_text,
                     'entity_type': row.entity_type,
+                    'start_char': row.start_char,
+                    'end_char': row.end_char,
+                    'confidence_score': row.confidence_score,
                     'canonical_entity_uuid': str(row.canonical_entity_uuid) if row.canonical_entity_uuid else None,
                     'canonical_name': row.canonical_name
                 })
@@ -859,6 +912,11 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         # Trigger next stage - relationship building
         if project_uuid and chunks and resolution_result['canonical_entities']:
             logger.info(f"Triggering relationship building with {len(resolution_result['canonical_entities'])} canonical entities")
+            
+            # Ensure document_uuid is in metadata
+            if 'document_uuid' not in document_metadata:
+                document_metadata['document_uuid'] = document_uuid
+            
             build_document_relationships.apply_async(
                 args=[
                     document_uuid,
@@ -880,6 +938,9 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             
     except Exception as e:
         logger.error(f"Entity resolution failed for {document_uuid}: {e}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Full traceback:\n{traceback.format_exc()}")
         update_document_state(document_uuid, "entity_resolution", "failed", {"error": str(e)})
         raise
 

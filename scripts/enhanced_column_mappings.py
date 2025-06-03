@@ -191,22 +191,28 @@ COLUMN_MAPPINGS = {
     },
     
     "relationship_staging": {
-        # RelationshipModel fields -> entity_relationships table columns
-        "relationship_id": "id",
-        "from_node_id": "source_entity_id",
-        "to_node_id": "target_entity_id",
-        "source_id": "source_entity_id",
-        "target_id": "target_entity_id",
+        # RelationshipStagingMinimal fields -> relationship_staging table columns
+        "id": "id",
+        "source_entity_uuid": "source_entity_uuid",  # Match actual table schema
+        "target_entity_uuid": "target_entity_uuid",  # Match actual table schema
+        
+        # Legacy mappings for compatibility
+        "from_node_id": "source_entity_uuid",
+        "to_node_id": "target_entity_uuid",
+        "source_id": "source_entity_uuid",
+        "target_id": "target_entity_uuid",
         
         # Relationship data
         "relationship_type": "relationship_type",
         "confidence": "confidence_score",
         "confidence_score": "confidence_score",
+        "source_chunk_uuid": "source_chunk_uuid",
+        "evidence_text": "evidence_text",
         
         # Metadata
-        "properties": "metadata",
-        "metadata_json": "metadata",
-        "document_uuid": "metadata"  # Store document reference in metadata
+        "properties": "properties",
+        "metadata": "metadata",
+        "created_at": "created_at"
     },
     
     "processing_tasks": {

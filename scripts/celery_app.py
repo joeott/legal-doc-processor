@@ -32,7 +32,8 @@ app = Celery(
     broker=redis_url,
     backend=redis_url,
     include=[
-        'scripts.pdf_tasks'  # Single consolidated task module
+        'scripts.pdf_tasks',  # Main task module
+        'scripts.resolution_task'  # Standalone resolution task
     ]
 )
 
@@ -82,6 +83,7 @@ app.conf.update(
         'scripts.pdf_tasks.chunk_document_text': {'queue': 'text'},
         'scripts.pdf_tasks.extract_entities_from_chunks': {'queue': 'entity'},
         'scripts.pdf_tasks.resolve_document_entities': {'queue': 'entity'},
+        'scripts.resolution_task.resolve_entities_standalone': {'queue': 'entity'},
         'scripts.pdf_tasks.build_document_relationships': {'queue': 'graph'},
         'scripts.pdf_tasks.process_pdf_document': {'queue': 'default'},
         'scripts.pdf_tasks.cleanup_*': {'queue': 'cleanup'},

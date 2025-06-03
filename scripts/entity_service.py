@@ -25,23 +25,25 @@ from scripts.config import (
 )
 
 # Import Pydantic models
+from scripts.models import (
+    EntityMentionMinimal as EntityMentionModel,
+    CanonicalEntityMinimal as CanonicalEntity,
+    ProcessingResultStatus,
+    ProcessingResult
+)
+
+# Import processing models that don't exist in models.py yet
+# TODO: These need to be migrated or removed
 from scripts.core.processing_models import (
     EntityExtractionResultModel, ExtractedEntity,
-    EntityResolutionResultModel, CanonicalEntity,
+    EntityResolutionResultModel,
     DocumentMetadata, KeyFact, EntitySet, ExtractedRelationship,
-    StructuredChunkData, StructuredExtractionResultModel,
-    ProcessingResultStatus
+    StructuredChunkData, StructuredExtractionResultModel
 )
-# Use minimal model when configured
-if os.getenv('USE_MINIMAL_MODELS', '').lower() == 'true':
-    from scripts.core.models_minimal import EntityMentionMinimal as EntityMentionModel
-else:
-    from scripts.core.schemas import EntityMentionModel
 
 # Import utilities
 from scripts.cache import redis_cache, get_redis_manager, rate_limit, CacheKeys
 from scripts.db import DatabaseManager
-from scripts.core.conformance_validator import validate_before_operation, ConformanceError
 
 logger = logging.getLogger(__name__)
 
@@ -572,7 +574,7 @@ class EntityService:
     @redis_cache(
         prefix="entity:resolution",
         ttl=REDIS_ENTITY_CACHE_TTL,
-        key_func=lambda self, mentions, entity_type: f"entity:resolution:{entity_type}:{hashlib.md5(json.dumps([m.text for m in mentions], sort_keys=True).encode()).hexdigest()}"
+        key_func=lambda self, mentions, entity_type: f"entity:resolution:{entity_type}:{hashlib.md5(json.dumps([getattr(m, 'entity_text', m.get('entity_text', '')) for m in mentions], sort_keys=True).encode()).hexdigest()}"
     )
     @rate_limit(key="openai", limit=10, window=60, wait=True, max_wait=300)
     def _resolve_entities_with_llm(
@@ -586,7 +588,7 @@ class EntityService:
         
         try:
             # Create prompt with all mentions
-            mention_texts = [m.text for m in mentions]
+            mention_texts = [getattr(m, 'entity_text', m.get('entity_text', '')) for m in mentions]
             unique_texts = list(set(mention_texts))
             
             prompt = f"""You are an expert at entity resolution for legal documents.
@@ -641,7 +643,7 @@ Example:
             canonical_entities = []
             for canonical_name, mention_texts in groupings.items():
                 # Find all mentions with these texts
-                matched_mentions = [m for m in mentions if m.text in mention_texts]
+                matched_mentions = [m for m in mentions if getattr(m, 'entity_text', m.get('entity_text', '')) in mention_texts]
                 
                 if matched_mentions:
                     canonical = CanonicalEntity(
@@ -654,7 +656,7 @@ Example:
                         resolution_method='llm',
                         metadata={
                             'model': LLM_MODEL_FOR_RESOLUTION or 'gpt-4',
-                            'mention_variations': list(set(m.text for m in matched_mentions))
+                            'mention_variations': list(set(getattr(m, 'entity_text', m.get('entity_text', '')) for m in matched_mentions))
                         }
                     )
                     canonical_entities.append(canonical)
@@ -694,7 +696,9 @@ Example:
                     continue
                 
                 # Calculate similarity
-                similarity = SequenceMatcher(None, mention1.text.lower(), mention2.text.lower()).ratio()
+                text1 = getattr(mention1, 'entity_text', mention1.get('entity_text', ''))
+                text2 = getattr(mention2, 'entity_text', mention2.get('entity_text', ''))
+                similarity = SequenceMatcher(None, text1.lower(), text2.lower()).ratio()
                 
                 if similarity >= threshold:
                     group.append(mention2)
@@ -718,7 +722,7 @@ Example:
                 resolution_method='fuzzy',
                 metadata={
                     'threshold': threshold,
-                    'mention_variations': list(set(m.text for m in group))
+                    'mention_variations': list(set(getattr(m, 'entity_text', m.get('entity_text', '')) for m in group))
                 }
             )
             canonical_entities.append(canonical)
@@ -1031,8 +1035,20 @@ Example:
             Similarity score between 0 and 1
         """
         # Extract text if entity objects
-        text1 = entity1.text if hasattr(entity1, 'text') else str(entity1)
-        text2 = entity2.text if hasattr(entity2, 'text') else str(entity2)
+        # EntityMentionMinimal uses entity_text, not text
+        if hasattr(entity1, 'entity_text'):
+            text1 = entity1.entity_text
+        elif hasattr(entity1, 'canonical_name'):
+            text1 = entity1.canonical_name
+        else:
+            text1 = str(entity1)
+            
+        if hasattr(entity2, 'entity_text'):
+            text2 = entity2.entity_text
+        elif hasattr(entity2, 'canonical_name'):
+            text2 = entity2.canonical_name
+        else:
+            text2 = str(entity2)
         
         # Simple similarity using SequenceMatcher
         from difflib import SequenceMatcher
