@@ -18,30 +18,19 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, ValidationError
 
-# Import our Pydantic models
-from scripts.core.schemas import (
-    ProjectModel, Neo4jDocumentModel, 
-    RelationshipStagingModel, TextractJobModel, ProcessingStatus,
-    ImportSessionModel, ChunkEmbeddingModel, CanonicalEntityEmbeddingModel,
-    DocumentProcessingHistoryModel, create_model_from_db
+# Import our Pydantic models from consolidated location
+from scripts.models import (
+    ProjectMinimal as ProjectModel,
+    SourceDocumentMinimal as SourceDocumentModel,
+    DocumentChunkMinimal as ChunkModel,
+    EntityMentionMinimal as EntityMentionModel,
+    CanonicalEntityMinimal as CanonicalEntityModel,
+    RelationshipStagingMinimal as RelationshipStagingModel,
+    ProcessingStatus,
+    ProcessingTaskMinimal
 )
 
-# Import model factory for conditional model loading
-from scripts.core.model_factory import (
-    get_source_document_model,
-    get_chunk_model,
-    get_entity_mention_model,
-    get_canonical_entity_model
-)
-
-# Import minimal models for Option B compatibility
-from scripts.models import RelationshipStagingMinimal
-
-# Get models based on configuration
-SourceDocumentModel = get_source_document_model()
-ChunkModel = get_chunk_model()
-EntityMentionModel = get_entity_mention_model()
-CanonicalEntityModel = get_canonical_entity_model()
+# Import JSON encoder - TODO: Move this to scripts/ if needed
 from scripts.core.json_serializer import PydanticJSONEncoder
 
 logger = logging.getLogger(__name__)
@@ -102,8 +91,12 @@ class PydanticSerializer:
             
             # If table name is provided, apply reverse mapping
             if table_name:
-                from scripts.enhanced_column_mappings import reverse_map_from_db
-                cleaned = reverse_map_from_db(table_name, cleaned)
+                try:
+                    from scripts.enhanced_column_mappings import reverse_map_from_db
+                    cleaned = reverse_map_from_db(table_name, cleaned)
+                except ImportError:
+                    # Enhanced mappings not available, use data as-is
+                    pass
             
             return model_class.model_validate(cleaned)
         except ValidationError as e:
@@ -156,25 +149,24 @@ class DatabaseType:
     """Database type definitions for migration."""
     PROJECTS = ("projects", ProjectModel)
     SOURCE_DOCUMENTS = ("source_documents", SourceDocumentModel)
-    NEO4J_DOCUMENTS = ("neo4j_documents", Neo4jDocumentModel)
+    # NEO4J_DOCUMENTS = ("neo4j_documents", Neo4jDocumentModel)  # Not in consolidated models
     CHUNKS = ("document_chunks", ChunkModel)
     ENTITY_MENTIONS = ("entity_mentions", EntityMentionModel)
     CANONICAL_ENTITIES = ("canonical_entities", CanonicalEntityModel)
     RELATIONSHIP_STAGING = ("relationship_staging", RelationshipStagingModel)
-    TEXTRACT_JOBS = ("textract_jobs", TextractJobModel)
-    IMPORT_SESSIONS = ("import_sessions", ImportSessionModel)
-    CHUNK_EMBEDDINGS = ("chunk_embeddings", ChunkEmbeddingModel)
-    CANONICAL_ENTITY_EMBEDDINGS = ("canonical_entity_embeddings", CanonicalEntityEmbeddingModel)
-    PROCESSING_HISTORY = ("document_processing_history", DocumentProcessingHistoryModel)
+    # TEXTRACT_JOBS = ("textract_jobs", TextractJobModel)  # Not in consolidated models
+    # IMPORT_SESSIONS = ("import_sessions", ImportSessionModel)  # Not in consolidated models
+    # CHUNK_EMBEDDINGS = ("chunk_embeddings", ChunkEmbeddingModel)  # Not in consolidated models
+    # CANONICAL_ENTITY_EMBEDDINGS = ("canonical_entity_embeddings", CanonicalEntityEmbeddingModel)  # Not in consolidated models
+    # PROCESSING_HISTORY = ("document_processing_history", DocumentProcessingHistoryModel)  # Not in consolidated models
     
     @classmethod
     def all_types(cls) -> List[Tuple[str, Type[BaseModel]]]:
         """Get all database types"""
         return [
-            cls.PROJECTS, cls.SOURCE_DOCUMENTS, cls.NEO4J_DOCUMENTS,
+            cls.PROJECTS, cls.SOURCE_DOCUMENTS,
             cls.CHUNKS, cls.ENTITY_MENTIONS, cls.CANONICAL_ENTITIES,
-            cls.RELATIONSHIP_STAGING, cls.TEXTRACT_JOBS, cls.IMPORT_SESSIONS,
-            cls.CHUNK_EMBEDDINGS, cls.CANONICAL_ENTITY_EMBEDDINGS, cls.PROCESSING_HISTORY
+            cls.RELATIONSHIP_STAGING
         ]
 
 
@@ -602,7 +594,7 @@ class DatabaseManager:
     
     # ========== Relationship Operations ==========
     
-    def create_relationship_staging(self, relationship: RelationshipStagingMinimal) -> Optional[RelationshipStagingMinimal]:
+    def create_relationship_staging(self, relationship: RelationshipStagingModel) -> Optional[RelationshipStagingModel]:
         """Create a relationship in staging."""
         return self.pydantic_db.create("relationship_staging", relationship)
     
@@ -613,6 +605,190 @@ class DatabaseManager:
             RelationshipStagingModel,
             {"source_id": document_uuid}
         )
+    
+    # ========== Textract Operations ==========
+    
+    def create_textract_job_entry(
+        self,
+        source_document_id: int,
+        document_uuid: uuid.UUID,
+        job_id: str,
+        s3_input_bucket: str,
+        s3_input_key: str,
+        job_type: str = 'DetectDocumentText',
+        s3_output_bucket: Optional[str] = None,
+        s3_output_key: Optional[str] = None,
+        client_request_token: Optional[str] = None,
+        job_tag: Optional[str] = None,
+        job_status: str = 'IN_PROGRESS',
+        sns_topic_arn: Optional[str] = None
+    ):  # -> Optional[TextractJobModel]:  # Model not in consolidated
+        """Create a Textract job entry in the database.
+        Note: TextractJobModel not in consolidated models, returns dict instead."""
+        try:
+            # Create a dictionary with the correct column names
+            job_data = {
+                'job_id': job_id,
+                'document_uuid': str(document_uuid),
+                'job_type': job_type,
+                'status': job_status,  # Changed from job_status to status
+                'created_at': datetime.now(timezone.utc),
+                'started_at': datetime.now(timezone.utc),
+                'metadata': {
+                    's3_input_bucket': s3_input_bucket,
+                    's3_input_key': s3_input_key,
+                    's3_output_bucket': s3_output_bucket,
+                    's3_output_key': s3_output_key,
+                    'job_tag': job_tag,
+                    'sns_topic_arn': sns_topic_arn,
+                    'source_document_id': source_document_id
+                }
+            }
+            
+            # Remove None values from metadata
+            job_data['metadata'] = {k: v for k, v in job_data['metadata'].items() if v is not None}
+            
+            # Create the job entry using raw SQL since we don't have the exact model
+            from scripts.rds_utils import insert_record
+            result = insert_record("textract_jobs", job_data)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error creating Textract job entry: {e}")
+            return None
+    
+    def get_textract_job_by_job_id(self, job_id: str) -> Optional[Dict[str, Any]]:
+        """Get Textract job by job ID."""
+        try:
+            from scripts.rds_utils import select_records
+            results = select_records(
+                "textract_jobs",
+                where={"job_id": job_id},
+                limit=1
+            )
+            if results:
+                return results[0]
+            return None
+        except Exception as e:
+            logger.error(f"Error getting Textract job: {e}")
+            return None
+    
+    def update_textract_job_status(
+        self,
+        job_id: str,
+        status: str,
+        error_message: Optional[str] = None,
+        completed_at: Optional[datetime] = None,
+        pages_processed: Optional[int] = None,
+        page_count: Optional[int] = None,
+        processed_pages: Optional[int] = None,
+        avg_confidence: Optional[float] = None,
+        warnings_json: Optional[List[Any]] = None,
+        completed_at_override: Optional[datetime] = None
+    ) -> bool:
+        """Update Textract job status."""
+        from scripts.rds_utils import update_record
+        try:
+            update_data = {
+                "status": status,  # Changed from job_status to status
+            }
+            
+            if error_message:
+                update_data["error_message"] = error_message  # Changed from status_message
+            
+            # Use completed_at_override if provided, otherwise completed_at
+            if completed_at_override:
+                update_data["completed_at"] = completed_at_override.isoformat()
+            elif completed_at:
+                update_data["completed_at"] = completed_at.isoformat()
+            
+            # Handle page_count (prefer page_count over pages_processed)
+            if page_count is not None:
+                update_data["page_count"] = page_count
+            elif pages_processed is not None:
+                update_data["page_count"] = pages_processed
+            elif processed_pages is not None:
+                update_data["page_count"] = processed_pages
+            
+            # Add additional metadata to the metadata JSON field
+            metadata_updates = {}
+            if avg_confidence is not None:
+                metadata_updates["avg_confidence"] = avg_confidence
+            if warnings_json is not None:
+                metadata_updates["warnings"] = warnings_json
+                
+            if metadata_updates:
+                # Get existing metadata and update it
+                existing_job = self.get_textract_job_by_job_id(job_id)
+                if existing_job and existing_job.get('metadata'):
+                    existing_metadata = existing_job['metadata']
+                    if isinstance(existing_metadata, dict):
+                        existing_metadata.update(metadata_updates)
+                        update_data["metadata"] = existing_metadata
+                    else:
+                        update_data["metadata"] = metadata_updates
+                else:
+                    update_data["metadata"] = metadata_updates
+            
+            result = update_record(
+                "textract_jobs",
+                update_data,
+                {"job_id": job_id}
+            )
+            
+            return result is not None
+            
+        except Exception as e:
+            logger.error(f"Error updating Textract job status: {e}")
+            return False
+    
+    def update_source_document_with_textract_outcome(
+        self,
+        source_doc_sql_id: int,
+        textract_job_id: str,
+        textract_job_status: str,
+        raw_text: Optional[str] = None,
+        markdown_text: Optional[str] = None,
+        ocr_metadata: Optional[Dict[str, Any]] = None,
+        job_started_at: Optional[datetime] = None,
+        job_completed_at: Optional[datetime] = None,
+        textract_warnings_json: Optional[List[Any]] = None,
+        textract_confidence: Optional[float] = None
+    ) -> bool:
+        """Update source document with Textract processing results."""
+        from scripts.rds_utils import update_record
+        try:
+            update_data = {
+                "textract_job_id": textract_job_id,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Update status based on Textract job status
+            if textract_job_status == 'SUCCEEDED':
+                update_data["celery_status"] = ProcessingStatus.OCR_COMPLETED.value
+                update_data["ocr_completed_at"] = datetime.now(timezone.utc).isoformat()
+                if raw_text:
+                    update_data["raw_extracted_text"] = raw_text
+                if markdown_text:
+                    update_data["markdown_text"] = markdown_text
+                if ocr_metadata:
+                    update_data["ocr_metadata_json"] = json.dumps(ocr_metadata, cls=self.pydantic_db.encoder_class)
+            elif textract_job_status == 'FAILED':
+                update_data["celery_status"] = ProcessingStatus.OCR_FAILED.value
+                update_data["error_message"] = f"Textract job {textract_job_id} failed"
+            
+            result = update_record(
+                "source_documents",
+                update_data,
+                {"id": source_doc_sql_id}
+            )
+            
+            return result is not None
+            
+        except Exception as e:
+            logger.error(f"Error updating source document with Textract outcome: {e}")
+            return False
     
     # ========== Migration Support ==========
     

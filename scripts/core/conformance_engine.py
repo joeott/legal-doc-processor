@@ -14,9 +14,12 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
 from scripts.db import engine
-from scripts.core.schemas import (
-    SourceDocumentModel, ChunkModel, EntityMentionModel,
-    CanonicalEntityModel, RelationshipStagingModel
+from scripts.models import (
+    SourceDocumentMinimal as SourceDocumentModel,
+    DocumentChunkMinimal as ChunkModel,
+    EntityMentionMinimal as EntityMentionModel,
+    CanonicalEntityMinimal as CanonicalEntityModel,
+    RelationshipStagingMinimal as RelationshipStagingModel
 )
 
 logger = logging.getLogger(__name__)

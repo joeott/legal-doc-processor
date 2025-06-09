@@ -1261,7 +1261,7 @@ def diagnose_chunking(document_id):
         
         # Get chunks
         chunks_response = monitor.supabase.table('chunks').select(
-            'id', 'chunk_index', 'text_content', 'cleaned_text',
+            'id', 'chunk_index', 'text', 'cleaned_text',
             'char_start_index', 'char_end_index', 'metadata_json'
         ).eq('document_uuid', doc['document_uuid']).order('chunk_index').execute()
         
@@ -1368,8 +1368,8 @@ def diagnose_chunking(document_id):
         
         for idx in sample_indices:
             chunk = chunks[idx]
-            text_preview = chunk['text_content'][:60].replace('\n', ' ')
-            if len(chunk['text_content']) > 60:
+            text_preview = chunk['text'][:60].replace('\n', ' ')
+            if len(chunk['text']) > 60:
                 text_preview += "..."
             
             chunk_type = 'unknown'
@@ -1389,7 +1389,7 @@ def diagnose_chunking(document_id):
             
             samples_table.add_row(
                 str(chunk['chunk_index']),
-                f"{len(chunk['text_content'])}",
+                f"{len(chunk['text'])}",
                 chunk_type,
                 density_str,
                 text_preview
@@ -1404,18 +1404,18 @@ def diagnose_chunking(document_id):
         console.print("\n[bold]Common Issues Check:[/bold]")
         
         # Check for markdown artifacts
-        markdown_count = sum(1 for c in chunks if '##' in c['text_content'] or '###' in c['text_content'])
+        markdown_count = sum(1 for c in chunks if '##' in c['text'] or '###' in c['text'])
         if markdown_count > 0:
             console.print(f"  ⚠️  {markdown_count} chunks contain markdown formatting")
         
         # Check for page break handling
-        page_break_count = sum(1 for c in chunks if '<END_OF_PAGE>' in c['text_content'])
+        page_break_count = sum(1 for c in chunks if '<END_OF_PAGE>' in c['text'])
         if page_break_count > 0:
             console.print(f"  ℹ️  {page_break_count} chunks contain page breaks")
         
         # Check chunk distribution
         if chunks:
-            chunk_sizes = [len(c['text_content']) for c in chunks]
+            chunk_sizes = [len(c['text']) for c in chunks]
             avg_size = sum(chunk_sizes) / len(chunk_sizes)
             if any(size > avg_size * 2 for size in chunk_sizes):
                 console.print("  ⚠️  Some chunks are significantly larger than average")

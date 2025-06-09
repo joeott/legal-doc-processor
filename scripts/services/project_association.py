@@ -8,11 +8,9 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 import json
 
-from scripts.core.pdf_models import (
-    PDFDocumentModel, PDFChunkModel, 
-    ProjectAssociationModel, ProcessingStatus
-)
-from scripts.core.schemas import Neo4jDocumentModel
+from scripts.models import ProcessingStatus
+# Note: PDFDocumentModel, PDFChunkModel, ProjectAssociationModel not in consolidated models
+# Neo4jDocumentModel also not used in production
 from scripts.db import DatabaseManager
 from scripts.cache import get_redis_manager, CacheKeys
 

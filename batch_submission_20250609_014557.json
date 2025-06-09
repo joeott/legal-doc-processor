@@ -1,0 +1,22 @@
+{
+  "project_id": 25,
+  "submission_time": "2025-06-09T01:45:57.920649",
+  "documents": [
+    {
+      "document_uuid": "eaca69ea-1b5f-48f4-b7a1-6ac73521e0e5",
+      "filename": "Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "size_mb": 0.14,
+      "task_id": "a0cfe520-125f-465e-81e7-7b62dbe06d7b",
+      "s3_url": "s3://samu-docs-private-upload/documents/eaca69ea-1b5f-48f4-b7a1-6ac73521e0e5.pdf",
+      "submitted_at": "2025-06-09T01:45:57.809633"
+    },
+    {
+      "document_uuid": "98deac49-0313-4302-bc94-8a9de47e94be",
+      "filename": "Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "size_mb": 0.14,
+      "task_id": "111ed1b1-3fff-4a07-b0c8-132dccef4892",
+      "s3_url": "s3://samu-docs-private-upload/documents/98deac49-0313-4302-bc94-8a9de47e94be.pdf",
+      "submitted_at": "2025-06-09T01:45:57.919931"
+    }
+  ]
+}

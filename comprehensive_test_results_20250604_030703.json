@@ -1,0 +1,100 @@
+{
+  "test_id": "pipeline_verification_20250604_030703",
+  "start_time": "2025-06-04T03:07:03.851114",
+  "textract_only_enforcement": true,
+  "documents_processed": 3,
+  "documents_successful": 0,
+  "documents_failed": 3,
+  "stage_results": {
+    "document_creation": {
+      "success": 0,
+      "failed": 3
+    },
+    "ocr_processing": {
+      "success": 0,
+      "failed": 0,
+      "textract_used": 0,
+      "tesseract_fallback": 0
+    },
+    "text_chunking": {
+      "success": 0,
+      "failed": 0
+    },
+    "entity_extraction": {
+      "success": 0,
+      "failed": 0
+    },
+    "entity_resolution": {
+      "success": 0,
+      "failed": 0
+    },
+    "relationship_building": {
+      "success": 0,
+      "failed": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "document": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/16a- estimate by Gustine amounts to be determined/Final Draft-Riverdale Packaging Corp.pdf",
+      "filename": "Final Draft-Riverdale Packaging Corp.pdf",
+      "size_mb": 0.03,
+      "start_time": "2025-06-04T03:07:03.853040",
+      "stages": {
+        "document_creation": {
+          "success": false,
+          "error": "cannot import name 'create_document_task' from 'pdf_tasks' (/opt/legal-doc-processor/scripts/pdf_tasks.py)"
+        }
+      },
+      "success": false,
+      "error": "Document creation failed",
+      "processing_time_seconds": 2.19,
+      "end_time": "2025-06-04T03:07:06.046655"
+    },
+    {
+      "document": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/amended complaint for declaratory judgment.pdf",
+      "filename": "amended complaint for declaratory judgment.pdf",
+      "size_mb": 0.03,
+      "start_time": "2025-06-04T03:07:06.046831",
+      "stages": {
+        "document_creation": {
+          "success": false,
+          "error": "cannot import name 'create_document_task' from 'pdf_tasks' (/opt/legal-doc-processor/scripts/pdf_tasks.py)"
+        }
+      },
+      "success": false,
+      "error": "Document creation failed",
+      "processing_time_seconds": 0.0,
+      "end_time": "2025-06-04T03:07:06.046930"
+    },
+    {
+      "document": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/24- lawsuit filed 9.27.2024 - Acuity v. Wombat/amended complaint for declaratory judgment.pdf",
+      "filename": "amended complaint for declaratory judgment.pdf",
+      "size_mb": 0.03,
+      "start_time": "2025-06-04T03:07:06.047055",
+      "stages": {
+        "document_creation": {
+          "success": false,
+          "error": "cannot import name 'create_document_task' from 'pdf_tasks' (/opt/legal-doc-processor/scripts/pdf_tasks.py)"
+        }
+      },
+      "success": false,
+      "error": "Document creation failed",
+      "processing_time_seconds": 0.0,
+      "end_time": "2025-06-04T03:07:06.047152"
+    }
+  ],
+  "error_summary": {},
+  "performance_metrics": {
+    "avg_processing_time": 0.73,
+    "total_processing_time": 2.19,
+    "fastest_document": {
+      "filename": "amended complaint for declaratory judgment.pdf",
+      "time": 0.0
+    },
+    "slowest_document": {
+      "filename": "Final Draft-Riverdale Packaging Corp.pdf",
+      "time": 2.19
+    }
+  },
+  "end_time": "2025-06-04T03:07:06.047200"
+}

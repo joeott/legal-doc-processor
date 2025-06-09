@@ -1,0 +1,1015 @@
+{
+  "summary": {
+    "total": 201,
+    "succeeded": 0,
+    "failed": 201,
+    "success_rate": 0.0
+  },
+  "documents": [
+    {
+      "file": "Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Plaintiff Acuity Amend Disclosure Stmt 9-23-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Plaintiff Acuity Disclosure Stmt 9-20-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Riverdale Disclosure Stmt 10-25-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - JDH EOA 1-27-25.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Wombat Answer and Counterclaim 1-2-25.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Riverdale and Lora Properties Joint Answer 11-7-24.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Acuity Answer to Counterclaim 1-23-25.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "amended complaint for declaratory judgment.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000454-000784.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Paul, Michael - Initial Disclosures - FINAL 1.27.25.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000001-000356.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000396-000445.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000357-000366.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000446-000453.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000367-000395.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000454-000784.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000001-000356.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Wombat - Initial Disclosures - FINAL 1.27.25.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000396-000445.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000357-000366.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000446-000453.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "WOMBAT 000367-000395.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "property quote.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "6 - Photos Combined 2.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "2 - Lease.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "6 - Photos Combined.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4 - Repairs and Estimates.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "1 - Insurance Policy Docs.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "3 - Title Docs.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "5 - Correspondence.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "New Ins Underwriting Email re Questions.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Acuity Correspondence - Combined.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "2 - Final Draft-Riverdale Packaging Corp.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4 - RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "3 - Gustine - Riverdale Packaging Corp estimate.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Grasse and Associates Estimate.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "1 - Newman Repair Estimate.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "SeekNow_Report 4501.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "TurnKey GC 4501 roof driveway repair.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Photos 1 - Combined.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Photos - New Insurance.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Plumbing Photos.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Photos 2 - Combined.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "1 - Gustine Previous Title Work.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4 - Notice of Assignment of Relinquished Property Contract.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "5 - Assignments.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "2 - Bill of Sale.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "3 - Special Warranty Deed.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0831.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0825.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0767.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0763.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0770.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0822.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0829.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0832.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0826.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0783.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0766.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0776.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0867.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0795.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0808.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0818.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0838.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0799.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0812.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0847.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0833.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0793.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0809.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0806.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0860.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0779.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0828.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0858.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0814.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0773.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0811.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0823.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0804.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0785.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0784.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0797.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0836.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0842.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0791.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0819.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0794.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0841.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0878.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0846.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0868.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0876.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0796.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0803.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0852.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0778.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0787.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0807.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0824.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0762.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0850.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0840.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0805.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0872.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0873.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0854.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0877.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0834.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0764.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0771.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0843.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0849.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0861.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0765.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0835.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0801.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0821.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0780.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0816.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0875.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0863.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0792.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0845.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0813.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0857.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0837.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0870.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0820.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0802.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0815.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0769.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0777.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0859.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0768.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0827.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0789.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0853.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0848.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0871.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0786.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0790.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0830.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0839.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0856.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0782.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0788.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0774.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0781.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0817.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0869.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "IMG_0800.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "20-23 Loss Runs.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "23-24 Loss Runs (3).pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Acuity Notice.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Special Warranty Deed.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Insurance Benefits Assignment Agreement.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Riverdale Lease.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Bill of Sale.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Notice of Assignment of Relinquished Property Contract.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Gustine - Riverdale Packaging Corp estimate.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Acuity Notice.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Policy.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4501 policy Dec pages.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Policy (Conflict).pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "GENERAL LIABILITY QUOTE.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Emails re general liability quote.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Mike Griswold.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "AOR.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "BOR Template (002).docx.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Flood Insurance Quote.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4501 Gustine Map2 w lengths.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4501 Gustine Fire Protection Underground Escavation and Fire Main Underground repair.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Gustine Previous Title Work.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "amended complaint for declaratory judgment.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Assignment 4500-4501 Gustine.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "POL Riverdale Packaging Corp..pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Final Draft-Riverdale Packaging Corp.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Payments & Reserves.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "RE-4124-NCC055-24 Riverdale Packaging-4.3.24 Repairs Estimate.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "SOV.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Payments.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Claim Notes.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "SeekNow_Report 4501.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "property quote.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "23-24 Loss Runs 3.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Repair scope 4501.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "appraisal demand 6.11.2024.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "shunk to nottke - acuity settlement proposal.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "TurnKey GC 4501 roof driveway repair.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "$836124.37 Riverdale 8.27.2024.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Silver Tuna RE Insurance Funds Release no. 1 4501 Gustine.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Assignment 4501 Gustine PDF.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "4501 Gustine Alternate Assignment claim fund payment docs PDF.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "Final Draft-Riverdale Packaging Corp.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    },
+    {
+      "file": "RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+      "status": "ERROR",
+      "error": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'file_obj'"
+    }
+  ]
+}

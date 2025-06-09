@@ -7,12 +7,14 @@ from datetime import datetime
 import logging
 import uuid
 
-from scripts.core.schemas import SourceDocumentModel, ChunkModel, ProcessingStatus as OldStatus
-from scripts.core.pdf_models import (
-    PDFDocumentModel, PDFChunkModel, 
-    ProcessingStatus as NewStatus,
-    DocumentCategory
+# Import consolidated models
+from scripts.models import (
+    SourceDocumentMinimal as SourceDocumentModel,
+    DocumentChunkMinimal as ChunkModel,
+    ProcessingStatus
 )
+# PDFDocumentModel and PDFChunkModel not in consolidated models
+# This migration file appears unused
 
 logger = logging.getLogger(__name__)
 

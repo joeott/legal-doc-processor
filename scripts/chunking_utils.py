@@ -431,7 +431,7 @@ def process_and_insert_chunks(
                     document_fk_id=document_id,
                     document_uuid=document_uuid,
                     chunk_index=chunk['chunkIndex'],
-                    text_content=chunk['text'],
+                    text=chunk['text'],  # Changed from text_content to match DocumentChunkMinimal
                     cleaned_text=chunk['cleanedText'],
                     char_start_index=chunk['char_start_index'],
                     char_end_index=chunk['char_end_index'],

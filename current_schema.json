@@ -1,0 +1,2614 @@
+{
+  "metadata": {
+    "generated_at": "2025-06-08T04:16:28.527052Z",
+    "database_url": "database1.cuviucyodbeg.us-east-1.rds.amazonaws.com:5432/legal_doc_processing?sslmode=require",
+    "engine_name": "postgresql",
+    "schema_version": "legal-doc-processor-v1.0"
+  },
+  "tables": {
+    "canonical_entities": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('canonical_entities_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "canonical_entity_uuid",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "entity_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "canonical_name",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "mention_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "1",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "confidence_score",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": "0.0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "resolution_method",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "aliases",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'[]'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "properties",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "canonical_entities_canonical_entity_uuid_key",
+          "unique": true,
+          "column_names": [
+            "canonical_entity_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_canonical_entities_name",
+          "unique": false,
+          "column_names": [
+            "canonical_name"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_canonical_entities_type",
+          "unique": false,
+          "column_names": [
+            "entity_type"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "canonical_entities_canonical_entity_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "canonical_entity_uuid"
+          ]
+        }
+      ]
+    },
+    "canonical_entity_embeddings": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('canonical_entity_embeddings_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "canonical_entity_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "embedding_vector",
+          "type": "ARRAY",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "model_name",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "model_version",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "dimensions",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "canonical_entity_embeddings_canonical_entity_uuid_fkey",
+          "constrained_columns": [
+            "canonical_entity_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_entities",
+          "referred_columns": [
+            "canonical_entity_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "canonical_entity_embeddings_canonical_entity_uuid_model_nam_key",
+          "unique": true,
+          "column_names": [
+            "canonical_entity_uuid",
+            "model_name"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "canonical_entity_embeddings_canonical_entity_uuid_model_nam_key",
+          "type": "unique",
+          "column_names": [
+            "canonical_entity_uuid",
+            "model_name"
+          ]
+        }
+      ]
+    },
+    "chunk_embeddings": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('chunk_embeddings_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "chunk_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "embedding_vector",
+          "type": "ARRAY",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "model_name",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "model_version",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "dimensions",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "chunk_embeddings_chunk_uuid_fkey",
+          "constrained_columns": [
+            "chunk_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "document_chunks",
+          "referred_columns": [
+            "chunk_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "chunk_embeddings_chunk_uuid_model_name_key",
+          "unique": true,
+          "column_names": [
+            "chunk_uuid",
+            "model_name"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "chunk_embeddings_chunk_uuid_model_name_key",
+          "type": "unique",
+          "column_names": [
+            "chunk_uuid",
+            "model_name"
+          ]
+        }
+      ]
+    },
+    "document_chunks": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('document_chunks_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "chunk_uuid",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_fk_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_index",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_number",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "text",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "cleaned_text",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "char_start_index",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "char_end_index",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "start_page",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "end_page",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'text'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "embedding_vector",
+          "type": "ARRAY",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "embedding_model",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "start_char_index",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "end_char_index",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "document_chunks_document_fk_id_fkey",
+          "constrained_columns": [
+            "document_fk_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {}
+        },
+        {
+          "name": "document_chunks_document_uuid_fkey",
+          "constrained_columns": [
+            "document_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "document_chunks_chunk_uuid_key",
+          "unique": true,
+          "column_names": [
+            "chunk_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_document_chunks_chunk_index",
+          "unique": false,
+          "column_names": [
+            "document_uuid",
+            "chunk_index"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_document_chunks_document_uuid",
+          "unique": false,
+          "column_names": [
+            "document_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_document_chunks_text_search",
+          "unique": false,
+          "column_names": [
+            null
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "document_chunks_chunk_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "chunk_uuid"
+          ]
+        }
+      ]
+    },
+    "document_processing_history": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('document_processing_history_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "event_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "event_status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "event_data",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "processing_time_seconds",
+          "type": "NUMERIC",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "document_processing_history_document_uuid_fkey",
+          "constrained_columns": [
+            "document_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [],
+      "constraints": []
+    },
+    "entity_mentions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('entity_mentions_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "mention_uuid",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_fk_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "entity_text",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "entity_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "entity_subtype",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "start_char",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "end_char",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "confidence_score",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": "0.0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "extraction_method",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "processing_metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "canonical_entity_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "chunk_id",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "entity_mentions_chunk_fk_id_fkey",
+          "constrained_columns": [
+            "chunk_fk_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "document_chunks",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {}
+        },
+        {
+          "name": "entity_mentions_chunk_uuid_fkey",
+          "constrained_columns": [
+            "chunk_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "document_chunks",
+          "referred_columns": [
+            "chunk_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        },
+        {
+          "name": "entity_mentions_document_uuid_fkey",
+          "constrained_columns": [
+            "document_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "entity_mentions_mention_uuid_key",
+          "unique": true,
+          "column_names": [
+            "mention_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_entity_mentions_canonical",
+          "unique": false,
+          "column_names": [
+            "canonical_entity_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_entity_mentions_chunk_uuid",
+          "unique": false,
+          "column_names": [
+            "chunk_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_entity_mentions_document_uuid",
+          "unique": false,
+          "column_names": [
+            "document_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_entity_mentions_type",
+          "unique": false,
+          "column_names": [
+            "entity_type"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "entity_mentions_mention_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "mention_uuid"
+          ]
+        }
+      ]
+    },
+    "import_sessions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('import_sessions_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "session_uuid",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "project_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "manifest_data",
+          "type": "JSONB",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "total_documents",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "processed_documents",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "failed_documents",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'active'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "completed_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "import_sessions_project_uuid_fkey",
+          "constrained_columns": [
+            "project_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "projects",
+          "referred_columns": [
+            "project_id"
+          ],
+          "options": {}
+        }
+      ],
+      "indexes": [
+        {
+          "name": "import_sessions_session_uuid_key",
+          "unique": true,
+          "column_names": [
+            "session_uuid"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "import_sessions_session_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "session_uuid"
+          ]
+        }
+      ]
+    },
+    "neo4j_documents": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('neo4j_documents_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "neo4j_node_id",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "key_entities",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'[]'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "neo4j_documents_document_uuid_fkey",
+          "constrained_columns": [
+            "document_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [],
+      "constraints": []
+    },
+    "processing_tasks": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_id",
+          "type": "UUID",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "task_type",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "default": "'pending'::character varying",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "celery_task_id",
+          "type": "VARCHAR(255)",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "retry_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "started_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "completed_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "processing_tasks_document_id_fkey",
+          "constrained_columns": [
+            "document_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_processing_tasks_document_id",
+          "unique": false,
+          "column_names": [
+            "document_id"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_processing_tasks_status",
+          "unique": false,
+          "column_names": [
+            "status"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": []
+    },
+    "projects": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('projects_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "project_id",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "supabase_project_id",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "client_name",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "matter_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "data_layer",
+          "type": "JSONB",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "airtable_id",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "active",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": "true",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "script_run_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "processed_by_scripts",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": "false",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "last_synced_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(50)",
+          "nullable": true,
+          "default": "'active'::character varying",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "matter_number",
+          "type": "VARCHAR(100)",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "idx_projects_project_id",
+          "unique": false,
+          "column_names": [
+            "project_id"
+          ],
+          "type": null
+        },
+        {
+          "name": "projects_project_uuid_key",
+          "unique": true,
+          "column_names": [
+            "project_id"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "projects_project_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "project_id"
+          ]
+        }
+      ]
+    },
+    "relationship_staging": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('relationship_staging_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "source_entity_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "target_entity_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "relationship_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "confidence_score",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": "0.0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "source_chunk_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "evidence_text",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "properties",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "relationship_staging_source_chunk_uuid_fkey",
+          "constrained_columns": [
+            "source_chunk_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "document_chunks",
+          "referred_columns": [
+            "chunk_uuid"
+          ],
+          "options": {}
+        },
+        {
+          "name": "relationship_staging_source_entity_uuid_fkey",
+          "constrained_columns": [
+            "source_entity_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_entities",
+          "referred_columns": [
+            "canonical_entity_uuid"
+          ],
+          "options": {}
+        },
+        {
+          "name": "relationship_staging_target_entity_uuid_fkey",
+          "constrained_columns": [
+            "target_entity_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_entities",
+          "referred_columns": [
+            "canonical_entity_uuid"
+          ],
+          "options": {}
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_relationship_staging_source",
+          "unique": false,
+          "column_names": [
+            "source_entity_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_relationship_staging_target",
+          "unique": false,
+          "column_names": [
+            "target_entity_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_relationship_staging_type",
+          "unique": false,
+          "column_names": [
+            "relationship_type"
+          ],
+          "type": null
+        },
+        {
+          "name": "relationship_staging_source_entity_uuid_target_entity_uuid__key",
+          "unique": true,
+          "column_names": [
+            "source_entity_uuid",
+            "target_entity_uuid",
+            "relationship_type"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "relationship_staging_source_entity_uuid_target_entity_uuid__key",
+          "type": "unique",
+          "column_names": [
+            "source_entity_uuid",
+            "target_entity_uuid",
+            "relationship_type"
+          ]
+        }
+      ]
+    },
+    "schema_version": {
+      "columns": [
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "applied_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [],
+      "indexes": [],
+      "constraints": []
+    },
+    "source_documents": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('source_documents_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "project_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "project_fk_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "import_session_id",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "file_name",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "original_file_name",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "original_file_path",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "file_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "detected_file_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "file_size_bytes",
+          "type": "BIGINT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "s3_key",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "s3_bucket",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "s3_region",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'us-east-1'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "s3_key_public",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "s3_bucket_public",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'pending'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "initial_processing_status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "celery_status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "celery_task_id",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "raw_extracted_text",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "markdown_text",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "cleaned_text",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "ocr_metadata_json",
+          "type": "JSONB",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "ocr_provider",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "ocr_completed_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "ocr_processing_seconds",
+          "type": "NUMERIC",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "ocr_confidence_score",
+          "type": "NUMERIC",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_job_id",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_job_status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_start_time",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_end_time",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_page_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "textract_error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "transcription_metadata_json",
+          "type": "JSONB",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "processing_completed_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "retry_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": "0",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "last_retry_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "source_documents_project_fk_id_fkey",
+          "constrained_columns": [
+            "project_fk_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "projects",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {}
+        },
+        {
+          "name": "source_documents_project_uuid_fkey",
+          "constrained_columns": [
+            "project_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "projects",
+          "referred_columns": [
+            "project_id"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_source_documents_created_at",
+          "unique": false,
+          "column_names": [
+            "created_at"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_document_uuid",
+          "unique": false,
+          "column_names": [
+            "document_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_import_session",
+          "unique": false,
+          "column_names": [
+            "import_session_id"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_processing_status",
+          "unique": false,
+          "column_names": [
+            "status"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_project_fk_id",
+          "unique": false,
+          "column_names": [
+            "project_fk_id"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_project_uuid",
+          "unique": false,
+          "column_names": [
+            "project_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_status",
+          "unique": false,
+          "column_names": [
+            "status"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_source_documents_text_search",
+          "unique": false,
+          "column_names": [
+            null
+          ],
+          "type": null
+        },
+        {
+          "name": "source_documents_document_uuid_key",
+          "unique": true,
+          "column_names": [
+            "document_uuid"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "source_documents_document_uuid_key",
+          "type": "unique",
+          "column_names": [
+            "document_uuid"
+          ]
+        }
+      ]
+    },
+    "textract_jobs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('textract_jobs_id_seq'::regclass)",
+          "autoincrement": true,
+          "comment": null
+        },
+        {
+          "name": "job_id",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "document_uuid",
+          "type": "UUID",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "job_type",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'DetectDocumentText'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'IN_PROGRESS'::text",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "started_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "completed_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "page_count",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "result_s3_key",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "autoincrement": false,
+          "comment": null
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "autoincrement": false,
+          "comment": null
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": [
+        {
+          "name": "textract_jobs_document_uuid_fkey",
+          "constrained_columns": [
+            "document_uuid"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_documents",
+          "referred_columns": [
+            "document_uuid"
+          ],
+          "options": {}
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_textract_jobs_document",
+          "unique": false,
+          "column_names": [
+            "document_uuid"
+          ],
+          "type": null
+        },
+        {
+          "name": "idx_textract_jobs_status",
+          "unique": false,
+          "column_names": [
+            "status"
+          ],
+          "type": null
+        },
+        {
+          "name": "textract_jobs_job_id_key",
+          "unique": true,
+          "column_names": [
+            "job_id"
+          ],
+          "type": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "textract_jobs_job_id_key",
+          "type": "unique",
+          "column_names": [
+            "job_id"
+          ]
+        }
+      ]
+    }
+  },
+  "triggers": [
+    {
+      "trigger_name": "update_canonical_entities_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "canonical_entities",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    },
+    {
+      "trigger_name": "update_document_chunks_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "document_chunks",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    },
+    {
+      "trigger_name": "update_neo4j_documents_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "neo4j_documents",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    },
+    {
+      "trigger_name": "update_processing_tasks_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "processing_tasks",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    },
+    {
+      "trigger_name": "update_projects_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "projects",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    },
+    {
+      "trigger_name": "update_source_documents_updated_at",
+      "event_manipulation": "UPDATE",
+      "event_object_table": "source_documents",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+      "action_orientation": "ROW",
+      "action_condition": null,
+      "trigger_schema": "public"
+    }
+  ],
+  "functions": [
+    {
+      "routine_name": "populate_integer_fks",
+      "routine_type": "FUNCTION",
+      "routine_definition": "\n        BEGIN\n            -- For now, just return NEW without modifications\n            -- This prevents the trigger errors while we fix the schema\n            RETURN NEW;\n        END;\n        ",
+      "external_language": "PLPGSQL",
+      "is_deterministic": "NO",
+      "data_type": "trigger",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "update_updated_at_column",
+      "routine_type": "FUNCTION",
+      "routine_definition": "\n            BEGIN\n                NEW.updated_at = CURRENT_TIMESTAMP;\n                RETURN NEW;\n            END;\n            ",
+      "external_language": "PLPGSQL",
+      "is_deterministic": "NO",
+      "data_type": "trigger",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_generate_v1",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "NO",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_generate_v1mc",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "NO",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_generate_v3",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_generate_v4",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "NO",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_generate_v5",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_nil",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_ns_dns",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_ns_oid",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_ns_url",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    },
+    {
+      "routine_name": "uuid_ns_x500",
+      "routine_type": "FUNCTION",
+      "routine_definition": null,
+      "external_language": "C",
+      "is_deterministic": "YES",
+      "data_type": "uuid",
+      "routine_schema": "public"
+    }
+  ],
+  "sequences": [
+    {
+      "sequence_name": "canonical_entities_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "canonical_entity_embeddings_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "chunk_embeddings_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "document_chunks_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "document_processing_history_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "entity_mentions_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "import_sessions_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "neo4j_documents_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "projects_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "relationship_staging_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "source_documents_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    },
+    {
+      "sequence_name": "textract_jobs_id_seq",
+      "sequence_schema": "public",
+      "data_type": "integer",
+      "start_value": "1",
+      "minimum_value": "1",
+      "maximum_value": "2147483647",
+      "increment": "1",
+      "cycle_option": "NO"
+    }
+  ],
+  "views": [],
+  "schemas": [
+    {
+      "schema_name": "public",
+      "schema_owner": "pg_database_owner"
+    }
+  ],
+  "extensions": [
+    {
+      "extension_name": "plpgsql",
+      "version": "1.0",
+      "schema_name": "pg_catalog"
+    },
+    {
+      "extension_name": "uuid-ossp",
+      "version": "1.1",
+      "schema_name": "public"
+    }
+  ],
+  "summary": {
+    "total_tables": 14,
+    "total_columns": 187,
+    "total_foreign_keys": 17,
+    "total_indexes": 35,
+    "total_triggers": 6,
+    "total_functions": 12,
+    "total_sequences": 12,
+    "total_views": 0,
+    "total_schemas": 1,
+    "total_extensions": 2
+  },
+  "validation": {
+    "model_table_mapping": {
+      "SourceDocumentMinimal": "source_documents",
+      "DocumentChunkMinimal": "document_chunks",
+      "EntityMentionMinimal": "entity_mentions",
+      "CanonicalEntityMinimal": "canonical_entities",
+      "RelationshipStagingMinimal": "relationship_staging"
+    },
+    "validation_results": {
+      "source_documents": {
+        "exists": true,
+        "column_count": 42,
+        "has_primary_key": false,
+        "foreign_key_count": 2,
+        "index_count": 9
+      },
+      "document_chunks": {
+        "exists": true,
+        "column_count": 21,
+        "has_primary_key": false,
+        "foreign_key_count": 2,
+        "index_count": 4
+      },
+      "entity_mentions": {
+        "exists": true,
+        "column_count": 16,
+        "has_primary_key": false,
+        "foreign_key_count": 3,
+        "index_count": 5
+      },
+      "canonical_entities": {
+        "exists": true,
+        "column_count": 12,
+        "has_primary_key": false,
+        "foreign_key_count": 0,
+        "index_count": 3
+      },
+      "relationship_staging": {
+        "exists": true,
+        "column_count": 10,
+        "has_primary_key": false,
+        "foreign_key_count": 3,
+        "index_count": 4
+      }
+    },
+    "missing_tables": [],
+    "extra_tables": [
+      "document_processing_history",
+      "chunk_embeddings",
+      "schema_version",
+      "canonical_entity_embeddings",
+      "processing_tasks",
+      "textract_jobs",
+      "neo4j_documents",
+      "import_sessions",
+      "projects"
+    ]
+  }
+}

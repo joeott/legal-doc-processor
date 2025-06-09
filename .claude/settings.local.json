@@ -60,7 +60,25 @@
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
       "Bash(git tag:*)",
-      "Bash(env)"
+      "Bash(env)",
+      "Bash(celery:*)",
+      "Bash(# Kill existing workers\npkill -f \"celery.*worker\"\nsleep 2\n\n# Start a worker that listens to all queues\nsource load_env.sh && nohup celery -A scripts.celery_app worker --loglevel=info --queues=default,ocr,text,entity,graph,cleanup > celery_worker.log 2>&1 &\n\necho \"Started new worker listening to all queues\"\nps aux | grep celery | grep -v grep)",
+      "Bash(killall:*)",
+      "Bash(true)",
+      "Bash(pkill:*)",
+      "Bash(/opt/legal-doc-processor/scripts/start_celery_worker.sh:*)",
+      "Bash(timeout 20 celery:*)",
+      "Bash(touch:*)",
+      "Bash(redis-cli:*)",
+      "Bash(aws:*)",
+      "Bash(REDISCLI_AUTH=\"BHMbnJHyf&9!4TT\" redis-cli -h redis-12696.c325.us-east-1-4.ec2.redns.redis-cloud.com -p 12696 --user joe_ott FLUSHDB)",
+      "Bash(REDISCLI_AUTH=\"BHMbnJHyf&9!4TT\" redis-cli -h redis-12696.c325.us-east-1-4.ec2.redns.redis-cloud.com -p 12696 --user joe_ott DBSIZE)",
+      "Bash(PGPASSWORD=:*)",
+      "Bash(# Kill existing workers\nps aux | grep \"[c]elery\" | awk '{print $2}' | xargs -r kill -9\n\n# Set environment\nexport ENABLE_SCANNED_PDF_DETECTION=false\nexport SKIP_PDF_PREPROCESSING=true\nexport FORCE_PROCESSING=true\nexport VALIDATION_REDIS_METADATA_LEVEL=optional\nexport VALIDATION_PROJECT_ASSOCIATION_LEVEL=optional\n\n# Start new worker with proper environment\nsource load_env.sh && nohup celery -A scripts.celery_app worker --loglevel=info --queues=default,ocr,text,entity,graph,cleanup --concurrency=4 > celery_async_test.log 2>&1 &\n\necho \"Worker restarted with async-only configuration\")",
+      "Bash(timeout:*)",
+      "Bash(pip show:*)",
+      "Bash(rg:*)",
+      "Bash(jq:*)"
     ],
     "deny": []
   }

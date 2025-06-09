@@ -14,15 +14,11 @@ import uuid
 import logging
 
 # Import Pydantic models for validation
-from scripts.core.processing_models import (
-    DocumentMetadata,
-    ImportManifestModel,
-    ImportFileModel,
-    ImportValidationResultModel
+from scripts.models import (
+    SourceDocumentMinimal as SourceDocumentModel
 )
-from scripts.core.schemas import (
-    ImportSessionModel, SourceDocumentModel
-)
+# Note: ImportSessionModel, DocumentMetadata, ImportManifestModel, ImportFileModel, 
+# ImportValidationResultModel are not in consolidated models - will use dicts instead
 from pydantic import ValidationError
 
 from scripts.db import DatabaseManager

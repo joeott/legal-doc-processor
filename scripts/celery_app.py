@@ -2,11 +2,28 @@
 Celery Application Configuration for PDF Document Processing Pipeline
 """
 from celery import Celery
+from celery.signals import worker_process_init
 import os
+import resource
+import logging
 from scripts.config import (
     REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD, REDIS_SSL,
     DEPLOYMENT_STAGE, STAGE_CLOUD_ONLY, get_redis_config_for_stage
 )
+
+logger = logging.getLogger(__name__)
+
+# Memory limit configuration
+WORKER_MAX_MEMORY_MB = 512  # 512MB per worker
+WORKER_MEMORY_LIMIT = WORKER_MAX_MEMORY_MB * 1024 * 1024  # Convert to bytes
+
+def set_memory_limit():
+    """Set memory limit for worker process"""
+    try:
+        resource.setrlimit(resource.RLIMIT_AS, (WORKER_MEMORY_LIMIT, WORKER_MEMORY_LIMIT))
+        logger.info(f"Set worker memory limit to {WORKER_MAX_MEMORY_MB}MB")
+    except Exception as e:
+        logger.warning(f"Could not set memory limit: {e}")
 
 # Construct Redis URL from existing config
 redis_config = get_redis_config_for_stage(DEPLOYMENT_STAGE)
@@ -32,8 +49,7 @@ app = Celery(
     broker=redis_url,
     backend=redis_url,
     include=[
-        'scripts.pdf_tasks',  # Main task module
-        'scripts.resolution_task'  # Standalone resolution task
+        'scripts.pdf_tasks'  # Main task module
     ]
 )
 
@@ -49,13 +65,14 @@ app.conf.update(
     enable_utc=True,
     
     # Worker settings
-    worker_prefetch_multiplier=1,  # Important for long-running tasks
+    worker_prefetch_multiplier=1,  # Process one task at a time
     task_acks_late=True,           # Acknowledge after completion
     worker_max_tasks_per_child=50, # Restart worker after 50 tasks to prevent memory leaks
+    worker_max_memory_per_child=200000,  # Restart worker after 200MB (in KB)
     
     # Task execution limits
-    task_soft_time_limit=3600,     # 1 hour soft limit
-    task_time_limit=3900,          # 1 hour 5 min hard limit
+    task_soft_time_limit=240,      # 4 minute soft limit
+    task_time_limit=300,           # 5 minute hard limit
     
     # Result backend
     result_expires=3600 * 24 * 7,  # Keep results for 7 days
@@ -139,6 +156,12 @@ app.signature_map = {
         options={'queue': 'default'}
     ),
 }
+
+# Add worker initialization
+@worker_process_init.connect
+def setup_worker_process(**kwargs):
+    """Initialize worker process with memory limits"""
+    set_memory_limit()
 
 if __name__ == '__main__':
     app.start()

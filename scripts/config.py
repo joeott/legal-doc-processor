@@ -84,7 +84,7 @@ class StageConfig:
         """Validate stage-specific requirements."""
         errors = []
         
-        if self._config["require_openai_key"] and not os.getenv("OPENAI_API_KEY"):
+        if self._config["require_openai_key"] and not (os.getenv("OPENAI_API_KEY") or os.getenv("OPEN_API_KEY")):
             errors.append(f"OPENAI_API_KEY required for Stage {self.stage}")
         
         if errors:
@@ -202,7 +202,7 @@ QWEN2_VL_OCR_MAX_NEW_TOKENS = int(os.getenv("QWEN2_VL_OCR_MAX_NEW_TOKENS", "2048
 QWEN2_VL_OCR_MODEL_NAME = os.getenv("QWEN2_VL_OCR_MODEL_NAME", "Qwen/Qwen2-VL-2B-Instruct")
 
 # OpenAI Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("OPEN_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MODEL_FOR_RESOLUTION = os.getenv("LLM_MODEL_FOR_RESOLUTION", OPENAI_MODEL)
 LLM_API_KEY = OPENAI_API_KEY  # Alias for entity resolution
@@ -256,6 +256,18 @@ def get_database_url():
     
     # For development/staging, use tunnel connection
     return DATABASE_URL
+
+# PDF Processing Configuration
+PDF_CONVERSION_DPI = int(os.getenv('PDF_CONVERSION_DPI', '300'))
+PDF_CONVERSION_FORMAT = os.getenv('PDF_CONVERSION_FORMAT', 'PNG')
+ENABLE_SCANNED_PDF_DETECTION = os.getenv('ENABLE_SCANNED_PDF_DETECTION', 'true').lower() == 'true'
+PDF_PAGE_PROCESSING_PARALLEL = os.getenv('PDF_PAGE_PROCESSING_PARALLEL', 'false').lower() == 'true'
+SCANNED_PDF_IMAGE_PREFIX = os.getenv('SCANNED_PDF_IMAGE_PREFIX', 'converted-images/')
+
+# Document Processing Limits
+DOCUMENT_SIZE_LIMIT_MB = int(os.getenv('DOCUMENT_SIZE_LIMIT_MB', '100'))
+MAX_DOCUMENTS_PER_BATCH = int(os.getenv('MAX_DOCUMENTS_PER_BATCH', '25'))
+DEFAULT_BATCH_PRIORITY = os.getenv('DEFAULT_BATCH_PRIORITY', 'normal')
 
 EFFECTIVE_DATABASE_URL = get_database_url()
 
@@ -410,6 +422,40 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
     print("WARNING: AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are not set.")
     print("Text extraction from PDFs using AWS Textract will fail. Please set these environment variables.")
+
+# Add region validation
+import boto3
+from botocore.exceptions import ClientError
+
+def validate_aws_regions():
+    """Validate AWS region configuration"""
+    
+    # Check S3 bucket region
+    try:
+        s3_client = boto3.client('s3')
+        response = s3_client.get_bucket_location(Bucket=S3_PRIMARY_DOCUMENT_BUCKET)
+        actual_region = response.get('LocationConstraint') or 'us-east-1'
+        
+        if actual_region != S3_BUCKET_REGION:
+            logger.warning(f"S3 bucket region mismatch: actual={actual_region}, config={S3_BUCKET_REGION}")
+            # Update the config
+            os.environ['S3_BUCKET_REGION'] = actual_region
+            globals()['S3_BUCKET_REGION'] = actual_region
+            
+        logger.info(f"S3 bucket {S3_PRIMARY_DOCUMENT_BUCKET} is in region {actual_region}")
+        
+    except ClientError as e:
+        logger.error(f"Error checking S3 bucket region: {e}")
+    
+    # Ensure Textract uses same region
+    if AWS_DEFAULT_REGION != S3_BUCKET_REGION:
+        logger.warning(f"Region mismatch: AWS_DEFAULT_REGION={AWS_DEFAULT_REGION}, S3_BUCKET_REGION={S3_BUCKET_REGION}")
+        logger.info("Textract will use S3_BUCKET_REGION for consistency")
+    
+    return S3_BUCKET_REGION
+
+# Run validation on import
+VALIDATED_REGION = validate_aws_regions()
 
 # Validation helper functions
 def validate_cloud_services():

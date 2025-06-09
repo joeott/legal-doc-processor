@@ -1,0 +1,2218 @@
+{
+  "id": "production_test_20250604_142117",
+  "name": "Final Production Verification Test",
+  "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+  "documents": [
+    {
+      "document_uuid": "4dd975ac-3106-4969-8e03-75b997bb82c3",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "size_mb": 0.14,
+        "sha256": "fd6fbcb58e36e86b6590b2860406ced32740958fe352ca222e1ff99a8e9c23ab",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "d3bf99c7-f602-442a-8e29-3d038941a3be",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Plaintiff Acuity Amend Disclosure Stmt 9-23-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Plaintiff Acuity Amend Disclosure Stmt 9-23-24.pdf",
+        "size_mb": 0.2,
+        "sha256": "c0d65b7d346531bcd7fc5f2f9c8d120aafa13b68a29b25d94f72213983af829d",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "cfd37c57-0e67-4490-a34d-9e929a76fed0",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Plaintiff Acuity Disclosure Stmt 9-20-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Plaintiff Acuity Disclosure Stmt 9-20-24.pdf",
+        "size_mb": 0.12,
+        "sha256": "9dfef499411b1c17199542d4580347df2e9bab486b511f5fd3c7c44fc5a166a9",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "324092b5-e435-4279-a997-c94a649f189d",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Riverdale Disclosure Stmt 10-25-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Riverdale Disclosure Stmt 10-25-24.pdf",
+        "size_mb": 0.21,
+        "sha256": "e6525faa012e2215c4fcb35c81b4511964e64fdb9a29c2d7009215def928ab6a",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "7ac49308-65db-4d41-b192-490205535666",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf",
+        "size_mb": 0.1,
+        "sha256": "57052855799edc3a7d9bfed7d5914932ec3c0188940bd5401c1edf50c78a6425",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "bb6fcf6d-8467-4de5-97de-ec338f2be69c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - JDH EOA 1-27-25.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - JDH EOA 1-27-25.pdf",
+        "size_mb": 0.12,
+        "sha256": "75e598bff8ea9edc1122958434a0e33158b1b1fe95d129390157f9839ebebfb8",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "4e57ba60-20de-4b21-adad-58c411b6d811",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Wombat Answer and Counterclaim 1-2-25.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Wombat Answer and Counterclaim 1-2-25.pdf",
+        "size_mb": 0.12,
+        "sha256": "1466ad03f31f82d7905a4d6866fdcd57f00c07cccb011694b9bb496ae69b2910",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1b1b5343-cf19-4842-9c5a-c91f88532e8d",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Riverdale and Lora Properties Joint Answer 11-7-24.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Riverdale and Lora Properties Joint Answer 11-7-24.pdf",
+        "size_mb": 0.17,
+        "sha256": "78b50516421ef40163ae6acfe8f91fce9680753aa22e12ea86a3affe72ef8a43",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "6fdc700f-08f6-4d14-bf9b-fe0d8fc6574b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Acuity Answer to Counterclaim 1-23-25.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Acuity Answer to Counterclaim 1-23-25.pdf",
+        "size_mb": 0.4,
+        "sha256": "1457b7af8d447f332a5b7255cb0566de971ae016b32920e387fd2af182273aef",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1b84776c-d0af-4735-a268-a61dd8928224",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/amended complaint for declaratory judgment.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "amended complaint for declaratory judgment.pdf",
+        "size_mb": 0.03,
+        "sha256": "13026714d2e35a0189b2d57ceb8679943e04188c152c6978707ae4ebabef4998",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "6efcbddf-a767-4471-8d31-c721e8d1ae19",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+        "size_mb": 0.36,
+        "sha256": "e528b63b749ffda1a1e33b954ac0a839e1bca4821c70c453ab0ed6eb86cad449",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "380562b4-6eba-4ca4-b689-0756ae65abbc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000454-000784.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000454-000784.pdf",
+        "size_mb": 583.23,
+        "sha256": "da73d6d287e76dd0bbfb04fcfee5ec298a9b595b80a5b398b4f37659041a9abf",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "daafca2f-53a5-4a01-b00c-3ec87c274c09",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/Paul, Michael - Initial Disclosures - FINAL 1.27.25.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Paul, Michael - Initial Disclosures - FINAL 1.27.25.pdf",
+        "size_mb": 0.19,
+        "sha256": "8de61404ac36f551965c4faa53c0ce647c5c7e37b4110861f57c7923b45c137e",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "030e61b0-a611-426d-86c0-6f88cace2684",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000001-000356.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000001-000356.pdf",
+        "size_mb": 11.14,
+        "sha256": "57c3b0889f1e211db5750a0dbe447e7c4ab50c24971302eabeaca4aa7f1e9c50",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "1e017942-9fcd-4780-9206-466f96e5a3d4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000396-000445.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000396-000445.pdf",
+        "size_mb": 1.79,
+        "sha256": "482dae72e641ac7faee92c9422ffcc3fb1c55d4fe8b86af14690498c7ba8fc25",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "f1fdb03b-f8e4-4532-94af-d0eba7f7c629",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000357-000366.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000357-000366.pdf",
+        "size_mb": 0.97,
+        "sha256": "ccee92501688595359c8866382b68244a081ce23e2eed121d4004253ae9d0d02",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1d350e8c-8943-4be6-b8f7-93da627a8835",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000446-000453.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000446-000453.pdf",
+        "size_mb": 1.17,
+        "sha256": "4214b05a087f6db35e644bcd3cfc723296db6faca1af64855d066dd8ae251733",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "923fc473-6a8b-49bd-97c8-937d70e0d457",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Wombat Initial Disclosures/WOMBAT 000367-000395.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000367-000395.pdf",
+        "size_mb": 1.63,
+        "sha256": "3c8e6827a14c49533a85b81552647bbca4b564dcb5655ab85ddf919170926943",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "5087b7ca-44c0-49c7-ac8b-28f32bded5ce",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000454-000784.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000454-000784.pdf",
+        "size_mb": 583.23,
+        "sha256": "da73d6d287e76dd0bbfb04fcfee5ec298a9b595b80a5b398b4f37659041a9abf",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "fb985783-f15d-4474-a150-e1999de106e5",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000001-000356.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000001-000356.pdf",
+        "size_mb": 11.14,
+        "sha256": "57c3b0889f1e211db5750a0dbe447e7c4ab50c24971302eabeaca4aa7f1e9c50",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "97592577-a36e-4333-be27-0b539197a5fe",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/Wombat - Initial Disclosures - FINAL 1.27.25.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Wombat - Initial Disclosures - FINAL 1.27.25.pdf",
+        "size_mb": 0.19,
+        "sha256": "8de61404ac36f551965c4faa53c0ce647c5c7e37b4110861f57c7923b45c137e",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "5e00bdef-3e49-41dc-9609-ecad59f3fe46",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000396-000445.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000396-000445.pdf",
+        "size_mb": 1.79,
+        "sha256": "482dae72e641ac7faee92c9422ffcc3fb1c55d4fe8b86af14690498c7ba8fc25",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "c738623b-0696-4227-801a-bc26d4965b4e",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000357-000366.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000357-000366.pdf",
+        "size_mb": 0.97,
+        "sha256": "ccee92501688595359c8866382b68244a081ce23e2eed121d4004253ae9d0d02",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "65f9750b-0598-4405-a80c-d13f3b3d61fd",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000446-000453.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000446-000453.pdf",
+        "size_mb": 1.17,
+        "sha256": "4214b05a087f6db35e644bcd3cfc723296db6faca1af64855d066dd8ae251733",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "1a2e6ab9-101f-4aa2-be9a-145756c8c3c1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Discovery/Shared with OC/Wombat Initial Disclosures/WOMBAT 000367-000395.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "WOMBAT 000367-000395.pdf",
+        "size_mb": 1.63,
+        "sha256": "3c8e6827a14c49533a85b81552647bbca4b564dcb5655ab85ddf919170926943",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "5bbe871e-5040-4c48-9776-7e568c337e14",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zz- $200k insurance quote/property quote.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "property quote.pdf",
+        "size_mb": 0.15,
+        "sha256": "cb7dd96d70b25b777a51e962aca220486019a1084b648aceb283f47226f7a380",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "b529aa3d-0e73-4264-b73a-1204e53e009c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/6 - Photos Combined 2.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "6 - Photos Combined 2.pdf",
+        "size_mb": 439.38,
+        "sha256": "d8de84f10b569eee2c0041522bdeb028f8ba2621997562bdd11a3ca0daf4d850",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "edd19475-e37f-4292-83af-028736779fb9",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/2 - Lease.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "2 - Lease.pdf",
+        "size_mb": 0.97,
+        "sha256": "ae5bfcf424334c4b5a4995dc97a7b6b675a11713d648a96a39a2ed0a3cc5de1f",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "fa9eb62b-d8b9-425c-a2ac-74bf667abe60",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/6 - Photos Combined.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "6 - Photos Combined.pdf",
+        "size_mb": 142.95,
+        "sha256": "0b9c132bb69b42e8d19ac29fda8389ae5ca9dde9364966a98a771f36f5dd5fa6",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "57961b56-089a-48f1-b27c-cd1591893bce",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/4 - Repairs and Estimates.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4 - Repairs and Estimates.pdf",
+        "size_mb": 6.64,
+        "sha256": "947ea6edf388f66c54836df4b0667fa85a80e7faa6cc0fdd6a342a2ca4506a28",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "0f5ce318-7dc7-440b-95ea-5714c479d206",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/1 - Insurance Policy Docs.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "1 - Insurance Policy Docs.pdf",
+        "size_mb": 11.15,
+        "sha256": "bc27b55a0897c7eeb27ca581cc4188db65de16829941fb6c08a8f05db4ba7ac5",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "afaad11d-a747-47e1-b97e-6079b9ddfba6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/3 - Title Docs.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "3 - Title Docs.pdf",
+        "size_mb": 1.63,
+        "sha256": "7f4aba1388722fc724b15a328be2332844446837820404fcb67a224876b158d9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "3598a4c4-7b01-49a9-ab8b-5b28e5105277",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/5 - Correspondence.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "5 - Correspondence.pdf",
+        "size_mb": 1.17,
+        "sha256": "365cac71c7458adf721ed83e60012071335f4a9b0b80548c578fe82d8f0c3e4b",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "2db2930b-2419-4140-bc32-79c09a960c28",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Correspondence/New Ins Underwriting Email re Questions.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "New Ins Underwriting Email re Questions.pdf",
+        "size_mb": 0.17,
+        "sha256": "eec0373856f396011fc80f2739aec4479ea9bec987e70ce036d04f4b7033348d",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "314993e0-0f92-4ee1-9c9e-81c1d12a1a02",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Correspondence/Acuity Correspondence - Combined.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Acuity Correspondence - Combined.pdf",
+        "size_mb": 0.34,
+        "sha256": "dffb4f12f002f15d4f2257f3c980b9242bb077a188430b5a70a28bfe2eba6e59",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "cb6b72c5-4ac8-4936-98e2-2d654fd6cbda",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/2 - Final Draft-Riverdale Packaging Corp.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "2 - Final Draft-Riverdale Packaging Corp.pdf",
+        "size_mb": 0.05,
+        "sha256": "f36d9f89485b91786d211345cef5dfa4be33adc950fcb07f5c431eb0909ba9d3",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "f378d096-da13-4f88-b9fc-5c14bc3c2a99",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/4 - RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4 - RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+        "size_mb": 1.44,
+        "sha256": "07e8897849cd4b8deb628f2c041c4c67c0672484059fe230c7e8d91d059160ee",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "45b74f18-1568-44eb-b44a-97eb598f5193",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/3 - Gustine - Riverdale Packaging Corp estimate.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "3 - Gustine - Riverdale Packaging Corp estimate.pdf",
+        "size_mb": 0.12,
+        "sha256": "4a00a4a4dbec6f456af929162d1eb481d52b8033aeaac8b2828b5a212b44de37",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "926eb6dc-b562-4dce-9142-b97cca9222dd",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/Grasse and Associates Estimate.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Grasse and Associates Estimate.pdf",
+        "size_mb": 0.17,
+        "sha256": "e70c8bc00d5a471e2e54af17c16bed24288a6fb2f6aac5ae043afce2e6a5c753",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "e16016bc-5f77-420b-ac50-6c2553e07e75",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/1 - Newman Repair Estimate.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "1 - Newman Repair Estimate.pdf",
+        "size_mb": 1.33,
+        "sha256": "25b8c23fd80900ae94bb3a82e273a24cc0ba066cea2c247540bb1a25e7f97f4c",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e7fbdd8b-5de7-4e05-a569-909c12aaa765",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/SeekNow_Report 4501.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "SeekNow_Report 4501.pdf",
+        "size_mb": 4.61,
+        "sha256": "ab67c990c64d04016916cf06afae4528d58262e0a8402aa91a8e57aec6ce6892",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "aa7c3edb-bba1-49e6-ace9-ec7e5afb37c8",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Repairs - Estimates/TurnKey GC 4501 roof driveway repair.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "TurnKey GC 4501 roof driveway repair.pdf",
+        "size_mb": 0.21,
+        "sha256": "adc46a376da7016ae18a31564ca109c03000edac6f3839123589248bfd6bfbc0",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "5750c22c-aaa3-4abe-b32f-728c01208a17",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Photos - Videos/Photos 1 - Combined.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Photos 1 - Combined.pdf",
+        "size_mb": 194.14,
+        "sha256": "50f159ebea712fd909e168e815f4841b40ca355f9ad879b2a6ba3ef4f7b363df",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "1c525eac-5753-4766-baea-cbacbf4d1a80",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Photos - Videos/Photos - New Insurance.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Photos - New Insurance.pdf",
+        "size_mb": 2.73,
+        "sha256": "d960666d20f20f9e8f5a8da8e034252118cb3fb6c5be3acf217ed5966ac1b3cf",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "3cf2f258-2aea-419d-9656-746ad084b5d1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Photos - Videos/Plumbing Photos.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Plumbing Photos.pdf",
+        "size_mb": 4.17,
+        "sha256": "fd8b3c1f03ee77a302434f6211594d1ab36896015105e3b97c04a3550a4d8edf",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "094a165a-5a4e-407d-befa-111f0ec014b9",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Photos - Videos/Photos 2 - Combined.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Photos 2 - Combined.pdf",
+        "size_mb": 1.26,
+        "sha256": "8bc30de60281d4ebe7d82d5a323e12570502f0120d5be92023fd28c5a51b2066",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "4bbf56d8-02e6-48ee-83e7-d634f0385205",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Property Title Docs/1 - Gustine Previous Title Work.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "1 - Gustine Previous Title Work.pdf",
+        "size_mb": 0.43,
+        "sha256": "7915428106a8de462aab8659f52608212477d656d59f7ee4b02b76107e7a0887",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "9dda377b-39f2-4eb8-9c09-ac2262cd6947",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Property Title Docs/4 - Notice of Assignment of Relinquished Property Contract.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4 - Notice of Assignment of Relinquished Property Contract.pdf",
+        "size_mb": 0.1,
+        "sha256": "70da1db91cdb554dead9eaab7f6056100c55c35a4514cec07010f82abcdba600",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "c8f95f18-8bba-4619-b572-6ace3589b327",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Property Title Docs/5 - Assignments.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "5 - Assignments.pdf",
+        "size_mb": 0.34,
+        "sha256": "db72d50a3fdf7f52828d9b9cd115f9a31dbb6604cd4d7a1e342c780a0ee9ed2c",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "5e9f30cc-8903-4dcb-b929-a36f33a591a9",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Property Title Docs/2 - Bill of Sale.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "2 - Bill of Sale.pdf",
+        "size_mb": 0.05,
+        "sha256": "2160f9361c9f8ac0de4253279752b236667be2ba2a9b2b822e5c6250d0ce3bd3",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "8168aeba-5b49-4e88-b302-118e959177a3",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Used Docs/Property Title Docs/3 - Special Warranty Deed.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "3 - Special Warranty Deed.pdf",
+        "size_mb": 0.11,
+        "sha256": "7cda77d53693854fbe2573f7e729713d27d62a6d02f1be185e308980f3d21840",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "5ace29b7-df7d-4287-bd74-d4384595520e",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0831.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0831.pdf",
+        "size_mb": 4.87,
+        "sha256": "90cdd6f8fdafd0b6b35291149c21fdb2af8aac919b00494620fecbdd38732e52",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "6427c4c1-2ff7-416e-b06d-f04b3e3ca5fd",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0825.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0825.pdf",
+        "size_mb": 3.86,
+        "sha256": "692d27ebcc3a0dca7804f4140b72cc02a41ba7d9778b741ae49451dab6a27ffe",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "bc777b30-3a8f-408b-a3b7-8a101713de4f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0767.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0767.pdf",
+        "size_mb": 6.44,
+        "sha256": "b32a24e285f2beaa955108302310449e67925839ddcf008a736f04cd3b648881",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "36f73966-5fa9-4bdd-8620-c4bcddbd775e",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0763.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0763.pdf",
+        "size_mb": 2.9,
+        "sha256": "7229dff8e77d8953e654bd713361b88f16b238c492ba3da4f36dc90b1ee021c0",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b80e254c-3ca2-4d98-a3b3-36ae9e48d1e3",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0770.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0770.pdf",
+        "size_mb": 7.24,
+        "sha256": "708cfb7c0b880c67a21b632b4b844dabfb3fe16254ea1aeb0b01b706e1b8d6d0",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d0b2cb8c-d1a8-4d6d-a4ae-8a1435a3fed5",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0822.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0822.pdf",
+        "size_mb": 12.36,
+        "sha256": "3d8d1a2d4613f7cba26068f90b3a0881277e305dcf7ec4a0cc9e5c6b899a41a7",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "ab3724dc-f085-4f91-a77f-6544e72eb7c1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0829.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0829.pdf",
+        "size_mb": 4.38,
+        "sha256": "ccd8888f577f0dd41df5fdc375b1c1b2c703765aec23e01f0eaa29fce1e00392",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "6d9281fd-7a78-44a0-ac6d-5f422ea16d3c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0832.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0832.pdf",
+        "size_mb": 4.52,
+        "sha256": "c9643a7f974dbad12c93b1588af2d7131aacb04a03a5b22e88b863cb311eeed9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b16ad263-4872-44ce-b89c-e539cd23bacf",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0826.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0826.pdf",
+        "size_mb": 3.48,
+        "sha256": "d6e593fafcd70f8e7c6f457a2a6867c3fb6ab5deee1c5db22bd30e7b27b807bf",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b708c619-44ec-44a4-b7c1-f91a6beb30f6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0783.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0783.pdf",
+        "size_mb": 4.31,
+        "sha256": "dbfbb27d5c6b88cc178a9c776cc9aaf148320c94faf35cf5704151b34c63837f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "f0174b87-ac18-443c-82a1-a7d1ad549071",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0766.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0766.pdf",
+        "size_mb": 3.32,
+        "sha256": "2efeed02d56f280908d0059b7c85b37d191bddb007843458d1d2d4efbeafa8a7",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "1559aa0c-2d24-4009-b932-85e734d992f0",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0776.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0776.pdf",
+        "size_mb": 4.83,
+        "sha256": "967ce6d2bf00e349d4b4a388843513ea3f27e48dff5e3fb4ce453023d63f3449",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "c97c0dbd-1aab-4525-8f91-5e625005d2eb",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0867.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0867.pdf",
+        "size_mb": 3.76,
+        "sha256": "160508dd13af624ed6cd85febe9fbb7e4d868c0d9bebba14139cfb56bb857a17",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "a8c21c75-e7c7-49e4-a4f3-8ad40fbf5448",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0795.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0795.pdf",
+        "size_mb": 1.65,
+        "sha256": "36beab85bd6e241805fe09ccfac1be10a7be1e469fda8f4bd7503ff16c626254",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e7f85fbe-87a0-41d2-8637-5a4855dc99fc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0808.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0808.pdf",
+        "size_mb": 4.6,
+        "sha256": "66c1490af857324fb06778879de3a1acd0f27df1c621a3e67b51375d5b54bd0e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d3d9fdf9-f49e-4e93-ae0a-ba5d74a33593",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0818.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0818.pdf",
+        "size_mb": 2.15,
+        "sha256": "a267c04a99481e61aef8451d3c9fbe266de2ed2a707094f6bfbc8f3d38ea31c6",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "abcfe0b3-f4f7-4259-82ac-5cfe12ced0a2",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0838.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0838.pdf",
+        "size_mb": 4.55,
+        "sha256": "df687be9dd5735d4c36f6ba6f4811f383c33178c8f5f5e2a45bb0637aa99f130",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "52093b02-1940-485a-82b0-ae30105430f1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0799.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0799.pdf",
+        "size_mb": 4.4,
+        "sha256": "81e2ef3226b8189d21bef31e56476079cf27994c8b58136c7b8a91a7992e042b",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "324ff6b2-13b2-4256-9ae1-578101f0ed8d",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0812.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0812.pdf",
+        "size_mb": 2.38,
+        "sha256": "7d6e6fe15371021d547ed82adcca343876b5d8f0dc18601b191ea07788faf5b2",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "f9e85820-185c-4053-bcb3-6726ec7a841b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0847.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0847.pdf",
+        "size_mb": 4.43,
+        "sha256": "583146c1edd9eb5b5ece648c6de6a1d8bf9aaec458513fc76224122b8cb9b34f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "a1a2ce52-1e0a-4953-9a60-5d462b63b40f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0833.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0833.pdf",
+        "size_mb": 4.1,
+        "sha256": "8202ba63303a1cf4403a512e9ed84417a822e4ca38c3f2a248cbd4f252b1a541",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "4cd9a587-ca27-467e-a45b-4c3f2be22ed4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0793.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0793.pdf",
+        "size_mb": 2.49,
+        "sha256": "81772f5c21860ce9471e834a520bc6df2ee8ec5ee5f4cb6f2180e5dc0c1a3353",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "6c16fb07-c61e-4634-9cc4-a6ce45d2e3ca",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0809.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0809.pdf",
+        "size_mb": 11.47,
+        "sha256": "d3dc1eef362ddb98a5bcff9fa675de47839104aaab957b7b6a1e06acfb20ccb5",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "048b8d94-1162-4415-b3c6-adc83bc3a78a",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0806.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0806.pdf",
+        "size_mb": 4.92,
+        "sha256": "72d7d6371587d8d1d0b9a8897fad5a560e5b0cc8314988a4711feddc165dc3f1",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "47f01439-4a09-41c7-8ef7-1abde9389ada",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0860.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0860.pdf",
+        "size_mb": 4.24,
+        "sha256": "408b16eab46128d5f5924100fdafd0e18597d61a5dd5200fa1dd5f6e3a89103f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "789a275e-7a65-4ea4-b055-df6af903124a",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0779.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0779.pdf",
+        "size_mb": 4.3,
+        "sha256": "065baf6f94f6ca0807bcda59b86db8aaf94b43b4c0b7f0b697f41cd642c8251d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "4d06f6e6-c6b7-4c02-8721-f97cde445794",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0828.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0828.pdf",
+        "size_mb": 4.64,
+        "sha256": "196c7f3da9dff78a9aaa3269c31b830df1c27d24cda6356567466c9694e27a07",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "520e2d48-20a5-4cb1-92fa-b6d7d5eb54f8",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0858.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0858.pdf",
+        "size_mb": 4.99,
+        "sha256": "0965d95d71a7e80860c5e4a90bb041fef2e58bc364545853a56efbf5a39f5a7e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b40c43dc-e8cf-444c-b629-6494339ec3cc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0814.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0814.pdf",
+        "size_mb": 1.4,
+        "sha256": "b7d236885ad3037537eca5925a648fc9db2c558476c2a4ef51a7553565c17f98",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "06061546-0234-4534-898c-fc9e4b02f723",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0773.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0773.pdf",
+        "size_mb": 3.92,
+        "sha256": "23aea59d08fcc3c2e7b66ff32a72e2d64b0c72736fe0b79df46eb6b24860a782",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "09cc569f-90dc-4495-a5d5-241ce7b6be1f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0811.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0811.pdf",
+        "size_mb": 4.89,
+        "sha256": "5ea14f88364186890bc0c57b7a6866adf19650c2789a71e30c1e5d6a66b05c10",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "52ace9b1-f095-49c5-9e4b-2ad4f3feea98",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0823.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0823.pdf",
+        "size_mb": 3.47,
+        "sha256": "49bf3d601b213efaa625f127765c2d4d3054dd0a2a9966c2e6c973a1a55c83f8",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "8f533fa9-897f-4663-b320-5be748f5dfd1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0804.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0804.pdf",
+        "size_mb": 4.78,
+        "sha256": "30f4df9eca255ed768957a38a3a55311f19abf32c69c6abd02936e27f6cf5109",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d3515430-2eb5-4506-ba74-f021a4e6cee6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0785.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0785.pdf",
+        "size_mb": 3.91,
+        "sha256": "b66b8e4cdd52644593f420d689ff34a7a771eb02ad080b14a36cc378187bb82a",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "7cdc9e1e-4e08-4c64-bb9f-6926d45b241f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0784.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0784.pdf",
+        "size_mb": 4.63,
+        "sha256": "82ee2520bcbf2302ac2d2812a46358ede16d325707ef5824e34bdaae5401874e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "0510a99c-884e-45b5-9eee-df9b3ed6cf2f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0797.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0797.pdf",
+        "size_mb": 1.04,
+        "sha256": "208dafffac767d3576d6f9981d7f42dfb5cc494d841bf539e74cea434dc84d7e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "6c097038-f5a2-46aa-aa6f-43b4d150afa4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0836.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0836.pdf",
+        "size_mb": 5.05,
+        "sha256": "363b02c3cf886e5efcf968db4187915e82912e5e7bb24d16e6d3ee486c406ea4",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "42c8745c-e403-4ce1-ba4b-d24d915df412",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0842.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0842.pdf",
+        "size_mb": 1.78,
+        "sha256": "1bbcc28fe78c43ba59d4629cf288a00e93455e9aa99e409bec8e17818a8b9486",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "1d9e1752-942c-4505-a1f9-3ee28f52a2a1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0791.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0791.pdf",
+        "size_mb": 2.98,
+        "sha256": "b5e197532cd58ed8043fbef67e0ef6e23c92c9ed9ebc3e27189a031cce6d6fa6",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "168b2267-68c9-4e64-ab8b-a00fa4948316",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0819.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0819.pdf",
+        "size_mb": 1.59,
+        "sha256": "2e031213829bb52170ef8bb2291c62d9f18b7bdde5dcc595858a3c03e7a05e0d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "0a117648-e8a8-46aa-b35c-c6e20e4cd71e",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0794.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0794.pdf",
+        "size_mb": 1.98,
+        "sha256": "25be7c547db5b9548f35390110b3c8b87c6e74cdbd10a52fe4c11997af5a9f4f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e38e4bf6-1d21-421b-854d-9263c3dd5e06",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0841.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0841.pdf",
+        "size_mb": 1.7,
+        "sha256": "278535c13f64152c90e030771ae23d5d871662cb64502da646a00e4bb3e1cc9d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "7d97115d-f1fb-4f37-9f3a-76e3720f4b45",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0878.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0878.pdf",
+        "size_mb": 4.73,
+        "sha256": "478ffb804c626f9b4ff925eadf8eb0d87a3f6de475c62540e8f07f50540a6177",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "7bc7ad5d-2d36-4354-9739-dbbe602d9e54",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0846.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0846.pdf",
+        "size_mb": 4.61,
+        "sha256": "d0529d7b5440a5e7c282c2f85c2341d7f6e862568335afa67b55e02a02a1d004",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "8d3e3fc0-3c5e-4c12-a10e-43cebb4699e5",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0868.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0868.pdf",
+        "size_mb": 4.15,
+        "sha256": "fc148a2bb327fdd4dc066a3f33be717e9485115a2026cea900fcaef11d077c15",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "41889865-76ac-4f81-9c04-71ae29a1a7ff",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0876.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0876.pdf",
+        "size_mb": 3.96,
+        "sha256": "9b0b4cc95740d5be95b81e92e50c2301e870abaf4fe7f40d49161cbaa9eb78a0",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "bbbe27d4-d633-4299-b569-99f1c3bd637c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0796.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0796.pdf",
+        "size_mb": 1.67,
+        "sha256": "a1a0142b5428c267bac36b78ffe21722a1e35773467602c984e7ec9ebe68a117",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d46537bb-f829-495b-a435-6f83b9023aa6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0803.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0803.pdf",
+        "size_mb": 5.37,
+        "sha256": "b38c1b1a898793871321e2b23d8dca8f37edb967fcba219ba2a91a9e6dbe693f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e578792f-c69e-4b5f-a984-59a6ec400fb0",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0852.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0852.pdf",
+        "size_mb": 5.75,
+        "sha256": "266b47859c14ebc041c6b67809a79346737d96716942ccfe94e4be0b96e6643f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "f72cc24b-f0c2-476d-9d90-13854e7b2e21",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0778.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0778.pdf",
+        "size_mb": 3.5,
+        "sha256": "615d7681d29f76265c88dc4003c60f09e5feb7d401dd1cb6b3531dea0c0cc84b",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "4b1b1ac4-1e80-4980-9645-abc43b086ed7",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0787.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0787.pdf",
+        "size_mb": 11.58,
+        "sha256": "1671c418a5912c2e161dee95d0b11f37c79d90853609e3062bd5e3706c3d36d5",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "fa0b3ffe-56a4-44e7-aefb-27bafc94aa91",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0807.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0807.pdf",
+        "size_mb": 5.52,
+        "sha256": "4df38c62f6a2c2c8837b81f484a05a800a4e9d40b3d85fada1cc99f5fcc35e3d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e844659a-8c6f-4a38-bdae-4e3e6bdebf34",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0824.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0824.pdf",
+        "size_mb": 4.09,
+        "sha256": "5f1f0f84d26329fada8941a413074e36c056a084f11da319604f3f380e5b7dde",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "da14e667-2ec0-48c4-9c12-b0f8ac0574b1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0762.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0762.pdf",
+        "size_mb": 3.19,
+        "sha256": "92862f7129e9be51d26465a47bca97ca9f87813629d43f18808f862987ad507b",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b14193c6-b654-460c-b3fa-4602ef11f281",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0850.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0850.pdf",
+        "size_mb": 2.17,
+        "sha256": "7c6d9ad86ed7125cf811045dceb54aa2710864381ec84247f02430d3fd869f5d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "e0c2805a-dc97-4ac0-a167-5e1a4c086c6c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0840.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0840.pdf",
+        "size_mb": 1.51,
+        "sha256": "8a8e1305d608bebefa9a6bb72a63dc85095e6ff7093f498b4ca262d71cc9f536",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "7a486f03-08e0-4ac1-af49-1b00d4b5928b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0805.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0805.pdf",
+        "size_mb": 4.66,
+        "sha256": "2d218440b7e0c8814657d44cbea12c1a17b558a5786ce4a540ba72fe2f5c83f9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "878c2908-4549-407d-9e6f-0d0e2f84375b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0872.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0872.pdf",
+        "size_mb": 4.32,
+        "sha256": "ef4ac58a31f4acabf94df6163f6a36952ccd2ddf4c212d16a093566c93aa2bf4",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "2fc07ed6-f9c1-4833-995a-7e67ed1ca534",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0873.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0873.pdf",
+        "size_mb": 5.56,
+        "sha256": "fc949a32bda29594ea99ce261d46ad7457e3adea6cf98470920b4bd34efede49",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "471a5f22-c06f-41f5-bcca-84789d42268a",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0854.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0854.pdf",
+        "size_mb": 6.52,
+        "sha256": "494ce62abe26fd295bbd94c8d1cf4b9891f7f8a0c5de02bfa1530960d293423f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "a3e14f86-2c08-4f9a-8c81-ed01ecb86c7a",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0877.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0877.pdf",
+        "size_mb": 4.91,
+        "sha256": "7f10b381a8997a82f2bc1d4b689c4d91a334b0528402ac6c1df9f6f76e33e727",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "52a83ef8-f3a1-4684-b792-61171a38e2b9",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0834.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0834.pdf",
+        "size_mb": 4.03,
+        "sha256": "85e97d3092e2e3cb3f37fe12da48fcebce39f74c1cdcf921beff6a9076b68d38",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "957767d6-3b98-4a43-bced-557c90869c69",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0764.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0764.pdf",
+        "size_mb": 3.11,
+        "sha256": "3f5614ad49f142275d18745492f1ec1e310b1841234f8c7609c46f448dae056a",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "622c2cae-ca71-4c80-b365-69a2d408d865",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0771.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0771.pdf",
+        "size_mb": 4.66,
+        "sha256": "15e7fb7a31c1fe0a6be5deb1ac58be6815aa7f4ac9a1dc8a0fb2704eef94a09f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "c56fece9-133e-4ac6-8e34-99d39d5a93eb",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0843.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0843.pdf",
+        "size_mb": 3.05,
+        "sha256": "6ae892d12f9cd67c3706f9844586a522a93bb4120e9978ea57bf721ffee4eff4",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "2b0137cf-8162-4398-96b8-f95a20f99668",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0849.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0849.pdf",
+        "size_mb": 5.09,
+        "sha256": "0d7aa84173b40fefdc45c716c8bdfabc7465256fc48136ed56a67d46b4803702",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "62418c37-fa64-4549-a8a8-8a113b34d697",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0861.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0861.pdf",
+        "size_mb": 4.79,
+        "sha256": "91587c12c251895ab5460a3b78064395a2d56867df27bc56b0e90d5b035bcc98",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "34ee12bd-4464-4397-9c09-a794505af701",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0765.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0765.pdf",
+        "size_mb": 3.32,
+        "sha256": "2ae2ee8b8d732c00eb4f14cdcf34594356c375fd4eb5ab1e684064243c56871d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "36713bbe-5d38-48a3-996b-e18b1c7f0db6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0835.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0835.pdf",
+        "size_mb": 4.09,
+        "sha256": "c1bf595c45814903a29bef59611527d2f987bb37554b90253f67990deb8cbafd",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "5341baf4-937b-4750-b01d-fd96e0bc009f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0801.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0801.pdf",
+        "size_mb": 5.81,
+        "sha256": "ea17b2c20ff6727ebce6816ad8c5255af5c8bcb9779582836ad445e2f8b20f7d",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "51d3468f-69e7-4ca4-91ad-0d1d85da04f6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0821.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0821.pdf",
+        "size_mb": 2.03,
+        "sha256": "769ede6e0e255788a48e316c5aec2a8d091ccef12ecae3b80594021bdc2c7226",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "8246d10f-a35c-49cd-8a42-dedfdb6f5cfa",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0780.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0780.pdf",
+        "size_mb": 4.13,
+        "sha256": "36260f9d85cc638b7cceb55d5081bde8dd7eb92ae13187bc4ce368e284254d72",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "79ddf250-d950-4b0f-80e2-55a501481cee",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0816.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0816.pdf",
+        "size_mb": 2.07,
+        "sha256": "faf7ba685259752756a3694f1bd18f1d049840c56b2a91e04a7eb512401b49f4",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "36ef8571-7b28-43b5-a224-96eeb2444671",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0875.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0875.pdf",
+        "size_mb": 3.73,
+        "sha256": "ea6c42a2f62e1c1081dea17068f0db98bb53bcba05da40cb9af12a80971352bf",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "368314f5-7152-4247-9689-c829dd29ba81",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0863.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0863.pdf",
+        "size_mb": 4.53,
+        "sha256": "e6c7305e9671cb61ef4cbd7c6e5013991ddefbb8e00fb07b1cafdac7e71f6fda",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "161c21b0-10df-460a-9675-ac2f20ed2b77",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0792.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0792.pdf",
+        "size_mb": 2.35,
+        "sha256": "52880e1d2b8df87a95077654064faa54c2acab8051d4d10a303cc07a3278dddb",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "9ad562b5-0b8d-43eb-bd19-265f647725ca",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0845.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0845.pdf",
+        "size_mb": 4.08,
+        "sha256": "c966a2558220c0c99e8b88592b246b6ee795aec1b2fba6f3332ed14e096d78f9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "b2eb6be6-0b18-4c10-8161-67cbb3d140e7",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0813.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0813.pdf",
+        "size_mb": 1.35,
+        "sha256": "3858c98f6f6d17a96793b4422066dcf74c68a9441e8abe2949113ba2a695ba60",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "6a492c95-ef51-4843-b5ab-c33404bd15e4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0857.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0857.pdf",
+        "size_mb": 4.44,
+        "sha256": "9d65759f1e6708646b7d96406105a03829fe7de2ad19893678efeed0ead3ade2",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "7a81eb41-9c02-4204-be02-007e267b3925",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0837.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0837.pdf",
+        "size_mb": 4.43,
+        "sha256": "28579d59a26103a02e2820fcb6549cda03b10c843b68017b3d0486ec5fffd488",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d4ada53e-92d9-4cce-b1dc-06aa8b70e3ff",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0870.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0870.pdf",
+        "size_mb": 3.34,
+        "sha256": "45831a531f246b86daef600e6bc8f2040a78737024eefecd21fa44c7b930a4bb",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "8223828d-e09d-4870-ba4c-668f0e26796c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0820.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0820.pdf",
+        "size_mb": 1.83,
+        "sha256": "c0a345e699cdb234970d5474b4dcf2972a3cb035320e1baa5d10d46e83cf3577",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "4677d6f2-2c9f-4843-a5ab-e0e251ceb0ed",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0802.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0802.pdf",
+        "size_mb": 4.01,
+        "sha256": "b8b972e243026aa4d1d5cc2636781473045bd59cacbcc465630c725b1f59192f",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "0d6d158f-0954-4684-95b5-807257b93637",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0815.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0815.pdf",
+        "size_mb": 1.33,
+        "sha256": "1788aa86123457f811dea6b7bbe26446379dbfa8750caa0e7fc147d000f8097c",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "a6af766b-36dd-4bc0-bc58-73aa42bf4b26",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0769.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0769.pdf",
+        "size_mb": 0.37,
+        "sha256": "bea559872b25320ab4fc777309052e8069390f10f780de246046f3e01b84da13",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "80acbaa7-3351-4a86-b94d-5aef342eee63",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0777.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0777.pdf",
+        "size_mb": 3.86,
+        "sha256": "2dc96d829c12a9513df5db6b4c6a537df369e85617d47327f9537bc9dc3891b9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "eb3dcb2e-98ef-41c9-aff6-bd21c5a2c31c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0859.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0859.pdf",
+        "size_mb": 4.57,
+        "sha256": "59a610e86f06b2b079b6516ab209fe35280dde96b154777c28261b03df2f150e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "ca2f6540-72a0-4c38-ba18-a80f2ddd34da",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0768.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0768.pdf",
+        "size_mb": 6.22,
+        "sha256": "4302f7d229c14cdc4f517b1e8580d1bde37c72f48b9b2a750afd6e319253e384",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "40ef41ed-e0b5-4489-8558-bf80d84260a4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0827.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0827.pdf",
+        "size_mb": 3.53,
+        "sha256": "3845b932dfd77df488f482553db3e9f071e43a4179ac6da066039c56ec608bcd",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "30c8a144-296c-4a15-8061-a131d668df36",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0789.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0789.pdf",
+        "size_mb": 2.98,
+        "sha256": "a2fe5cdf88535b9e9d456e999df82084643af4a3ec69324d0d11987278d411a9",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d9506a68-71ee-4401-b92e-ac1129e452f6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0853.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0853.pdf",
+        "size_mb": 5.9,
+        "sha256": "d99cfed2482cea2bae3ae535e45529c92f8601a6a1180d9df7be59ea7e01bd8a",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "67184dbe-22b5-45f9-970b-dc10e2e4f475",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0848.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0848.pdf",
+        "size_mb": 3.96,
+        "sha256": "851bee6209806429d41b2c485bf5a8411073e407883f0c94b85c40e90de51bdb",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "41d106bc-d9d2-422f-9a0a-84252c4547f5",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0871.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0871.pdf",
+        "size_mb": 4.22,
+        "sha256": "2996f928bc7221c8af1a9e5668eab8cd234b9dee3b974f21333219ed08c158b5",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "da41b9c6-6c19-46e8-a293-736da0135c75",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0786.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0786.pdf",
+        "size_mb": 11.94,
+        "sha256": "60a96e9642de9ff030cb8ea8cef2fab127cf64253d2f035591a388472390bd8a",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "127c1e9b-efaa-487e-bba5-dde15bdbc3ce",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0790.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0790.pdf",
+        "size_mb": 2.85,
+        "sha256": "9af76ceb7d14c4b4cccbc61180baef7a52bf9989af875c76bef6ebeefb128272",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "ed5a94d3-a5e9-437b-b0d5-48ba51ade31b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0830.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0830.pdf",
+        "size_mb": 4.3,
+        "sha256": "032b7ce02be044c642553c8ac47b108bd1ee10ac94faa857cdabc1bfdf462498",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "97bd6ddf-de02-4fd6-9f59-d6915a9c62e4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0839.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0839.pdf",
+        "size_mb": 1.51,
+        "sha256": "06b85b82f9f1636ef829c418b347df25e24134de96a4548507514f9f945e7bf0",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "cbb407f4-8165-4e02-a28d-13b8c4382a08",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0856.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0856.pdf",
+        "size_mb": 4.4,
+        "sha256": "214e62689996880887047fe624c5bf137f4b52ef40dc52904a7015d380808e0a",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "c4ea9e66-71df-446d-afbf-f9721a6b33e3",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0782.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0782.pdf",
+        "size_mb": 4.52,
+        "sha256": "93649ee806492a97759bf0393711a5696e6910f43972b2d740841cdde99a9716",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "373ecae5-5daf-4a29-8c36-d580cb140044",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0788.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0788.pdf",
+        "size_mb": 11.5,
+        "sha256": "4c89adf270bc75e3eec60c899a25ba558e73f1135e496db7875a16e3df2f853c",
+        "category": "large"
+      }
+    },
+    {
+      "document_uuid": "f5eb06fb-ada5-4a6b-8129-e06cb9f696a1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0774.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0774.pdf",
+        "size_mb": 4.41,
+        "sha256": "f0b7807f01dc842cd42079861da2856846cb23b578ddd4d01308c0fda147dd0e",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "9953c7ce-1a3c-4831-b5a8-4c1c62d7a739",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0781.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0781.pdf",
+        "size_mb": 4.3,
+        "sha256": "2ca8d0fdd71271d3cf35f1d2f9321223115dc613401c113770d2035081ec2892",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "2d4f24bf-aa91-4b6f-ac39-4bfa59f6ff41",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0817.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0817.pdf",
+        "size_mb": 2.15,
+        "sha256": "b7903eff05db2ec356575f5dba55a84a6e658e224a9363dce760e690a2c9904a",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "28f8564c-fd79-4934-9172-b8e1d9501b25",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0869.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0869.pdf",
+        "size_mb": 4.07,
+        "sha256": "45eaf2e55e956ed1d844af345753c2082a57c2b1d2806ca69a369d7ca7024de8",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "5fe49e6a-4672-4d05-9c6c-d512d1b023ea",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Docs to Produce/Converted PDFs/IMG_0800.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "IMG_0800.pdf",
+        "size_mb": 3.79,
+        "sha256": "f7472bf6c79be178b3b107fbfab910c23a2e4ce09a4c3610d345e2fcc82948c6",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "89ab8ca7-ec5a-40fc-914d-dddba17c3aac",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/5- loss runs 4501 Gustine/20-23 Loss Runs.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "20-23 Loss Runs.pdf",
+        "size_mb": 0.08,
+        "sha256": "4c97dee6484978b2bb658a91f581878246dfe8ee9e76ba268d5dd4a19468a602",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "07d924ec-7a6e-4610-9f57-5806d32fa192",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/5- loss runs 4501 Gustine/23-24 Loss Runs (3).pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "23-24 Loss Runs (3).pdf",
+        "size_mb": 0.07,
+        "sha256": "e29d5cb07d56743284f54f9d4e3cdbdcf79f3fc48fcaf62adae0a1327bd5ab2b",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "87876603-b592-4a05-b4de-1d1243f8a158",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Acuity Notice.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Acuity Notice.pdf",
+        "size_mb": 0.04,
+        "sha256": "e6522edaea974f9d43d431db91cd28dac7d5a7e4eb23ad74109d54e626b1212f",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "159fbd5e-2b2a-40ac-b81e-20c3178762b2",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Special Warranty Deed.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Special Warranty Deed.pdf",
+        "size_mb": 0.11,
+        "sha256": "7cda77d53693854fbe2573f7e729713d27d62a6d02f1be185e308980f3d21840",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "bbb5a033-9829-4251-b88f-6b8aa7cd44e5",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Insurance Benefits Assignment Agreement.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Insurance Benefits Assignment Agreement.pdf",
+        "size_mb": 0.15,
+        "sha256": "54a40e8924a3f549a89b621646fa8a0ae935a11c1bea8d1f35631281abb852ed",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "2a4699f5-77c7-4175-aac7-32ab160282d6",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Riverdale Lease.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Riverdale Lease.pdf",
+        "size_mb": 0.3,
+        "sha256": "fde8d3a8890ef48389d2667dc66f185218e70541986f266b27e44e8455c87f9a",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "ce3dfb0c-47a4-4d3f-ac8d-729a33b36665",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Bill of Sale.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Bill of Sale.pdf",
+        "size_mb": 0.05,
+        "sha256": "2160f9361c9f8ac0de4253279752b236667be2ba2a9b2b822e5c6250d0ce3bd3",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "bc48a4a8-1120-4e4f-8f2c-fa9499a0c16a",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/12- closing documents 6.12.2024/Notice of Assignment of Relinquished Property Contract.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Notice of Assignment of Relinquished Property Contract.pdf",
+        "size_mb": 0.1,
+        "sha256": "70da1db91cdb554dead9eaab7f6056100c55c35a4514cec07010f82abcdba600",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "6e00e7d9-79f3-4cc6-9901-7cb51ae21728",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/16b- estimate by Gustine V2 8.3.2024/Gustine - Riverdale Packaging Corp estimate.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Gustine - Riverdale Packaging Corp estimate.pdf",
+        "size_mb": 0.12,
+        "sha256": "4a00a4a4dbec6f456af929162d1eb481d52b8033aeaac8b2828b5a212b44de37",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "6c162f1a-186b-4e82-81fd-fb53f0bbf026",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/17- appraisal demand 6.23.2024/Acuity Notice.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Acuity Notice.pdf",
+        "size_mb": 0.04,
+        "sha256": "86383cccc8a3437237c581383a4cf038d9c3427621e87637420cd9e75930a5a5",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "a4457db3-f2f4-4e88-8dd1-8d2a17b702fc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/1- Policy PDF/Policy.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Policy.pdf",
+        "size_mb": 1.53,
+        "sha256": "7a465e56ec7c1d2053b84a84a0eed4d64775f4277cf0c3c2de1d04c6afca11fd",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "dc6d4db3-0f34-4856-b86a-8e0eb7660484",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/1- Policy PDF/4501 policy Dec pages.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4501 policy Dec pages.pdf",
+        "size_mb": 2.41,
+        "sha256": "f3c9711b69ca7a6e5b51a89d64c50cf57e8e12e134cf844f203e3c4b97a0c582",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "8626c3f0-5bf9-4c53-afc8-e75cbdaf66ff",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/1- Policy PDF/Policy (Conflict).pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Policy (Conflict).pdf",
+        "size_mb": 1.93,
+        "sha256": "a9294371fad47fc5e20426c550522554771870b6598b747504b9d2f2a7fdd6c3",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "64388331-7829-4df1-8991-d23f67e520bf",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzz- liability quote $2k/GENERAL LIABILITY QUOTE.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "GENERAL LIABILITY QUOTE.pdf",
+        "size_mb": 0.68,
+        "sha256": "b7f35fa130d037bb2b959cd9f70f0c5372d6012772c2bf3a1c233488c1a82a29",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "09dbcbcc-1745-43e7-8219-53cbc0183b4f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzz- liability quote $2k/Emails re general liability quote.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Emails re general liability quote.pdf",
+        "size_mb": 0.3,
+        "sha256": "e78c80f46ebfc3daad433a0b19aa1470cd4dfade0cbd7b221f177ca50143e316",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "f79a02c8-0b6a-4b7a-a1bf-2e6eb22dc4df",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzzz- agent of record change 7.3.2024/Mike Griswold.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Mike Griswold.pdf",
+        "size_mb": 0.22,
+        "sha256": "f04b9992008d1b991127539cd852c0d810d1f20245bb7073bf5224bf1af78260",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "90c6061e-c9a0-40dc-86ac-371e0576d7d9",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzzz- agent of record change 7.3.2024/AOR.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "AOR.pdf",
+        "size_mb": 0.37,
+        "sha256": "3f2f7cd02fc3e32fcfbebf62656fed16e6f0133f38b1beaf01a76048570e0fdf",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "f6bd4de0-86a8-4396-8a68-2e8556a29d82",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzzz- agent of record change 7.3.2024/BOR Template (002).docx.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "BOR Template (002).docx.pdf",
+        "size_mb": 0.16,
+        "sha256": "4b83b10cbdc028363e45b6e04fd7aabd51dca2b2194c38edd0d07ed8cd021bb8",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1b32220c-7792-4ee1-836d-a995544fb94b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzzzzzzzz- flood insurance quote/Flood Insurance Quote.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Flood Insurance Quote.pdf",
+        "size_mb": 0.26,
+        "sha256": "6b44f7c51b8f847f8822c80272557a2f141838e1f65b180df623d49fb614be3b",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "7d3df7fa-5f87-46b4-9c9b-40c3776f4a6f",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/23a- proposal for repair cast iron line/4501 Gustine Map2 w lengths.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4501 Gustine Map2 w lengths.pdf",
+        "size_mb": 0.11,
+        "sha256": "045103a3e8e7c7b1cf10b6eb4a11e714441f05e026df275c3c3e8552b9592305",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "b6c96314-10cb-44b9-ad56-5bfcbadee531",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/23a- proposal for repair cast iron line/4501 Gustine Fire Protection Underground Escavation and Fire Main Underground repair.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4501 Gustine Fire Protection Underground Escavation and Fire Main Underground repair.pdf",
+        "size_mb": 0.16,
+        "sha256": "f9c7c5279afb0d97b3af14facc142b6b3604c7a2368164d45211676ad921e264",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "91819b15-134c-4ff9-9349-f5b6a85c6602",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/4- title paperwork/Gustine Previous Title Work.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Gustine Previous Title Work.pdf",
+        "size_mb": 0.43,
+        "sha256": "7915428106a8de462aab8659f52608212477d656d59f7ee4b02b76107e7a0887",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "94b9d829-be1a-45a3-96c9-98fe50714af4",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/24- lawsuit filed 9.27.2024 - Acuity v. Wombat/amended complaint for declaratory judgment.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "amended complaint for declaratory judgment.pdf",
+        "size_mb": 0.03,
+        "sha256": "13026714d2e35a0189b2d57ceb8679943e04188c152c6978707ae4ebabef4998",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "66936507-8d12-46ee-a4ed-9cca41094059",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/24- lawsuit filed 9.27.2024 - Acuity v. Wombat/SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "SOP Recd 27 Sep 2024 Scan_20240927_100450+(002).pdf",
+        "size_mb": 0.36,
+        "sha256": "e528b63b749ffda1a1e33b954ac0a839e1bca4821c70c453ab0ed6eb86cad449",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "87e5bc67-80f7-40ae-8346-12ac9d3e5882",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/15- executed assignment collapse/Assignment 4500-4501 Gustine.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Assignment 4500-4501 Gustine.pdf",
+        "size_mb": 0.2,
+        "sha256": "d413e0d7d698870d9aa0db179aef61baa8a8b0dc5a4a2c3164c81a7d45e6bb6f",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1d72b412-ea87-4444-ac5e-509ba0f41f55",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/19- proof of loss - unsigned/POL Riverdale Packaging Corp..pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "POL Riverdale Packaging Corp..pdf",
+        "size_mb": 5.23,
+        "sha256": "7bb8bd65bf96b51216853bdcdd0517d3d451e9ea3e84339d3cd3a82cbcc800f0",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "d307054c-3553-480a-a29e-3ba7dc84701c",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/16a- estimate by Gustine amounts to be determined/Final Draft-Riverdale Packaging Corp.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Final Draft-Riverdale Packaging Corp.pdf",
+        "size_mb": 0.03,
+        "sha256": "94d2e39267545e805644bf71bae38cb0e5b869ef60a2712ae00114766c660530",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "a3185230-3c3e-4573-aae7-7d2718d61fdd",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/2- Insurance claim docs/Payments & Reserves.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Payments & Reserves.pdf",
+        "size_mb": 0.22,
+        "sha256": "5aa32f778f5bb46a1ed6d3531eb7befecee6abf42c992287329e466efd7537b7",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "90ac3166-73cc-4c2b-b6a4-8e46453b8ba1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/2- Insurance claim docs/RE-4124-NCC055-24 Riverdale Packaging-4.3.24 Repairs Estimate.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "RE-4124-NCC055-24 Riverdale Packaging-4.3.24 Repairs Estimate.pdf",
+        "size_mb": 1.33,
+        "sha256": "25b8c23fd80900ae94bb3a82e273a24cc0ba066cea2c247540bb1a25e7f97f4c",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "c2e5ea6a-54b3-4117-a102-a804df556dbc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/2- Insurance claim docs/SOV.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "SOV.pdf",
+        "size_mb": 0.21,
+        "sha256": "10b9d2d0af1958a0bb78b354c558e1334b3541621f00ff1d70b54f4661d89f00",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "46481dd0-5534-4d87-b8fc-5664f650f308",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/2- Insurance claim docs/Payments.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Payments.pdf",
+        "size_mb": 0.19,
+        "sha256": "1d5bf4bfd07aef1052ead12c4da6731071cf7940e6e38bca90f6b61fc21d25ef",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "645e6024-dd94-4e95-b3d9-82013e510245",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/2- Insurance claim docs/Claim Notes.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Claim Notes.pdf",
+        "size_mb": 2.68,
+        "sha256": "7eaccf8260a5c135e2f6b50f32d5b9efc20075d813ba31e25a319158102d0031",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "29d271f4-73a0-401f-a86e-ee8605282120",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/7a- SeekNow report/SeekNow_Report 4501.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "SeekNow_Report 4501.pdf",
+        "size_mb": 4.61,
+        "sha256": "ab67c990c64d04016916cf06afae4528d58262e0a8402aa91a8e57aec6ce6892",
+        "category": "medium"
+      }
+    },
+    {
+      "document_uuid": "1309f3b8-9072-432c-ad99-2420519c3e63",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/14- new (our) policy/property quote.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "property quote.pdf",
+        "size_mb": 0.15,
+        "sha256": "e4b979274f979d2fd321ba7d17b08466b6e60ae690e81ddd1a99642de89a2fe8",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "34ce786d-91a3-42db-8dd5-081cd58f078e",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzz- loss run 1.46m/23-24 Loss Runs 3.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "23-24 Loss Runs 3.pdf",
+        "size_mb": 0.07,
+        "sha256": "bce67a8a0efdf54c43ab53a28b2fa7c8f1c4d672620df2888c378c91e05da670",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "3c6b2394-dda2-45f9-8d3b-97a823c74478",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/zzzzzzzz- repair scope/Repair scope 4501.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Repair scope 4501.pdf",
+        "size_mb": 0.17,
+        "sha256": "222917b3f667b5aa4817bf571df859c7a1bd42416c4bd2b33154fb117e483955",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "1d461498-92d5-4c81-aee2-d26eb15f70dc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/10- demand for appraisal 6.11.2024/appraisal demand 6.11.2024.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "appraisal demand 6.11.2024.pdf",
+        "size_mb": 0.08,
+        "sha256": "57e4f2b8d1c7cc085601079f1e9a2569e1fff06683c9b5c88ec65c30915813ab",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "b6bc568f-e2a2-4c47-a0dc-d877e2053712",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/22- legal response to assignment 9.5.2024/shunk to nottke - acuity settlement proposal.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "shunk to nottke - acuity settlement proposal.pdf",
+        "size_mb": 0.14,
+        "sha256": "c01ea99dcc9e6c364d0a80a0c89e41d39ee75cc8ea19f746b4a8743b56c00b97",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "b229d654-27ee-49cd-9ef8-169375df39b3",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/18- roof repair estimate and scope 6.25.2024/TurnKey GC 4501 roof driveway repair.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "TurnKey GC 4501 roof driveway repair.pdf",
+        "size_mb": 0.21,
+        "sha256": "adc46a376da7016ae18a31564ca109c03000edac6f3839123589248bfd6bfbc0",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "43679b7a-d138-4f70-9f8c-3fb62cc06af8",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Z- accounting/$836124.37 Riverdale 8.27.2024.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "$836124.37 Riverdale 8.27.2024.pdf",
+        "size_mb": 0.34,
+        "sha256": "a08e2269ea0151e35508900318c9eb1095c9c057400775d54da69c95cbe77b25",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "0cb751a5-6461-4ff4-bd06-36c2bd0614fc",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/Z- accounting/z- invoices by Siliver Tuna RE/Silver Tuna RE Insurance Funds Release no. 1 4501 Gustine.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Silver Tuna RE Insurance Funds Release no. 1 4501 Gustine.pdf",
+        "size_mb": 0.1,
+        "sha256": "afe8c2b9e749126301eea627caa730eccb194b7f70581b643403d1cfdaf18d0c",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "f1bd8bcc-d2cf-4193-b545-b6c31eb0ee09",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/8- assignment 4501 Gustine/Assignment 4501 Gustine PDF.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Assignment 4501 Gustine PDF.pdf",
+        "size_mb": 0.22,
+        "sha256": "3dc9dc5c9a217cd4ce2b272b946d27ec189ba23f043abb7de398fe14c4c521ca",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "bc6cbc84-1621-4b7f-811d-9f126d7d928b",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/8- assignment 4501 Gustine/4501 Gustine Alternate Assignment claim fund payment docs PDF.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "4501 Gustine Alternate Assignment claim fund payment docs PDF.pdf",
+        "size_mb": 0.21,
+        "sha256": "6577e095db55e89d44f03ec03acaeab7e7c2d49c53e85673f9162f861e096060",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "9be44f01-efda-4529-b874-537ad4c73db1",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/16- estimate of damage V1/Final Draft-Riverdale Packaging Corp.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "Final Draft-Riverdale Packaging Corp.pdf",
+        "size_mb": 0.05,
+        "sha256": "f36d9f89485b91786d211345cef5dfa4be33adc950fcb07f5c431eb0909ba9d3",
+        "category": "small"
+      }
+    },
+    {
+      "document_uuid": "504edaaa-6ea5-4702-81f2-258d79097dbf",
+      "file_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Client Docs/Dropbox files/3- Servpro Estimate/RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+      "project_uuid": "4a0db6b4-7f77-4d51-9920-22fdd34eaac8",
+      "metadata": {
+        "original_filename": "RIVERDALE_WORKINGEST_FINAL_DRAFT_CAR.pdf",
+        "size_mb": 1.44,
+        "sha256": "07e8897849cd4b8deb628f2c041c4c67c0672484059fe230c7e8d91d059160ee",
+        "category": "medium"
+      }
+    }
+  ]
+}
