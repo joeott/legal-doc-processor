@@ -407,6 +407,10 @@ STREAM_MSG_IDLE_TIMEOUT_MS = int(os.getenv("STREAM_MSG_IDLE_TIMEOUT_MS", "300000
 REDIS_CLUSTER_ENABLED = os.getenv("REDIS_CLUSTER_ENABLED", "false").lower() in ("true", "1", "yes")
 REDIS_CLUSTER_NODES = os.getenv("REDIS_CLUSTER_NODES", "").split(",") if os.getenv("REDIS_CLUSTER_NODES") else []
 
+# Redis Acceleration Configuration (simple flags)
+REDIS_ACCELERATION_ENABLED = os.getenv('REDIS_ACCELERATION_ENABLED', 'false').lower() in ('true', '1', 'yes')
+REDIS_ACCELERATION_TTL_HOURS = int(os.getenv('REDIS_ACCELERATION_TTL_HOURS', '24'))
+
 # Make sure required directories exist
 os.makedirs(SOURCE_DOCUMENT_DIR, exist_ok=True)
 if USE_S3_FOR_INPUT:

@@ -3,7 +3,7 @@ Core processing modules and Pydantic models for the document pipeline.
 """
 
 # Core modules
-from .error_handler import ErrorHandler
+# ErrorHandler removed - deprecated file deleted
 
 # Import models from consolidated location
 from scripts.models import (
@@ -203,8 +203,7 @@ except ImportError:
     quick_validation_check = None
 
 __all__ = [
-    # Core modules
-    'ErrorHandler',
+    # Core modules removed - deprecated files deleted
     
     # Base models
     'BaseTimestampModel',

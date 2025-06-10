@@ -301,6 +301,10 @@ class RedisManager:
     
     def __init__(self):
         """Initialize Redis connection pool."""
+        # Initialize circuit breaker attributes
+        self._redis_failures = 0
+        self._redis_disabled_until = None
+        
         if self._pool is None and USE_REDIS_CACHE:
             try:
                 # Build connection parameters from REDIS_CONFIG
@@ -344,6 +348,11 @@ class RedisManager:
         if not USE_REDIS_CACHE or self._pool is None:
             raise RuntimeError("Redis is not configured or disabled")
         return redis.Redis(connection_pool=self._pool)
+    
+    @property
+    def redis_client(self) -> redis.Redis:
+        """Property for accessing Redis client (for compatibility)."""
+        return self.get_client()
     
     def is_available(self) -> bool:
         """Check if Redis is available and configured."""
@@ -732,6 +741,63 @@ class RedisManager:
         except Exception as e:
             logger.error(f"Redis srem error for {name}: {e}")
             return 0
+
+    # ========== Simplified Redis Acceleration Methods ==========
+    # These methods provide simple Redis acceleration with fallback support
+    
+    def set_with_ttl(self, key: str, value: Any, ttl: int = 3600) -> bool:
+        """Set cache with TTL. Skip if too large."""
+        try:
+            # Simple size check - skip large objects
+            data = pickle.dumps(value) if not isinstance(value, str) else value.encode()
+            if len(data) > 5 * 1024 * 1024:  # 5MB limit
+                logger.warning(f"Skipping cache for {key} - too large ({len(data)} bytes)")
+                return False
+                
+            return self.set_cached(key, value, ttl=ttl)
+        except Exception as e:
+            logger.error(f"Cache set failed for {key}: {e}")
+            return False
+
+    def get_with_fallback(self, key: str, fallback_func: Callable) -> Optional[Any]:
+        """Get from cache or fallback to function (usually DB query)."""
+        try:
+            # Try cache first
+            value = self.get_cached(key)
+            if value is not None:
+                logger.debug(f"Cache hit for {key}")
+                return value
+        except Exception as e:
+            logger.warning(f"Cache error for {key}: {e}")
+        
+        # Fallback
+        logger.debug(f"Cache miss for {key}, using fallback")
+        return fallback_func()
+
+    # Simple circuit breaker
+    _redis_failures = 0
+    _redis_disabled_until = None
+
+    def is_redis_healthy(self) -> bool:
+        """Simple circuit breaker - disable Redis for 5 minutes after 5 failures."""
+        # Check if circuit breaker is open
+        if self._redis_disabled_until and datetime.utcnow() < self._redis_disabled_until:
+            return False
+        elif self._redis_disabled_until:
+            # Reset if time has passed
+            self._redis_disabled_until = None
+            self._redis_failures = 0
+                
+        try:
+            self.get_client().ping()
+            self._redis_failures = 0  # Reset on success
+            return True
+        except Exception as e:
+            self._redis_failures += 1
+            if self._redis_failures >= 5:
+                self._redis_disabled_until = datetime.utcnow() + timedelta(minutes=5)
+                logger.error(f"Redis circuit breaker opened - disabled for 5 minutes. Error: {e}")
+            return False
 
     # ========== Compatibility Methods ==========
     # These methods provide compatibility with code expecting dict-specific methods

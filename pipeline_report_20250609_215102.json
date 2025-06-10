@@ -1,0 +1,61 @@
+{
+  "summary": {
+    "document_uuid": "FAILED",
+    "start_time": "2025-06-09T21:51:02.494861",
+    "total_duration": 0.280317,
+    "total_events": 3,
+    "total_errors": 2,
+    "redis_acceleration": true,
+    "cache_stats": {
+      "hits": 0,
+      "misses": 0,
+      "writes": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-06-09T21:51:02.494900",
+      "elapsed_seconds": 3.9e-05,
+      "stage": "Pipeline Start",
+      "event": "Processing document: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "details": {
+        "file_path": "input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "file_size": 149104,
+        "redis_acceleration": true
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:51:02.531531",
+      "elapsed_seconds": 0.03667,
+      "stage": "Project Creation",
+      "event": "Project created successfully",
+      "details": {
+        "project_id": 2,
+        "project_uuid": "6c312cb7-31bb-486b-9753-08057339f656"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:51:02.531744",
+      "elapsed_seconds": 0.036883,
+      "stage": "S3 Upload",
+      "event": "Starting S3 upload",
+      "details": {}
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-06-09T21:51:02.772628",
+      "stage": "S3 Upload",
+      "error": "Failed to upload to S3",
+      "exception": "'S3StorageManager' object has no attribute 's3_primary_document_bucket'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 238, in process_document\n    s3_bucket = self.s3_manager.s3_primary_document_bucket\nAttributeError: 'S3StorageManager' object has no attribute 's3_primary_document_bucket'\n"
+    },
+    {
+      "timestamp": "2025-06-09T21:51:02.774010",
+      "stage": "Pipeline",
+      "error": "Fatal error during processing",
+      "exception": "'S3StorageManager' object has no attribute 's3_primary_document_bucket'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 238, in process_document\n    s3_bucket = self.s3_manager.s3_primary_document_bucket\nAttributeError: 'S3StorageManager' object has no attribute 's3_primary_document_bucket'\n"
+    }
+  ]
+}

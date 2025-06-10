@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "exported_at": "2025-06-09T21:42:13.198479Z",
+    "source_file": "scripts/models.py"
+  },
+  "models": {},
+  "summary": {
+    "total_models": 0,
+    "total_fields": 0,
+    "model_inheritance": {}
+  },
+  "errors": [
+    "Could not import models: No module named 'scripts'"
+  ]
+}

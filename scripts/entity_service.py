@@ -44,7 +44,7 @@ from scripts.core.processing_models import (
 # Import utilities
 from scripts.cache import redis_cache, get_redis_manager, rate_limit, CacheKeys
 from scripts.db import DatabaseManager
-from scripts.core.conformance_validator import ConformanceError, validate_before_operation
+from scripts.validation.conformance_validator import ConformanceError, validate_before_operation
 
 logger = logging.getLogger(__name__)
 

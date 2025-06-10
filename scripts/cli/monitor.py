@@ -101,7 +101,7 @@ class UnifiedMonitor:
         
         # Initialize conformance engine
         try:
-            from scripts.core.conformance_engine import ConformanceEngine
+            from scripts.validation.conformance_engine import ConformanceEngine
             self.conformance_engine = ConformanceEngine()
         except Exception as e:
             console.print(f"[yellow]Warning: Could not initialize conformance engine: {e}[/yellow]")

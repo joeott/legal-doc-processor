@@ -14,13 +14,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-
-class ProcessingResultStatus(str, Enum):
-    """Status of a processing result"""
-    SUCCESS = "success"
-    PARTIAL = "partial"
-    FAILED = "failed"
-    SKIPPED = "skipped"
+# Import from consolidated models to avoid duplication
+from scripts.models import ProcessingResultStatus
 
 
 class ConfidenceLevel(str, Enum):

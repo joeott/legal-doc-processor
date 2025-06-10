@@ -1,7 +1,37 @@
 """
 Consolidated minimal models for legal document processing.
-Single source of truth for all Pydantic models.
-Based on actual field usage analysis from context_418.
+
+This module serves as the single source of truth for all Pydantic models used
+in the legal document processing pipeline. Models are organized as follows:
+
+1. DATABASE MODELS (Minimal Models)
+   - Match the actual database schema (see /monitoring/reports/*/schema_export_database_schema.json)
+   - Include only fields that exist in the database
+   - Provide backward compatibility properties where needed
+   - Used for CRUD operations and data persistence
+   
+2. PROCESSING MODELS (In scripts.core.processing_models)
+   - Used for pipeline data transfer between stages
+   - Include processing metadata and validation logic
+   - Not directly persisted to database
+   - Should remain separate due to different purpose
+
+3. MODEL ORGANIZATION PRINCIPLES
+   - All database models end with "Minimal" suffix
+   - Backward compatibility via @property decorators
+   - Field names match exact database column names
+   - Type annotations match database types (e.g., UUID not int for IDs)
+
+4. BACKWARD COMPATIBILITY
+   Many models provide properties to support legacy code:
+   - chunk.text_content → chunk.text
+   - chunk.start_char → chunk.char_start_index
+   - entity.entity_name → entity.canonical_name
+   - task.document_uuid → task.document_id
+   - task.stage → task.task_type
+
+See context_487, context_488, and context_489 for consolidation history.
+Last verified against database schema: January 10, 2025
 """
 
 from datetime import datetime
@@ -31,8 +61,10 @@ class EntityType(str, Enum):
 class ProcessingResultStatus(str, Enum):
     """Result status for processing operations"""
     SUCCESS = "success"
-    FAILURE = "failure"
+    FAILURE = "failure"  # Keep for backward compatibility
+    FAILED = "failed"    # Used by entity_service.py
     PARTIAL = "partial"
+    SKIPPED = "skipped"  # Used by entity_service.py
 
 # ================================================================================
 # MINIMAL MODELS - Based on actual usage analysis
@@ -211,18 +243,38 @@ class RelationshipStagingMinimal(BaseModel):
 # ================================================================================
 
 class ProcessingTaskMinimal(BaseModel):
-    """Minimal processing task model for Celery tracking"""
+    """Minimal processing task model for Celery tracking
+    
+    Note: This model matches the actual database schema for processing_tasks table.
+    Field mappings:
+    - document_id (not document_uuid) in database
+    - task_type (not stage) in database
+    - No task_uuid column exists in database
+    """
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     
-    id: Optional[int] = None
-    task_uuid: UUID
-    document_uuid: UUID
-    stage: str  # 'ocr', 'chunking', 'entity_extraction', etc.
+    id: Optional[UUID] = None  # Primary key, auto-generated UUID
+    document_id: UUID  # Foreign key to source_documents (named document_id in DB)
+    task_type: str  # 'ocr', 'chunking', 'entity_extraction', etc.
     status: str = ProcessingStatus.PENDING.value
     celery_task_id: Optional[str] = None
     error_message: Optional[str] = None
-    created_at: Optional[datetime] = None
+    started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    retry_count: Optional[int] = 0
+    
+    # Backward compatibility properties
+    @property
+    def document_uuid(self) -> UUID:
+        """Backward compatibility: code expects document_uuid"""
+        return self.document_id
+    
+    @property
+    def stage(self) -> str:
+        """Backward compatibility: code expects stage instead of task_type"""
+        return self.task_type
 
 class ProjectMinimal(BaseModel):
     """Minimal project model"""
@@ -233,6 +285,27 @@ class ProjectMinimal(BaseModel):
     name: str
     active: bool = True
     created_at: Optional[datetime] = None
+
+class TextractJobMinimal(BaseModel):
+    """Minimal Textract job tracking model
+    
+    Tracks AWS Textract OCR jobs for documents.
+    Note: id is INTEGER (not UUID) in this table.
+    """
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    
+    id: Optional[int] = None  # Primary key, auto-increment INTEGER
+    job_id: str  # AWS Textract job ID
+    document_uuid: UUID  # Foreign key to source_documents
+    job_type: str  # Type of Textract operation
+    status: str  # Job status (matches Textract status values)
+    created_at: Optional[datetime] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    page_count: Optional[int] = None
+    result_s3_key: Optional[str] = None
+    error_message: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 # ================================================================================
 # RESULT MODELS - For pipeline operations
@@ -293,6 +366,11 @@ class ModelFactory:
     def get_project_model():
         """Get the project model"""
         return ProjectMinimal
+    
+    @staticmethod
+    def get_textract_job_model():
+        """Get the Textract job model"""
+        return TextractJobMinimal
     
     # Creation methods
     @staticmethod

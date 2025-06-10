@@ -78,7 +78,9 @@
       "Bash(timeout:*)",
       "Bash(pip show:*)",
       "Bash(rg:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(git rm:*)",
+      "Bash(test -f .env)"
     ],
     "deny": []
   }

@@ -31,7 +31,7 @@ from scripts.models import (
 )
 
 # Import JSON encoder - TODO: Move this to scripts/ if needed
-from scripts.core.json_serializer import PydanticJSONEncoder
+from scripts.utils.json_serializer import PydanticJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -360,7 +360,7 @@ class DatabaseManager:
             return True
             
         try:
-            from scripts.core.conformance_validator import ConformanceValidator, ConformanceError # Keep import here
+            from scripts.validation.conformance_validator import ConformanceValidator, ConformanceError # Keep import here
 
             validator = ConformanceValidator()
             # Assuming validate_with_recovery returns: success (bool), report (ConformanceReport), recovery_actions (list)

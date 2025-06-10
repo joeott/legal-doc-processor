@@ -464,6 +464,54 @@ def validate_processing_stage(db_manager: DatabaseManager, document_uuid: str, r
         return False
 
 
+# ========== Simple DB Fallback Functions for Redis Acceleration ==========
+
+def get_ocr_text_from_db(document_uuid: str) -> Optional[str]:
+    """Simple DB query for OCR text."""
+    from scripts.db import DatabaseManager
+    from scripts.models import SourceDocumentMinimal
+    
+    db = DatabaseManager()
+    session = next(db.get_session())
+    try:
+        doc = session.query(SourceDocumentMinimal).filter_by(
+            document_uuid=document_uuid
+        ).first()
+        return doc.raw_extracted_text if doc else None
+    finally:
+        session.close()
+
+def get_chunks_from_db(document_uuid: str) -> List[Dict]:
+    """Simple DB query for chunks."""
+    from scripts.db import DatabaseManager
+    from scripts.models import DocumentChunkMinimal
+    
+    db = DatabaseManager()
+    session = next(db.get_session())
+    try:
+        chunks = session.query(DocumentChunkMinimal).filter_by(
+            document_uuid=document_uuid
+        ).order_by(DocumentChunkMinimal.chunk_index).all()
+        return [chunk.dict() for chunk in chunks]
+    finally:
+        session.close()
+
+def get_entities_from_db(document_uuid: str) -> List[Dict]:
+    """Simple DB query for entities."""
+    from scripts.db import DatabaseManager
+    from scripts.models import EntityMentionMinimal
+    
+    db = DatabaseManager()
+    session = next(db.get_session())
+    try:
+        entities = session.query(EntityMentionMinimal).filter_by(
+            document_uuid=document_uuid
+        ).all()
+        return [entity.dict() for entity in entities]
+    finally:
+        session.close()
+
+
 # Large file handling functions
 def check_file_size(file_path: str) -> float:
     """Check file size in MB."""
@@ -851,6 +899,23 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
     
     logger.info(f"Starting OCR extraction for document {document_uuid}")
     
+    # Redis Acceleration: Check cache first
+    from scripts.config import REDIS_ACCELERATION_ENABLED
+    if REDIS_ACCELERATION_ENABLED:
+        redis_manager = get_redis_manager()
+        cache_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid)
+        
+        if redis_manager.is_redis_healthy():
+            cached_result = redis_manager.get_cached(cache_key)
+            if cached_result:
+                logger.info(f"Redis Acceleration: Using cached OCR result for {document_uuid}")
+                # Chain to next stage
+                continue_pipeline_after_ocr.apply_async(
+                    args=[cached_result, document_uuid],
+                    queue='text'
+                )
+                return cached_result
+    
     try:
         # 1. Validate conformance before any processing
         self.validate_conformance()
@@ -1033,6 +1098,17 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
                     finally:
                         session.close()
                 
+                # Redis Acceleration: Cache the result
+                if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+                    cache_result = {
+                        'status': 'completed',
+                        'text': extracted_text,
+                        'metadata': metadata,
+                        'method': method
+                    }
+                    redis_manager.set_with_ttl(cache_key, cache_result, ttl=86400)
+                    logger.info(f"Redis Acceleration: Cached OCR result for {document_uuid}")
+                
                 # Update state
                 update_document_state(document_uuid, "ocr", "completed", {
                     "method": metadata.get('method', 'tesseract'),
@@ -1104,13 +1180,46 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
     
     logger.info(f"Starting text chunking for document {document_uuid}")
     
+    # Redis Acceleration: Check cache first
+    from scripts.config import REDIS_ACCELERATION_ENABLED
+    redis_manager = get_redis_manager()
+    
+    if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+        # Try to get chunks from cache
+        cache_key = CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=document_uuid)
+        cached_chunks = redis_manager.get_cached(cache_key)
+        if cached_chunks:
+            logger.info(f"Redis Acceleration: Using cached chunks for {document_uuid}")
+            # Chain to next stage
+            extract_entities_from_chunks.apply_async(
+                args=[document_uuid, cached_chunks],
+                queue='entity'
+            )
+            return cached_chunks
+    
+    # If not using text parameter directly, try to get from Redis or DB
+    if not text or text == document_uuid:  # Sometimes just UUID is passed
+        if REDIS_ACCELERATION_ENABLED:
+            # Try Redis first, then DB
+            text = redis_manager.get_with_fallback(
+                CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid),
+                lambda: get_ocr_text_from_db(document_uuid)
+            )
+            if isinstance(text, dict) and 'text' in text:
+                text = text['text']
+        else:
+            text = get_ocr_text_from_db(document_uuid)
+    
+    if not text:
+        raise ValueError("No text available for chunking")
+    
     try:
         # 1. Validate conformance
         self.validate_conformance()
         
         # 2. Validate inputs
-        if not document_uuid or not text:
-            raise ValueError("document_uuid and text are required")
+        if not document_uuid:
+            raise ValueError("document_uuid is required")
         
         if not text.strip():
             raise ValueError("Text content cannot be empty")
@@ -1134,15 +1243,6 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             "conformance_validated": True,
             "validation_timestamp": datetime.utcnow().isoformat()
         })
-        # Check cache
-        redis_manager = get_redis_manager()
-        cache_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
-        cached_chunks = redis_manager.get_dict(cache_key)
-        
-        if cached_chunks and cached_chunks.get('chunks'):
-            logger.info(f"Using cached chunks for document {document_uuid}")
-            update_document_state(document_uuid, "chunking", "completed", {"from_cache": True})
-            return cached_chunks['chunks']
         
         # 5. Chunk the text with validation
         logger.info(f"Chunking text of length {len(text)} with chunk_size={chunk_size}, overlap={overlap}")
@@ -1157,8 +1257,8 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             raise ValueError("No chunks generated from text")
         
         # 6. Create validated chunk models
-        from scripts.models import ModelFactory
-        ChunkModel = ModelFactory.get_chunk_model()
+        from scripts.models import DocumentChunkMinimal
+        ChunkModel = DocumentChunkMinimal
         
         chunk_models = []
         logger.info(f"Creating chunk models for {len(chunks)} chunks")
@@ -1317,7 +1417,10 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             })
         
         # 9. Cache the result
-        redis_manager.store_dict(cache_key, {'chunks': serialized_chunks}, ttl=86400)
+        if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+            cache_key = CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=document_uuid)
+            redis_manager.set_with_ttl(cache_key, serialized_chunks, ttl=86400)
+            logger.info(f"Redis Acceleration: Cached {len(serialized_chunks)} chunks for {document_uuid}")
         
         # 10. Update final state with comprehensive metadata
         update_document_state(document_uuid, "chunking", "completed", {
@@ -1384,13 +1487,46 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
     
     logger.info(f"Starting entity extraction for document {document_uuid}")
     
+    # Redis Acceleration: Check cache first
+    from scripts.config import REDIS_ACCELERATION_ENABLED
+    redis_manager = get_redis_manager()
+    
+    if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+        cache_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
+        cached_entities = redis_manager.get_cached(cache_key)
+        if cached_entities:
+            logger.info(f"Redis Acceleration: Using cached entities for {document_uuid}")
+            # Chain to next stage - resolution
+            resolve_entities_simple.apply_async(
+                args=[document_uuid],
+                queue='entity'
+            )
+            return {
+                'status': 'completed',
+                'entity_count': len(cached_entities),
+                'from_cache': True
+            }
+    
+    # If chunks not provided or empty, get from Redis or DB
+    if not chunks:
+        if REDIS_ACCELERATION_ENABLED:
+            chunks = redis_manager.get_with_fallback(
+                CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=document_uuid),
+                lambda: get_chunks_from_db(document_uuid)
+            )
+        else:
+            chunks = get_chunks_from_db(document_uuid)
+    
+    if not chunks:
+        raise ValueError("No chunks available for entity extraction")
+    
     try:
         # 1. Validate conformance
         self.validate_conformance()
         
         # 2. Validate inputs
-        if not document_uuid or not chunks:
-            raise ValueError("document_uuid and chunks are required")
+        if not document_uuid:
+            raise ValueError("document_uuid is required")
         
         if not isinstance(chunks, list) or len(chunks) == 0:
             raise ValueError("chunks must be a non-empty list")
@@ -1461,19 +1597,12 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 # Continue with pipeline even if save fails
         
-        # Cache results
-        redis_manager = get_redis_manager()
-        mentions_key = CacheKeys.DOC_ENTITY_MENTIONS.format(document_uuid=document_uuid)
-        entities_key = CacheKeys.DOC_CANONICAL_ENTITIES.format(document_uuid=document_uuid)
-        
-        redis_manager.store_dict(mentions_key, {
-            'mentions': [m.dict() for m in all_entity_mentions]
-        }, ttl=86400)
-        
-        # Canonical entities will be created during resolution
-        redis_manager.store_dict(entities_key, {
-            'entities': []
-        }, ttl=86400)
+        # Cache results with Redis Acceleration
+        if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+            cache_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
+            mentions_data = [m.dict() for m in all_entity_mentions]
+            redis_manager.set_with_ttl(cache_key, mentions_data, ttl=86400)
+            logger.info(f"Redis Acceleration: Cached {len(mentions_data)} entity mentions for {document_uuid}")
         
         update_document_state(document_uuid, "entity_extraction", "completed", {
             "mention_count": len(all_entity_mentions),
@@ -1513,6 +1642,41 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         Dict containing resolution results
     """
     logger.info(f"Starting entity resolution for document {document_uuid}")
+    
+    # Redis Acceleration: Check cache first
+    from scripts.config import REDIS_ACCELERATION_ENABLED
+    redis_manager = get_redis_manager()
+    
+    if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+        cache_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid)
+        cached_entities = redis_manager.get_cached(cache_key)
+        if cached_entities:
+            logger.info(f"Redis Acceleration: Using cached canonical entities for {document_uuid}")
+            # Chain to next stage - relationship building
+            build_document_relationships.apply_async(
+                args=[document_uuid],
+                queue='graph'
+            )
+            return {
+                'status': 'completed',
+                'canonical_count': len(cached_entities),
+                'from_cache': True
+            }
+    
+    # If entity mentions not provided, get from Redis or DB
+    if not entity_mentions:
+        if REDIS_ACCELERATION_ENABLED:
+            entity_mentions = redis_manager.get_with_fallback(
+                CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid),
+                lambda: get_entities_from_db(document_uuid)
+            )
+        else:
+            entity_mentions = get_entities_from_db(document_uuid)
+    
+    if not entity_mentions:
+        logger.warning("No entity mentions to resolve")
+        return {'canonical_entities': []}
+    
     update_document_state(document_uuid, "entity_resolution", "in_progress", {"task_id": self.request.id})
     
     try:
@@ -1898,13 +2062,11 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
         
-        # Update cache with resolved entities
-        redis_manager = get_redis_manager()
-        entities_key = CacheKeys.DOC_CANONICAL_ENTITIES.format(document_uuid=document_uuid)
-        
-        redis_manager.store_dict(entities_key, {
-            'entities': resolution_result['canonical_entities']
-        }, ttl=86400)
+        # Update cache with resolved entities using Redis Acceleration
+        if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+            cache_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid)
+            redis_manager.set_with_ttl(cache_key, resolution_result['canonical_entities'], ttl=86400)
+            logger.info(f"Redis Acceleration: Cached {len(resolution_result['canonical_entities'])} canonical entities for {document_uuid}")
         
         update_document_state(document_uuid, "entity_resolution", "completed", {
             "resolved_count": updated_count,
@@ -2011,6 +2173,39 @@ def build_document_relationships(self, document_uuid: str, document_data: Dict[s
         Dict containing relationship building results
     """
     logger.info(f"Starting relationship building for document {document_uuid}")
+    
+    # Redis Acceleration: Check cache first
+    from scripts.config import REDIS_ACCELERATION_ENABLED
+    redis_manager = get_redis_manager()
+    
+    if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+        cache_key = f"doc:relationships:{document_uuid}"  # Custom key for relationships
+        cached_relationships = redis_manager.get_cached(cache_key)
+        if cached_relationships:
+            logger.info(f"Redis Acceleration: Using cached relationships for {document_uuid}")
+            # Chain to finalization
+            finalize_document_pipeline.apply_async(
+                args=[document_uuid, len(chunks or []), len(canonical_entities or []), len(cached_relationships)]
+            )
+            return {
+                'status': 'completed',
+                'relationship_count': len(cached_relationships),
+                'from_cache': True
+            }
+    
+    # Get data from Redis/DB if not provided
+    if not chunks and REDIS_ACCELERATION_ENABLED:
+        chunks = redis_manager.get_with_fallback(
+            CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=document_uuid),
+            lambda: get_chunks_from_db(document_uuid)
+        )
+    
+    if not canonical_entities and REDIS_ACCELERATION_ENABLED:
+        canonical_entities = redis_manager.get_with_fallback(
+            CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid),
+            lambda: []  # No DB fallback for canonical entities yet
+        )
+    
     update_document_state(document_uuid, "relationships", "in_progress", {"task_id": self.request.id})
     
     try:
@@ -2025,6 +2220,13 @@ def build_document_relationships(self, document_uuid: str, document_data: Dict[s
         )
         
         if result.status == ProcessingResultStatus.SUCCESS:
+            # Cache relationships with Redis Acceleration
+            if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
+                cache_key = f"doc:relationships:{document_uuid}"
+                relationships_data = [r.dict() for r in result.staged_relationships]
+                redis_manager.set_with_ttl(cache_key, relationships_data, ttl=86400)
+                logger.info(f"Redis Acceleration: Cached {len(relationships_data)} relationships for {document_uuid}")
+            
             update_document_state(document_uuid, "relationships", "completed", {
                 "relationship_count": result.total_relationships,
                 "relationship_types": "structural"  # Only structural relationships at this stage
@@ -2159,6 +2361,22 @@ def poll_textract_job(self, document_uuid: str, job_id: str) -> Dict[str, Any]:
             
             # Cache results
             textract_processor._cache_ocr_result(document_uuid, extracted_text, metadata)
+            
+            # Redis Acceleration: Cache the result
+            from scripts.config import REDIS_ACCELERATION_ENABLED
+            if REDIS_ACCELERATION_ENABLED:
+                redis_manager = get_redis_manager()
+                cache_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid)
+                
+                if redis_manager.is_redis_healthy():
+                    cache_result = {
+                        'status': 'completed',
+                        'text': extracted_text,
+                        'metadata': metadata,
+                        'method': 'textract'
+                    }
+                    redis_manager.set_with_ttl(cache_key, cache_result, ttl=86400)
+                    logger.info(f"Redis Acceleration: Cached OCR result for {document_uuid}")
             
             # Store extracted text in database
             logger.info(f"Storing extracted text in database for document {document_uuid}")
@@ -2373,11 +2591,11 @@ def cleanup_failed_document(self, document_uuid: str) -> Dict[str, Any]:
         
         # Clear all cache keys for this document
         cache_keys = [
-            CacheKeys.DOC_STATE.format(document_uuid=document_uuid),
-            CacheKeys.DOC_OCR_RESULT.format(document_uuid=document_uuid),
-            CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid),
-            CacheKeys.DOC_ENTITY_MENTIONS.format(document_uuid=document_uuid),
-            CacheKeys.DOC_CANONICAL_ENTITIES.format(document_uuid=document_uuid),
+            CacheKeys.format_key(CacheKeys.DOC_STATE, document_uuid=document_uuid),
+            CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid),
+            CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=document_uuid),
+            CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid),
+            CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid),
         ]
         
         deleted_count = 0
