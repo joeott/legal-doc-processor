@@ -103,8 +103,7 @@ def validate_deployment_stage():
             f"Must be one of: {', '.join(VALID_STAGES)}"
         )
     
-    # Log stage information
-    print(f"Deployment Stage: {stage} - {STAGE_DESCRIPTIONS[stage]}")
+    # Deployment stage logging removed - using Git workflow instead
     return stage
 
 
@@ -175,8 +174,8 @@ DB_POOL_CONFIG = {
 }
 
 # Legacy Supabase Configuration (kept for backwards compatibility)
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
+# SUPABASE_URL = os.getenv("SUPABASE_URL")  # DEPRECATED - No longer using Supabase
+# SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")  # DEPRECATED - No longer using Supabase
 
 # Processing Options
 FORCE_REPROCESS_OCR = os.getenv("FORCE_REPROCESS_OCR", "false").lower() in ("true", "1", "yes")
@@ -466,11 +465,7 @@ os.makedirs(SOURCE_DOCUMENT_DIR, exist_ok=True)
 if USE_S3_FOR_INPUT:
     os.makedirs(S3_TEMP_DOWNLOAD_DIR, exist_ok=True)
 
-# Validate required environment variables
-if not SUPABASE_URL or not SUPABASE_ANON_KEY:
-    print("WARNING: SUPABASE_URL or SUPABASE_ANON_KEY environment variables are not set.")
-    print("The application will likely fail when trying to connect to the database.")
-    print("Please set these environment variables before running the application.")
+# Supabase validation removed - no longer using Supabase
 
 # Warn if AWS credentials are not set (required for Textract)
 if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:

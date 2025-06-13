@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional
 import logging
 
 from scripts.intake_service import DocumentIntakeService
-from scripts.batch_processor import BatchProcessor
+from scripts.batch_tasks import submit_batch, get_batch_status, create_document_records
 from scripts.status_manager import StatusManager
 from scripts.audit_logger import AuditLogger
 from scripts.validation import OCRValidator, EntityValidator, PipelineValidator
