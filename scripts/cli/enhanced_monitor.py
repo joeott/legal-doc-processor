@@ -26,7 +26,13 @@ from rich.text import Text
 from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 
 from scripts.status_manager import StatusManager
-from scripts.batch_processor import BatchProcessor
+# Batch processor is deprecated - using batch_tasks functions instead
+try:
+    from scripts.batch_tasks import get_batch_status
+    BATCH_TASKS_AVAILABLE = True
+except ImportError:
+    BATCH_TASKS_AVAILABLE = False
+    logger.warning("batch_tasks not available - batch monitoring disabled")
 from scripts.validation import OCRValidator, EntityValidator, PipelineValidator
 from scripts.db import DatabaseManager
 from scripts.logging_config import get_logger
@@ -42,7 +48,8 @@ class EnhancedMonitor:
     def __init__(self):
         self.db_manager = DatabaseManager(validate_conformance=False)
         self.status_manager = StatusManager()
-        self.batch_processor = BatchProcessor()
+        # Batch processor deprecated - using batch_tasks functions
+        self.get_batch_status = get_batch_status if BATCH_TASKS_AVAILABLE else None
         self.redis_manager = get_redis_manager()
         self.ocr_validator = OCRValidator(self.db_manager)
         self.entity_validator = EntityValidator(self.db_manager)
@@ -194,7 +201,9 @@ class EnhancedMonitor:
     
     def get_batch_summary(self, batch_id: str) -> Dict[str, Any]:
         """Get comprehensive batch summary."""
-        return self.batch_processor.get_batch_summary(batch_id)
+        if self.get_batch_status:
+            return self.get_batch_status.apply_async(args=[batch_id]).get()
+        return {}
     
     def get_all_active_batches(self) -> List[Dict[str, Any]]:
         """Get all currently active batches using Redis batch tracking."""
@@ -213,13 +222,14 @@ class EnhancedMonitor:
                     batch_id = batch_key.replace('batch:progress:', '')
                     
                     # Get detailed progress
-                    progress = self.batch_processor.monitor_batch_progress(batch_id)
-                    if progress:
-                        active_batches.append({
-                            'batch_id': batch_id,
-                            'status': batch_data.get('status'),
-                            'total_documents': progress.total_documents,
-                            'completed_documents': progress.completed_documents,
+                    if self.get_batch_status:
+                        progress = self.get_batch_status.apply_async(args=[batch_id]).get()
+                        if progress:
+                            active_batches.append({
+                                'batch_id': batch_id,
+                                'status': batch_data.get('status'),
+                                'total_documents': progress.get('total', 0),
+                                'completed_documents': progress.get('completed', 0),
                             'completion_percentage': progress.completion_percentage,
                             'elapsed_minutes': progress.elapsed_minutes,
                             'estimated_completion': progress.estimated_completion

@@ -467,10 +467,11 @@ if USE_S3_FOR_INPUT:
     os.makedirs(S3_TEMP_DOWNLOAD_DIR, exist_ok=True)
 
 # Validate required environment variables
-if not SUPABASE_URL or not SUPABASE_ANON_KEY:
-    print("WARNING: SUPABASE_URL or SUPABASE_ANON_KEY environment variables are not set.")
-    print("The application will likely fail when trying to connect to the database.")
-    print("Please set these environment variables before running the application.")
+# Note: Supabase is no longer used - using RDS PostgreSQL instead
+# if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+#     print("WARNING: SUPABASE_URL or SUPABASE_ANON_KEY environment variables are not set.")
+#     print("The application will likely fail when trying to connect to the database.")
+#     print("Please set these environment variables before running the application.")
 
 # Warn if AWS credentials are not set (required for Textract)
 if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:

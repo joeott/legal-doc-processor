@@ -87,7 +87,8 @@
       "Bash(./start_all_workers.sh:*)",
       "Bash(./monitor_workers.sh:*)",
       "Bash(./scripts/monitoring/monitor_workers.sh:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(PYTHONWARNINGS='ignore' python3 -c \"import logging; logging.getLogger().setLevel(logging.ERROR)\")"
     ],
     "deny": []
   }

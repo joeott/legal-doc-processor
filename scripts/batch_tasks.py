@@ -481,3 +481,73 @@ def submit_batch(documents: List[Dict], project_uuid: str, priority: str = 'norm
         'priority': priority,
         'document_count': len(documents)
     }
+
+
+def create_document_records(documents: List[Dict[str, Any]], project_uuid: str, 
+                          project_id: int = 1) -> List[Dict[str, Any]]:
+    """
+    Create database records for documents before batch processing.
+    
+    Args:
+        documents: List of document dicts with at least:
+                  - filename: Original filename
+                  - s3_bucket: S3 bucket name
+                  - s3_key: S3 object key
+                  - file_size_mb: File size in MB
+                  - mime_type: MIME type
+        project_uuid: Project UUID to associate documents with
+        project_id: Project ID (default: 1)
+        
+    Returns:
+        List of documents updated with document_uuid
+    """
+    from scripts.db import DatabaseManager
+    from sqlalchemy import text
+    
+    db_manager = DatabaseManager(validate_conformance=False)
+    processed_docs = []
+    
+    for doc in documents:
+        try:
+            document_uuid = str(uuid4())
+            
+            # Create record in database
+            for session in db_manager.get_session():
+                # Convert file size from MB to bytes
+                file_size_bytes = int(doc.get('file_size_mb', 0) * 1024 * 1024)
+                
+                session.execute(text("""
+                    INSERT INTO source_documents (
+                        document_uuid, original_file_name, file_name, s3_bucket, s3_key,
+                        file_size_bytes, file_type, detected_file_type, status,
+                        created_at, updated_at, project_fk_id, project_uuid
+                    ) VALUES (
+                        :uuid, :filename, :filename, :bucket, :key,
+                        :size_bytes, :file_type, :file_type, 'pending',
+                        NOW(), NOW(), :project_id, :project_uuid
+                    )
+                """), {
+                    'uuid': document_uuid,
+                    'filename': doc.get('filename', doc.get('original_filename', '')),
+                    'bucket': doc.get('s3_bucket', ''),
+                    'key': doc.get('s3_key', ''),
+                    'size_bytes': file_size_bytes,
+                    'file_type': doc.get('mime_type', 'application/pdf'),
+                    'project_id': project_id,
+                    'project_uuid': project_uuid
+                })
+                session.commit()
+            
+            # Update document with UUID
+            doc['document_uuid'] = document_uuid
+            doc['file_path'] = f"s3://{doc.get('s3_bucket', '')}/{doc.get('s3_key', '')}"
+            processed_docs.append(doc)
+            
+            logger.info(f"Created database record for document {document_uuid}: {doc.get('filename')}")
+            
+        except Exception as e:
+            logger.error(f"Failed to create database record for {doc.get('filename')}: {e}")
+            # Skip documents that fail
+            continue
+    
+    return processed_docs

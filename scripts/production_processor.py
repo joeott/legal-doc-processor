@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional
 import logging
 
 from scripts.intake_service import DocumentIntakeService
-from scripts.batch_processor import BatchProcessor
+from scripts.batch_tasks import submit_batch, create_document_records, get_batch_status
 from scripts.status_manager import StatusManager
 from scripts.audit_logger import AuditLogger
 from scripts.validation import OCRValidator, EntityValidator, PipelineValidator
@@ -35,7 +35,7 @@ class ProductionProcessor:
     
     def __init__(self):
         self.intake_service = DocumentIntakeService()
-        self.batch_processor = BatchProcessor()
+        # Note: Using batch_tasks functions instead of deprecated BatchProcessor
         self.status_manager = StatusManager()
         self.audit_logger = AuditLogger()
         self.db_manager = DatabaseManager(validate_conformance=False)
@@ -169,23 +169,39 @@ class ProductionProcessor:
             
             for batch_config in batches:
                 try:
-                    # Create batch manifest
-                    batch_manifest = self.batch_processor.create_batch_manifest(
-                        batch_config['documents'], batch_config
+                    # Convert documents to format expected by batch_tasks
+                    documents = []
+                    for doc in batch_config['documents']:
+                        documents.append({
+                            'filename': doc.filename,
+                            's3_bucket': doc.s3_bucket,
+                            's3_key': doc.s3_key,
+                            'file_size_mb': doc.file_size_mb,
+                            'mime_type': doc.mime_type
+                        })
+                    
+                    # Create database records for documents
+                    documents_with_uuids = create_document_records(documents, project_uuid, project_id)
+                    
+                    # Determine priority based on batch config
+                    priority = batch_config.get('priority', 'normal')
+                    
+                    # Submit batch for processing
+                    result = submit_batch(
+                        documents_with_uuids,
+                        project_uuid,
+                        priority=priority,
+                        options=batch_config.get('options', {})
                     )
                     
-                    # Submit for processing with project ID and UUID
-                    batch_job = self.batch_processor.submit_batch_for_processing(
-                        batch_manifest, project_id, project_uuid
-                    )
                     submitted_batches.append({
-                        'batch_id': batch_job.batch_id,
-                        'job_group_id': batch_job.job_group_id,
-                        'task_count': len(batch_job.celery_task_ids),
-                        'submitted_at': batch_job.submitted_at
+                        'batch_id': result['batch_id'],
+                        'job_group_id': result['task_id'],
+                        'task_count': result['document_count'],
+                        'submitted_at': datetime.now().isoformat()
                     })
                     
-                    logger.info(f"Submitted batch {batch_job.batch_id} with {len(batch_job.celery_task_ids)} tasks")
+                    logger.info(f"Submitted batch {result['batch_id']} with {result['document_count']} tasks")
                     
                 except Exception as e:
                     logger.error(f"Error submitting batch: {e}")
@@ -257,14 +273,14 @@ class ProductionProcessor:
             
             for batch_detail in campaign_info['batch_details']:
                 batch_id = batch_detail['batch_id']
-                progress = self.batch_processor.monitor_batch_progress(batch_id)
+                progress = get_batch_status.apply_async(args=[batch_id]).get()
                 
                 if progress:
-                    batch_progresses.append(progress.to_dict())
-                    total_docs += progress.total_documents
-                    completed_docs += progress.completed_documents
-                    failed_docs += progress.failed_documents
-                    in_progress_docs += progress.in_progress_documents
+                    batch_progresses.append(progress)
+                    total_docs += progress.get('total', 0)
+                    completed_docs += progress.get('completed', 0)
+                    failed_docs += progress.get('failed', 0)
+                    in_progress_docs += progress.get('in_progress', 0)
             
             # Calculate overall campaign progress
             overall_completion = (completed_docs / total_docs * 100) if total_docs > 0 else 0
