@@ -4,7 +4,8 @@ Uses LLM with few-shot examples to categorize legal documents.
 """
 import logging
 from typing import Tuple, Optional, Dict, Any
-from scripts.core.pdf_models import PDFDocumentModel, DocumentCategory
+# PDFDocumentModel and DocumentCategory not in consolidated models
+# Will need to use dict and string enum values instead
 from scripts.config import OPENAI_API_KEY, LLM_MODEL_FOR_RESOLUTION
 from scripts.cache import get_redis_manager
 from openai import OpenAI

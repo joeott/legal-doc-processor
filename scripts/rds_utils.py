@@ -79,19 +79,20 @@ try:
 except ImportError:
     # Fallback to basic mappings if enhanced not available
     TABLE_MAPPINGS = {
-        "source_documents": "documents",
-        "document_chunks": "chunks",
-        "entity_mentions": "entities",
+        # No mapping needed - use actual table names
+        "source_documents": "source_documents",
+        "document_chunks": "document_chunks",
+        "entity_mentions": "entity_mentions",
         "canonical_entities": "canonical_entities",
-        "relationship_staging": "entity_relationships",
-        "neo4j_documents": "documents",
+        "relationship_staging": "relationship_staging",
+        "neo4j_documents": "neo4j_documents",
         "processing_tasks": "processing_tasks",
-        "textract_jobs": "processing_tasks",
+        "textract_jobs": "textract_jobs",
     }
     
     COLUMN_MAPPINGS = {
         "documents": {
-            "document_uuid": "id",
+            # Don't map document_uuid - it should stay as document_uuid
             "original_file_name": "file_name",
             "detected_file_type": "mime_type",
             "project_uuid": "project_id",
@@ -105,8 +106,8 @@ except ImportError:
             "chunk_id": "id",
             "chunk_uuid": "id",
             "document_uuid": "document_id",
-            "text": "content",
-            "text_content": "content",
+            "text": "text",  # Keep text as text, not content
+            # Removed text_content mapping - deprecated column name
         },
         "entities": {
             "entity_mention_uuid": "id",
@@ -173,7 +174,7 @@ def map_columns(table: str, data: Dict[str, Any]) -> Dict[str, Any]:
             # Special case: if we're mapping original_file_name, also populate file_name
             if mapped_key == "original_file_name" and actual_table == "source_documents":
                 mapped["file_name"] = value
-        elif key in ["created_at", "updated_at", "id"]:
+        elif key in ["created_at", "updated_at", "id", "document_uuid"]:
             # Keep these common fields
             mapped[key] = value
     
@@ -343,6 +344,7 @@ def select_records(
             query_str += f" LIMIT {limit}"
         
         logger.debug(f"select_records - query: {query_str}")
+        logger.debug(f"select_records - parameters: {mapped_where or {}}")
         query = text(query_str)
         result = db.execute(query, mapped_where or {})
         
@@ -353,6 +355,7 @@ def select_records(
             else:
                 rows.append(dict(row))
         
+        logger.debug(f"select_records - found {len(rows)} rows")
         return rows
         
     except Exception as e:

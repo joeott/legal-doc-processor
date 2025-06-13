@@ -1,0 +1,75 @@
+{
+  "type": "quick_verification",
+  "timestamp": "2025-06-04T23:52:24.800691",
+  "phases": [
+    {
+      "phase": "Environment Check",
+      "passed": 0,
+      "failed": 3,
+      "total": 3,
+      "duration_seconds": 0.01,
+      "results": [
+        {
+          "method": "test_ENV_001_environment_variables",
+          "success": false,
+          "message": "\u274c test_ENV_001_environment_variables: \u274c 1 environment variables missing",
+          "details": {
+            "error": "\u274c 1 environment variables missing"
+          }
+        },
+        {
+          "method": "test_ENV_002_redis_connection",
+          "success": false,
+          "message": "\u274c test_ENV_002_redis_connection: \u274c Redis connection failed: 'RedisManager' object has no attribute 'set'",
+          "details": {
+            "error": "\u274c Redis connection failed: 'RedisManager' object has no attribute 'set'"
+          }
+        },
+        {
+          "method": "test_ENV_003_database_connection",
+          "success": false,
+          "message": "\u274c test_ENV_003_database_connection: \u274c Database connection failed: __enter__",
+          "details": {
+            "error": "\u274c Database connection failed: __enter__"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "Document Discovery",
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "duration_seconds": 29.21,
+      "results": [
+        {
+          "method": "test_DISC_001_document_discovery",
+          "success": true,
+          "message": "\u2705 DISC-001: Passed",
+          "details": {
+            "test_id": "DISC-001",
+            "method": "test_DISC_001_document_discovery"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "Core Systems",
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "duration_seconds": 0.01,
+      "results": [
+        {
+          "method": "test_STATUS_001_document_status",
+          "success": true,
+          "message": "\u2705 STATUS-001: Passed",
+          "details": {
+            "test_id": "STATUS-001",
+            "method": "test_STATUS_001_document_status"
+          }
+        }
+      ]
+    }
+  ]
+}

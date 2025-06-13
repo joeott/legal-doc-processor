@@ -1,0 +1,71 @@
+{
+  "batch_id": "7bfd9fb9-1975-457a-886f-24cff2d6f9f3",
+  "project_uuid": "63105ec7-b33a-4342-a126-4763d9ad8279",
+  "documents": [
+    {
+      "document_uuid": "70ae1c8f-2f37-48dc-b2dc-ab17e3c30f26",
+      "s3_key": "documents/70ae1c8f-2f37-48dc-b2dc-ab17e3c30f26.pdf",
+      "filename": "LDS Template (for DPA & SPA) v2.0 2023.06.23.pdf",
+      "file_size": 269833
+    },
+    {
+      "document_uuid": "cd95f1f0-1c03-49e8-89f5-42e88c55c49d",
+      "s3_key": "documents/cd95f1f0-1c03-49e8-89f5-42e88c55c49d.pdf",
+      "filename": "Legal Document Package.pdf",
+      "file_size": 21302087
+    },
+    {
+      "document_uuid": "be3c7cbd-2b7f-45a2-8e61-dc60af067c6f",
+      "s3_key": "documents/be3c7cbd-2b7f-45a2-8e61-dc60af067c6f.pdf",
+      "filename": "Amended and restated limited partnership agreement of UIF V.pdf",
+      "file_size": 2048438
+    },
+    {
+      "document_uuid": "f8a16df3-bc12-4bb1-9378-5950b2da901e",
+      "s3_key": "documents/f8a16df3-bc12-4bb1-9378-5950b2da901e.pdf",
+      "filename": "C-23-0087-Fully Executed Asset Purchase Agreement.pdf",
+      "file_size": 1194516
+    },
+    {
+      "document_uuid": "6a41f7d6-b361-49fe-98e5-0c4f8d07c8a6",
+      "s3_key": "documents/6a41f7d6-b361-49fe-98e5-0c4f8d07c8a6.pdf",
+      "filename": "2023_08_15 Acuity Settlement Agreement (Paul Michael) (2).pdf",
+      "file_size": 629056617
+    },
+    {
+      "document_uuid": "46fb2090-dc18-4b9e-ab70-44dc29e1a5c9",
+      "s3_key": "documents/46fb2090-dc18-4b9e-ab70-44dc29e1a5c9.pdf",
+      "filename": "1. Business Due Diligence Report - 1. Business Due Diligence Report.pdf",
+      "file_size": 4100251
+    },
+    {
+      "document_uuid": "c2b6dd95-33e0-4bb5-aace-d41cc88cc9ef",
+      "s3_key": "documents/c2b6dd95-33e0-4bb5-aace-d41cc88cc9ef.pdf",
+      "filename": "Stock Purchase Agreement SIGNED BY BUYER.pdf",
+      "file_size": 159950
+    },
+    {
+      "document_uuid": "ad1fb0c9-a05c-4056-ac54-e693c2e82f39",
+      "s3_key": "documents/ad1fb0c9-a05c-4056-ac54-e693c2e82f39.pdf",
+      "filename": "2023-01-18 Deed Transfer.pdf",
+      "file_size": 35882
+    },
+    {
+      "document_uuid": "db0a2e21-d7c3-463f-a41f-06ae7b86b6ff",
+      "s3_key": "documents/db0a2e21-d7c3-463f-a41f-06ae7b86b6ff.pdf",
+      "filename": "Asset Purchase Agreement (Executed 12.21.22)(89273453.10).pdf",
+      "file_size": 1221117
+    },
+    {
+      "document_uuid": "df4ef52b-05ea-4fa4-aa14-61cfd6dd7704",
+      "s3_key": "documents/df4ef52b-05ea-4fa4-aa14-61cfd6dd7704.pdf",
+      "filename": "Asset Purchase Agreement.pdf",
+      "file_size": 327445
+    }
+  ],
+  "options": {
+    "warm_cache": true,
+    "entity_resolution": true,
+    "force_reprocess": true
+  }
+}

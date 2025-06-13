@@ -12,10 +12,8 @@ from scripts.models import (
     ProcessingResult,
     RelationshipStagingMinimal
 )
-# TODO: Migrate these models to models.py
-from scripts.core.processing_models import (
-    RelationshipBuildingResultModel, StagedRelationship
-)
+# RelationshipBuildingResultModel and StagedRelationship not in consolidated models
+# Using dicts instead for now
 from scripts.db import DatabaseManager
 
 logger = logging.getLogger(__name__)
@@ -41,7 +39,7 @@ class GraphService:
         entity_mentions_data: List[Dict[str, Any]],
         canonical_entities_data: List[Dict[str, Any]],
         document_uuid: Optional[uuid.UUID] = None
-    ) -> RelationshipBuildingResultModel:
+    ) -> Dict[str, Any]:
         """
         Stages relationships like BELONGS_TO, CONTAINS_MENTION, MEMBER_OF_CLUSTER, NEXT/PREV_CHUNK.
         
@@ -59,18 +57,19 @@ class GraphService:
         # Try both possible keys for document UUID
         document_uuid_val = document_data.get('documentId') or document_data.get('document_uuid')
         
-        # Initialize result model
-        result = RelationshipBuildingResultModel(
-            document_uuid=document_uuid or uuid.uuid4(),
-            total_relationships=0,
-            staged_relationships=[],
-            status=ProcessingResultStatus.SUCCESS
-        )
+        # Initialize result as dict (model not available)
+        result = {
+            'document_uuid': str(document_uuid or uuid.uuid4()),
+            'total_relationships': 0,
+            'staged_relationships': [],
+            'status': ProcessingResultStatus.SUCCESS,
+            'error_message': None
+        }
         
         if not document_uuid_val:
             logger.error("No documentId or document_uuid in document_data for relationship_builder, cannot create relationships.")
-            result.status = ProcessingResultStatus.FAILURE
-            result.error_message = "Missing document UUID in document data"
+            result['status'] = ProcessingResultStatus.FAILURE
+            result['error_message'] = "Missing document UUID in document data"
             return result
             
         logger.info(f"Staging structural relationships for document {document_uuid_val}")
@@ -138,8 +137,8 @@ class GraphService:
                     logger.info(f"Found {total_existing_relationships} total relationships for document {document_uuid_val} (newly staged: {len(staged_relationships)})")
                     
                     # Update result with total existing relationships, not just newly created ones
-                    result.staged_relationships = staged_relationships
-                    result.total_relationships = total_existing_relationships
+                    result['staged_relationships'] = staged_relationships
+                    result['total_relationships'] = total_existing_relationships
                     
                     logger.info(f"Successfully verified {total_existing_relationships} total structural relationships for document {document_uuid_val}")
                     return result
@@ -150,16 +149,16 @@ class GraphService:
             except Exception as e:
                 logger.warning(f"Could not count existing relationships, falling back to staged count: {e}")
                 # Fallback to original logic
-                result.staged_relationships = staged_relationships
-                result.total_relationships = len(staged_relationships)
+                result['staged_relationships'] = staged_relationships
+                result['total_relationships'] = len(staged_relationships)
                 
                 logger.info(f"Successfully staged {len(staged_relationships)} structural relationships for document {document_uuid_val}")
                 return result
             
         except Exception as e:
             logger.error(f"Error staging relationships for document {document_uuid_val}: {e}", exc_info=True)
-            result.status = ProcessingResultStatus.FAILURE
-            result.error_message = str(e)
+            result['status'] = ProcessingResultStatus.FAILURE
+            result['error_message'] = str(e)
             return result
     
     def _create_relationship_wrapper(
@@ -170,7 +169,7 @@ class GraphService:
         to_label: str,
         rel_type: str,
         properties: Optional[Dict[str, Any]] = None
-    ) -> Optional[StagedRelationship]:
+    ) -> Optional[Dict[str, Any]]:
         """
         Create a relationship using the minimal models and correct database interface.
         
@@ -211,10 +210,15 @@ class GraphService:
             logger.info(f"  target_entity_uuid={to_id_str}")
             logger.info(f"  relationship_type={rel_type}")
             
+            # Convert string UUIDs to UUID objects for model
+            from uuid import UUID as UUID_TYPE
+            source_uuid_obj = UUID_TYPE(from_id_str)
+            target_uuid_obj = UUID_TYPE(to_id_str)
+            
             # Create RelationshipStagingMinimal model
             relationship = RelationshipStagingMinimal(
-                source_entity_uuid=from_id_str,
-                target_entity_uuid=to_id_str,
+                source_entity_uuid=source_uuid_obj,
+                target_entity_uuid=target_uuid_obj,
                 relationship_type=rel_type,
                 confidence_score=1.0,
                 properties=properties or {},
@@ -237,16 +241,16 @@ class GraphService:
             logger.info(f"Database result: {result}")
             
             if result:
-                # Create and return StagedRelationship model for compatibility
-                staged_rel = StagedRelationship(
-                    from_node_id=from_id,
-                    from_node_label=from_label,
-                    to_node_id=to_id,
-                    to_node_label=to_label,
-                    relationship_type=rel_type,
-                    properties=properties or {},
-                    staging_id=str(result.id) if hasattr(result, 'id') and result.id else 'new'
-                )
+                # Create and return staged relationship dict for compatibility
+                staged_rel = {
+                    'from_node_id': from_id,
+                    'from_node_label': from_label,
+                    'to_node_id': to_id,
+                    'to_node_label': to_label,
+                    'relationship_type': rel_type,
+                    'properties': properties or {},
+                    'staging_id': str(result.id) if hasattr(result, 'id') and result.id else 'new'
+                }
                 
                 logger.debug(f"Staged relationship: {from_label}({from_id}) -[{rel_type}]-> {to_label}({to_id})")
                 return staged_rel
@@ -270,7 +274,7 @@ def stage_structural_relationships(
     entity_mentions_data: List[Dict[str, Any]],
     canonical_entities_data: List[Dict[str, Any]],
     document_uuid: Optional[uuid.UUID] = None
-) -> RelationshipBuildingResultModel:
+) -> Dict[str, Any]:
     """
     Legacy wrapper for stage_structural_relationships.
     Maintains backward compatibility with existing code.

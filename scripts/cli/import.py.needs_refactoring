@@ -1,0 +1,4 @@
+This file needs refactoring to remove dependencies on:
+- scripts.core.processing_models (DocumentMetadata, ImportManifestModel, ImportFileModel, ImportValidationResultModel)
+
+These models are not part of the consolidated models and appear to be for import functionality that may not be in active use.

@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "document_uuid": "FAILED",
+    "start_time": "2025-06-09T21:38:25.210316",
+    "total_duration": 0.049409,
+    "total_events": 1,
+    "total_errors": 2,
+    "redis_acceleration": true,
+    "cache_stats": {
+      "hits": 0,
+      "misses": 0,
+      "writes": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-06-09T21:38:25.210351",
+      "elapsed_seconds": 3.5e-05,
+      "stage": "Pipeline Start",
+      "event": "Processing document: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "details": {
+        "file_path": "input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "file_size": 149104,
+        "redis_acceleration": true
+      }
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-06-09T21:38:25.249752",
+      "stage": "Project Creation",
+      "error": "Failed to create project",
+      "exception": "(psycopg2.errors.UndefinedColumn) column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n[SQL: \n                    INSERT INTO projects (project_name, active)\n                    VALUES (%(name)s, true)\n                    RETURNING project_id, project_uuid\n                ]\n[parameters: {'name': 'PIPELINE_TEST_20250609_213825'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\npsycopg2.errors.UndefinedColumn: column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 202, in process_document\n    result = session.execute(text(\"\"\"\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2365, in execute\n    return self._execute_internal(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2260, in _execute_internal\n    result = conn.execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1415, in execute\n    return meth(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/sql/elements.py\", line 523, in _execute_on_connection\n    return connection._execute_clauseelement(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1637, in _execute_clauseelement\n    ret = self._execute_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1842, in _execute_context\n    return self._exec_single_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1982, in _exec_single_context\n    self._handle_dbapi_exception(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 2351, in _handle_dbapi_exception\n    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\nsqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n[SQL: \n                    INSERT INTO projects (project_name, active)\n                    VALUES (%(name)s, true)\n                    RETURNING project_id, project_uuid\n                ]\n[parameters: {'name': 'PIPELINE_TEST_20250609_213825'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)\n"
+    },
+    {
+      "timestamp": "2025-06-09T21:38:25.258993",
+      "stage": "Pipeline",
+      "error": "Fatal error during processing",
+      "exception": "(psycopg2.errors.UndefinedColumn) column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n[SQL: \n                    INSERT INTO projects (project_name, active)\n                    VALUES (%(name)s, true)\n                    RETURNING project_id, project_uuid\n                ]\n[parameters: {'name': 'PIPELINE_TEST_20250609_213825'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\npsycopg2.errors.UndefinedColumn: column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 202, in process_document\n    result = session.execute(text(\"\"\"\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2365, in execute\n    return self._execute_internal(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2260, in _execute_internal\n    result = conn.execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1415, in execute\n    return meth(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/sql/elements.py\", line 523, in _execute_on_connection\n    return connection._execute_clauseelement(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1637, in _execute_clauseelement\n    ret = self._execute_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1842, in _execute_context\n    return self._exec_single_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1982, in _exec_single_context\n    self._handle_dbapi_exception(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 2351, in _handle_dbapi_exception\n    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\nsqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column \"project_name\" of relation \"projects\" does not exist\nLINE 2:                     INSERT INTO projects (project_name, acti...\n                                                  ^\n\n[SQL: \n                    INSERT INTO projects (project_name, active)\n                    VALUES (%(name)s, true)\n                    RETURNING project_id, project_uuid\n                ]\n[parameters: {'name': 'PIPELINE_TEST_20250609_213825'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)\n"
+    }
+  ]
+}

@@ -18,9 +18,9 @@ from scripts.config import (
 from scripts.db import DatabaseManager
 from scripts.textract_utils import TextractProcessor
 from scripts.s3_storage import S3StorageManager
-from scripts.core.pdf_models import PDFDocumentModel, ProcessingStatus
-from scripts.core.conformance_validator import validate_before_operation, ConformanceError
-from scripts.core.pdf_validator import validate_pdf_for_processing, validate_ocr_result
+from scripts.models import ProcessingStatus
+# PDFDocumentModel not in consolidated models - will use dict
+# Conformance validators not available, using try/except for now
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Enable debug logging for OCR operations
@@ -28,7 +28,7 @@ logger.setLevel(logging.DEBUG)  # Enable debug logging for OCR operations
 
 def extract_text_from_pdf(
     pdf_path: str,
-    document: PDFDocumentModel,
+    document: Dict[str, Any],
     db_manager: DatabaseManager,
     source_doc_sql_id: int
 ) -> Dict[str, Any]:
@@ -156,7 +156,7 @@ def extract_text_from_pdf(
 
 def _process_with_textract(
     pdf_path: str,
-    document: PDFDocumentModel,
+    document: Dict[str, Any],
     db_manager: DatabaseManager,
     source_doc_sql_id: int,
     textract_processor: TextractProcessor

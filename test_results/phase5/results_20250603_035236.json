@@ -1,0 +1,11 @@
+[
+  {
+    "test_name": "pydantic_validation",
+    "phase": "phase5",
+    "status": "FAIL",
+    "duration": 0.00016236305236816406,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.539900"
+  }
+]

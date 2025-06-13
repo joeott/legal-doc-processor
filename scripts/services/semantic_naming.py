@@ -6,7 +6,8 @@ import logging
 import re
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
-from scripts.core.pdf_models import PDFDocumentModel, DocumentCategory, SemanticNamingModel
+# PDFDocumentModel, DocumentCategory, SemanticNamingModel not in consolidated models
+# Will need to use dict and string enum values instead
 from scripts.config import OPENAI_API_KEY, LLM_MODEL_FOR_RESOLUTION
 from scripts.cache import get_redis_manager
 from openai import OpenAI

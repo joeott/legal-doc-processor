@@ -1,0 +1,80 @@
+{
+  "summary": {
+    "document_uuid": "FAILED",
+    "start_time": "2025-06-09T21:51:38.407112",
+    "total_duration": 0.245176,
+    "total_events": 5,
+    "total_errors": 2,
+    "redis_acceleration": true,
+    "cache_stats": {
+      "hits": 0,
+      "misses": 0,
+      "writes": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-06-09T21:51:38.407145",
+      "elapsed_seconds": 3.3e-05,
+      "stage": "Pipeline Start",
+      "event": "Processing document: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "details": {
+        "file_path": "input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "file_size": 149104,
+        "redis_acceleration": true
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:51:38.440737",
+      "elapsed_seconds": 0.033625,
+      "stage": "Project Creation",
+      "event": "Project created successfully",
+      "details": {
+        "project_id": 3,
+        "project_uuid": "d8c77f69-6379-4666-a45f-bb505233211e"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:51:38.440934",
+      "elapsed_seconds": 0.033822,
+      "stage": "S3 Upload",
+      "event": "Starting S3 upload",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T21:51:38.651409",
+      "elapsed_seconds": 0.244297,
+      "stage": "S3 Upload",
+      "event": "Upload completed",
+      "details": {
+        "document_uuid": "039189c3-0e44-43c2-8260-6241c292ba81",
+        "s3_bucket": "samu-docs-private-upload",
+        "s3_key": "documents/039189c3-0e44-43c2-8260-6241c292ba81.pdf",
+        "file_size": 149104
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:51:38.651546",
+      "elapsed_seconds": 0.244434,
+      "stage": "Database",
+      "event": "Creating document record",
+      "details": {}
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-06-09T21:51:38.651670",
+      "stage": "Database",
+      "error": "Failed to create document record",
+      "exception": "create_document_with_validation() got an unexpected keyword argument 'session'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 256, in process_document\n    doc_id = create_document_with_validation(\nTypeError: create_document_with_validation() got an unexpected keyword argument 'session'\n"
+    },
+    {
+      "timestamp": "2025-06-09T21:51:38.652153",
+      "stage": "Pipeline",
+      "error": "Fatal error during processing",
+      "exception": "create_document_with_validation() got an unexpected keyword argument 'session'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 256, in process_document\n    doc_id = create_document_with_validation(\nTypeError: create_document_with_validation() got an unexpected keyword argument 'session'\n"
+    }
+  ]
+}

@@ -84,7 +84,7 @@ class StageConfig:
         """Validate stage-specific requirements."""
         errors = []
         
-        if self._config["require_openai_key"] and not os.getenv("OPENAI_API_KEY"):
+        if self._config["require_openai_key"] and not (os.getenv("OPENAI_API_KEY") or os.getenv("OPEN_API_KEY")):
             errors.append(f"OPENAI_API_KEY required for Stage {self.stage}")
         
         if errors:
@@ -202,7 +202,7 @@ QWEN2_VL_OCR_MAX_NEW_TOKENS = int(os.getenv("QWEN2_VL_OCR_MAX_NEW_TOKENS", "2048
 QWEN2_VL_OCR_MODEL_NAME = os.getenv("QWEN2_VL_OCR_MODEL_NAME", "Qwen/Qwen2-VL-2B-Instruct")
 
 # OpenAI Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("OPEN_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MODEL_FOR_RESOLUTION = os.getenv("LLM_MODEL_FOR_RESOLUTION", OPENAI_MODEL)
 LLM_API_KEY = OPENAI_API_KEY  # Alias for entity resolution
@@ -256,6 +256,18 @@ def get_database_url():
     
     # For development/staging, use tunnel connection
     return DATABASE_URL
+
+# PDF Processing Configuration
+PDF_CONVERSION_DPI = int(os.getenv('PDF_CONVERSION_DPI', '300'))
+PDF_CONVERSION_FORMAT = os.getenv('PDF_CONVERSION_FORMAT', 'PNG')
+ENABLE_SCANNED_PDF_DETECTION = os.getenv('ENABLE_SCANNED_PDF_DETECTION', 'true').lower() == 'true'
+PDF_PAGE_PROCESSING_PARALLEL = os.getenv('PDF_PAGE_PROCESSING_PARALLEL', 'false').lower() == 'true'
+SCANNED_PDF_IMAGE_PREFIX = os.getenv('SCANNED_PDF_IMAGE_PREFIX', 'converted-images/')
+
+# Document Processing Limits
+DOCUMENT_SIZE_LIMIT_MB = int(os.getenv('DOCUMENT_SIZE_LIMIT_MB', '100'))
+MAX_DOCUMENTS_PER_BATCH = int(os.getenv('MAX_DOCUMENTS_PER_BATCH', '25'))
+DEFAULT_BATCH_PRIORITY = os.getenv('DEFAULT_BATCH_PRIORITY', 'normal')
 
 EFFECTIVE_DATABASE_URL = get_database_url()
 
@@ -318,7 +330,25 @@ else:
     REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
-REDIS_DB = int(os.getenv("REDIS_DB", "0"))
+REDIS_DB = int(os.getenv("REDIS_DB", "0"))  # Default/legacy database
+
+# Redis Database Configuration
+# Note: Redis Cloud only supports DB 0, so we use prefix-based separation
+REDIS_DB_BROKER = int(os.getenv("REDIS_DB_BROKER", "0"))      # All services use DB 0
+REDIS_DB_RESULTS = int(os.getenv("REDIS_DB_RESULTS", "0"))    # with different prefixes
+REDIS_DB_CACHE = int(os.getenv("REDIS_DB_CACHE", "0"))        
+REDIS_DB_RATE_LIMIT = int(os.getenv("REDIS_DB_RATE_LIMIT", "0"))  
+REDIS_DB_BATCH = int(os.getenv("REDIS_DB_BATCH", "0"))        
+REDIS_DB_METRICS = int(os.getenv("REDIS_DB_METRICS", "0"))    
+
+# Redis Key Prefixes for logical separation
+REDIS_PREFIX_BROKER = "broker:"      # Celery broker data
+REDIS_PREFIX_RESULTS = "results:"    # Celery task results
+REDIS_PREFIX_CACHE = "cache:"        # Application cache
+REDIS_PREFIX_BATCH = "batch:"        # Batch processing
+REDIS_PREFIX_METRICS = "metrics:"    # Performance metrics
+REDIS_PREFIX_RATE = "rate:"          # Rate limiting
+
 REDIS_PASSWORD = os.getenv("REDIS_PW") or os.getenv("REDIS_PASSWORD")
 REDIS_USERNAME = os.getenv("REDIS_USERNAME")
 # Redis Cloud doesn't require SSL on this port (confirmed by testing)
@@ -378,6 +408,38 @@ def get_redis_config_for_stage(stage: str) -> dict:
 # Apply stage-specific Redis configuration
 REDIS_CONFIG = get_redis_config_for_stage(DEPLOYMENT_STAGE)
 
+# Helper function to get database-specific Redis configuration
+def get_redis_db_config(db_name: str = 'cache') -> dict:
+    """
+    Get Redis configuration for a specific database.
+    
+    Args:
+        db_name: Database name ('broker', 'results', 'cache', 'batch', 'metrics', 'rate_limit')
+        
+    Returns:
+        Redis configuration dict with appropriate database number
+    """
+    db_mapping = {
+        'broker': REDIS_DB_BROKER,
+        'results': REDIS_DB_RESULTS,
+        'cache': REDIS_DB_CACHE,
+        'rate_limit': REDIS_DB_RATE_LIMIT,
+        'batch': REDIS_DB_BATCH,
+        'metrics': REDIS_DB_METRICS,
+        'default': REDIS_DB  # Legacy support
+    }
+    
+    if db_name not in db_mapping:
+        raise ValueError(f"Unknown Redis database: {db_name}")
+    
+    config = REDIS_CONFIG.copy()
+    config['db'] = db_mapping[db_name]
+    config['password'] = REDIS_PASSWORD
+    config['username'] = REDIS_USERNAME
+    config['decode_responses'] = REDIS_DECODE_RESPONSES
+    
+    return config
+
 # Redis Optimization Settings
 REDIS_ENABLE_OPTIMIZATION = os.getenv("REDIS_ENABLE_OPTIMIZATION", "true").lower() in ("true", "1", "yes")
 REDIS_CACHE_WARMING_ENABLED = os.getenv("REDIS_CACHE_WARMING_ENABLED", "true").lower() in ("true", "1", "yes")
@@ -395,6 +457,10 @@ STREAM_MSG_IDLE_TIMEOUT_MS = int(os.getenv("STREAM_MSG_IDLE_TIMEOUT_MS", "300000
 REDIS_CLUSTER_ENABLED = os.getenv("REDIS_CLUSTER_ENABLED", "false").lower() in ("true", "1", "yes")
 REDIS_CLUSTER_NODES = os.getenv("REDIS_CLUSTER_NODES", "").split(",") if os.getenv("REDIS_CLUSTER_NODES") else []
 
+# Redis Acceleration Configuration (simple flags)
+REDIS_ACCELERATION_ENABLED = os.getenv('REDIS_ACCELERATION_ENABLED', 'false').lower() in ('true', '1', 'yes')
+REDIS_ACCELERATION_TTL_HOURS = int(os.getenv('REDIS_ACCELERATION_TTL_HOURS', '24'))
+
 # Make sure required directories exist
 os.makedirs(SOURCE_DOCUMENT_DIR, exist_ok=True)
 if USE_S3_FOR_INPUT:
@@ -410,6 +476,40 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
     print("WARNING: AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are not set.")
     print("Text extraction from PDFs using AWS Textract will fail. Please set these environment variables.")
+
+# Add region validation
+import boto3
+from botocore.exceptions import ClientError
+
+def validate_aws_regions():
+    """Validate AWS region configuration"""
+    
+    # Check S3 bucket region
+    try:
+        s3_client = boto3.client('s3')
+        response = s3_client.get_bucket_location(Bucket=S3_PRIMARY_DOCUMENT_BUCKET)
+        actual_region = response.get('LocationConstraint') or 'us-east-1'
+        
+        if actual_region != S3_BUCKET_REGION:
+            logger.warning(f"S3 bucket region mismatch: actual={actual_region}, config={S3_BUCKET_REGION}")
+            # Update the config
+            os.environ['S3_BUCKET_REGION'] = actual_region
+            globals()['S3_BUCKET_REGION'] = actual_region
+            
+        logger.info(f"S3 bucket {S3_PRIMARY_DOCUMENT_BUCKET} is in region {actual_region}")
+        
+    except ClientError as e:
+        logger.error(f"Error checking S3 bucket region: {e}")
+    
+    # Ensure Textract uses same region
+    if AWS_DEFAULT_REGION != S3_BUCKET_REGION:
+        logger.warning(f"Region mismatch: AWS_DEFAULT_REGION={AWS_DEFAULT_REGION}, S3_BUCKET_REGION={S3_BUCKET_REGION}")
+        logger.info("Textract will use S3_BUCKET_REGION for consistency")
+    
+    return S3_BUCKET_REGION
+
+# Run validation on import
+VALIDATED_REGION = validate_aws_regions()
 
 # Validation helper functions
 def validate_cloud_services():

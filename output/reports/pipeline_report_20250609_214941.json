@@ -1,0 +1,61 @@
+{
+  "summary": {
+    "document_uuid": "FAILED",
+    "start_time": "2025-06-09T21:49:41.963934",
+    "total_duration": 0.035375,
+    "total_events": 3,
+    "total_errors": 2,
+    "redis_acceleration": true,
+    "cache_stats": {
+      "hits": 0,
+      "misses": 0,
+      "writes": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-06-09T21:49:41.963969",
+      "elapsed_seconds": 3.5e-05,
+      "stage": "Pipeline Start",
+      "event": "Processing document: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "details": {
+        "file_path": "input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "file_size": 149104,
+        "redis_acceleration": true
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:49:41.998130",
+      "elapsed_seconds": 0.034196,
+      "stage": "Project Creation",
+      "event": "Project created successfully",
+      "details": {
+        "project_id": 1,
+        "project_uuid": "6405855e-e243-4c24-8a99-ea1830d15685"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:49:41.998351",
+      "elapsed_seconds": 0.034417,
+      "stage": "S3 Upload",
+      "event": "Starting S3 upload",
+      "details": {}
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-06-09T21:49:41.998404",
+      "stage": "S3 Upload",
+      "error": "Failed to upload to S3",
+      "exception": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'project_id'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 227, in process_document\n    result = self.s3_manager.upload_document_with_uuid_naming(\nTypeError: S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'project_id'\n"
+    },
+    {
+      "timestamp": "2025-06-09T21:49:41.999072",
+      "stage": "Pipeline",
+      "error": "Fatal error during processing",
+      "exception": "S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'project_id'",
+      "traceback": "Traceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 227, in process_document\n    result = self.s3_manager.upload_document_with_uuid_naming(\nTypeError: S3StorageManager.upload_document_with_uuid_naming() got an unexpected keyword argument 'project_id'\n"
+    }
+  ]
+}

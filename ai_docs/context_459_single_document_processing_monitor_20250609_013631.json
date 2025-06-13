@@ -1,0 +1,45 @@
+{
+  "start_time": "2025-06-09T01:36:31.163109",
+  "document_path": "/opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+  "stages": [
+    {
+      "timestamp": "2025-06-09T01:36:31.163133",
+      "stage": "Project Creation",
+      "script": "monitor_single_document_processing.py",
+      "function": "create_test_project",
+      "status": "started",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T01:36:31.218103",
+      "stage": "Project Creation",
+      "script": "scripts/db.py",
+      "function": "DatabaseManager.execute",
+      "status": "completed",
+      "details": {
+        "project_uuid": "f1a3367a-b9cb-44bb-812c-09df5e019fb1",
+        "project_id": 23
+      }
+    },
+    {
+      "timestamp": "2025-06-09T01:36:31.218382",
+      "stage": "S3 Upload",
+      "script": "scripts/s3_storage.py",
+      "function": "S3StorageManager.upload_file",
+      "status": "started",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T01:36:31.218428",
+      "stage": "S3 Upload",
+      "script": "scripts/s3_storage.py",
+      "function": "S3StorageManager.upload_file",
+      "status": "failed",
+      "details": {
+        "error": "'S3StorageManager' object has no attribute 'upload_file'"
+      }
+    }
+  ],
+  "error": "'S3StorageManager' object has no attribute 'upload_file'",
+  "end_time": "2025-06-09T01:36:31.218523"
+}

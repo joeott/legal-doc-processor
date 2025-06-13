@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-06-03T19:40:18.138074",
+  "total_documents": 1,
+  "passed": 0,
+  "failed": 1,
+  "success_rate": 0.0,
+  "results": {
+    "input_docs/Paul, Michael (Acuity)/Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf": false
+  }
+}

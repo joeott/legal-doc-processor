@@ -1,0 +1,121 @@
+{
+  "summary": {
+    "document_uuid": "FAILED",
+    "start_time": "2025-06-09T21:58:18.699466",
+    "total_duration": 0.602718,
+    "total_events": 10,
+    "total_errors": 1,
+    "redis_acceleration": true,
+    "cache_stats": {
+      "hits": 0,
+      "misses": 12,
+      "writes": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-06-09T21:58:18.699512",
+      "elapsed_seconds": 4.6e-05,
+      "stage": "Pipeline Start",
+      "event": "Processing document: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+      "details": {
+        "file_path": "input_docs/Paul, Michael (Acuity)/Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf",
+        "file_size": 149104,
+        "redis_acceleration": true
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:18.740844",
+      "elapsed_seconds": 0.041378,
+      "stage": "Project Creation",
+      "event": "Project created successfully",
+      "details": {
+        "project_id": 5,
+        "project_uuid": "4d793719-ca91-4f0e-9cdc-fd6914a8011c"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:18.741093",
+      "elapsed_seconds": 0.041627,
+      "stage": "S3 Upload",
+      "event": "Starting S3 upload",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.216851",
+      "elapsed_seconds": 0.517385,
+      "stage": "S3 Upload",
+      "event": "Upload completed",
+      "details": {
+        "document_uuid": "be715a4e-ca34-43ee-8982-f01e7a4f885f",
+        "s3_bucket": "samu-docs-private-upload",
+        "s3_key": "documents/be715a4e-ca34-43ee-8982-f01e7a4f885f.pdf",
+        "file_size": 149104
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.217113",
+      "elapsed_seconds": 0.517647,
+      "stage": "Database",
+      "event": "Creating document record",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.234695",
+      "elapsed_seconds": 0.535229,
+      "stage": "Database",
+      "event": "Document record created",
+      "details": {
+        "document_id": 2,
+        "document_uuid": "be715a4e-ca34-43ee-8982-f01e7a4f885f"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.241993",
+      "elapsed_seconds": 0.542527,
+      "stage": "Redis Cache",
+      "event": "Initial cache state",
+      "details": {
+        "OCR": false,
+        "Chunks": false,
+        "Entities": false,
+        "Canonical": false,
+        "Resolved": false,
+        "State": false
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.242353",
+      "elapsed_seconds": 0.542887,
+      "stage": "OCR",
+      "event": "Submitting OCR task to Celery",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.278270",
+      "elapsed_seconds": 0.578804,
+      "stage": "OCR",
+      "event": "Task submitted",
+      "details": {
+        "task_id": "d1db23ea-6bb1-4e2f-b9f0-a27bc36aa857",
+        "queue": "ocr"
+      }
+    },
+    {
+      "timestamp": "2025-06-09T21:58:19.278510",
+      "elapsed_seconds": 0.579044,
+      "stage": "Monitoring",
+      "event": "Starting pipeline monitoring",
+      "details": {}
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-06-09T21:58:19.297469",
+      "stage": "Pipeline",
+      "error": "Fatal error during processing",
+      "exception": "(psycopg2.errors.UndefinedColumn) column \"document_uuid\" does not exist\nLINE 3:                 WHERE document_uuid = 'be715a4e-ca34-43ee-89...\n                              ^\n\n[SQL: \n                SELECT COUNT(*) FROM canonical_entities \n                WHERE document_uuid = %(uuid)s\n            ]\n[parameters: {'uuid': 'be715a4e-ca34-43ee-8982-f01e7a4f885f'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\npsycopg2.errors.UndefinedColumn: column \"document_uuid\" does not exist\nLINE 3:                 WHERE document_uuid = 'be715a4e-ca34-43ee-89...\n                              ^\n\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 349, in process_document\n    db_state = self.check_database_state(document_uuid)\n  File \"/opt/legal-doc-processor/monitor_full_pipeline.py\", line 145, in check_database_state\n    canonical_result = session.execute(text(\"\"\"\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2365, in execute\n    return self._execute_internal(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/orm/session.py\", line 2260, in _execute_internal\n    result = conn.execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1415, in execute\n    return meth(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/sql/elements.py\", line 523, in _execute_on_connection\n    return connection._execute_clauseelement(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1637, in _execute_clauseelement\n    ret = self._execute_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1842, in _execute_context\n    return self._exec_single_context(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1982, in _exec_single_context\n    self._handle_dbapi_exception(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 2351, in _handle_dbapi_exception\n    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/base.py\", line 1963, in _exec_single_context\n    self.dialect.do_execute(\n  File \"/home/ubuntu/.local/lib/python3.10/site-packages/sqlalchemy/engine/default.py\", line 943, in do_execute\n    cursor.execute(statement, parameters)\nsqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column \"document_uuid\" does not exist\nLINE 3:                 WHERE document_uuid = 'be715a4e-ca34-43ee-89...\n                              ^\n\n[SQL: \n                SELECT COUNT(*) FROM canonical_entities \n                WHERE document_uuid = %(uuid)s\n            ]\n[parameters: {'uuid': 'be715a4e-ca34-43ee-8982-f01e7a4f885f'}]\n(Background on this error at: https://sqlalche.me/e/20/f405)\n"
+    }
+  ]
+}

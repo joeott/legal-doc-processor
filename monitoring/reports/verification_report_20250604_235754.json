@@ -1,0 +1,77 @@
+{
+  "type": "quick_verification",
+  "timestamp": "2025-06-04T23:57:54.969483",
+  "phases": [
+    {
+      "phase": "Environment Check",
+      "passed": 2,
+      "failed": 1,
+      "total": 3,
+      "duration_seconds": 0.04,
+      "results": [
+        {
+          "method": "test_ENV_001_environment_variables",
+          "success": false,
+          "message": "\u274c test_ENV_001_environment_variables: \u274c 1 environment variables missing",
+          "details": {
+            "error": "\u274c 1 environment variables missing"
+          }
+        },
+        {
+          "method": "test_ENV_002_redis_connection",
+          "success": true,
+          "message": "\u2705 ENV-002: Passed",
+          "details": {
+            "test_id": "ENV-002",
+            "method": "test_ENV_002_redis_connection"
+          }
+        },
+        {
+          "method": "test_ENV_003_database_connection",
+          "success": true,
+          "message": "\u2705 ENV-003: Passed",
+          "details": {
+            "test_id": "ENV-003",
+            "method": "test_ENV_003_database_connection"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "Document Discovery",
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "duration_seconds": 29.29,
+      "results": [
+        {
+          "method": "test_DISC_001_document_discovery",
+          "success": true,
+          "message": "\u2705 DISC-001: Passed",
+          "details": {
+            "test_id": "DISC-001",
+            "method": "test_DISC_001_document_discovery"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "Core Systems",
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "duration_seconds": 0.01,
+      "results": [
+        {
+          "method": "test_STATUS_001_document_status",
+          "success": true,
+          "message": "\u2705 STATUS-001: Passed",
+          "details": {
+            "test_id": "STATUS-001",
+            "method": "test_STATUS_001_document_status"
+          }
+        }
+      ]
+    }
+  ]
+}

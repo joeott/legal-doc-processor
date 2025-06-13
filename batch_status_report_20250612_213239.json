@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-06-12T21:32:39.542962",
+  "project_id": 18,
+  "summary": {
+    "total": 20,
+    "completed": 0,
+    "in_progress": 7,
+    "failed": 0,
+    "stuck": 13
+  },
+  "documents": [
+    {
+      "document_uuid": 

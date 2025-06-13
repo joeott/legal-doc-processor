@@ -1,0 +1,155 @@
+[
+  {
+    "test_name": "environment_variables",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00016379356384277344,
+    "error": "Missing variables: ['REDIS_HOST', 'REDIS_PORT', 'REDIS_PASSWORD']",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.511302"
+  },
+  {
+    "test_name": "database_connectivity",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00016379356384277344,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.512305"
+  },
+  {
+    "test_name": "redis_connectivity",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00014090538024902344,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.512922"
+  },
+  {
+    "test_name": "s3_initialization",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00011610984802246094,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.513421"
+  },
+  {
+    "test_name": "import_scripts.celery_app",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.0005290508270263672,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.514052"
+  },
+  {
+    "test_name": "import_scripts.pdf_tasks",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00011014938354492188,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.514511"
+  },
+  {
+    "test_name": "import_scripts.db",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 8.821487426757812e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.514690"
+  },
+  {
+    "test_name": "import_scripts.cache",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 8.177757263183594e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.514830"
+  },
+  {
+    "test_name": "import_scripts.config",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 8.58306884765625e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.514969"
+  },
+  {
+    "test_name": "import_scripts.models",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 7.987022399902344e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.515101"
+  },
+  {
+    "test_name": "import_scripts.graph_service",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 7.891654968261719e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.515231"
+  },
+  {
+    "test_name": "import_scripts.entity_service",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 8.916854858398438e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.515372"
+  },
+  {
+    "test_name": "import_scripts.chunking_utils",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 7.915496826171875e-05,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.515502"
+  },
+  {
+    "test_name": "import_scripts.ocr_extraction",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.002338886260986328,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.517895"
+  },
+  {
+    "test_name": "import_scripts.textract_utils",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.0006146430969238281,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.519324"
+  },
+  {
+    "test_name": "import_scripts.s3_storage",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.00012803077697753906,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.521267"
+  },
+  {
+    "test_name": "import_scripts.logging_config",
+    "phase": "phase1",
+    "status": "FAIL",
+    "duration": 0.000148773193359375,
+    "error": "No module named 'scripts'",
+    "details": null,
+    "timestamp": "2025-06-03T03:52:36.521507"
+  }
+]

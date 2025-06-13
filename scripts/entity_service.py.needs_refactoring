@@ -1,0 +1,4 @@
+This file needs refactoring to remove dependencies on:
+- scripts.core.processing_models (EntityExtractionResultModel, ExtractedEntity, EntityResolutionResultModel, DocumentMetadata, KeyFact, EntitySet, ExtractedRelationship, StructuredChunkData, StructuredExtractionResultModel)
+
+These models are not part of the consolidated models and need to be replaced with dicts or migrated to models.py.
