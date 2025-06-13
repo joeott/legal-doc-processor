@@ -29,7 +29,7 @@ from scripts.chunking_utils import simple_chunk_text
 from scripts.models import ProcessingStatus, ProcessingResultStatus, EntityMentionMinimal as EntityMentionModel
 from scripts.utils.pdf_handler import safe_pdf_operation
 from scripts.utils.param_validator import validate_task_params
-from scripts.config import OPENAI_API_KEY, S3_PRIMARY_DOCUMENT_BUCKET, get_database_url
+from scripts.config import OPENAI_API_KEY, S3_PRIMARY_DOCUMENT_BUCKET, get_database_url, REDIS_ENTITY_CACHE_TTL
 
 logger = logging.getLogger(__name__)
 
@@ -1549,7 +1549,7 @@ def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1
             # Entity extraction expects 'chunk_text' not 'text'
             serialized_chunks.append({
                 'chunk_uuid': chunk_data['chunk_uuid'],
-                'chunk_text': chunk_data['text'],  # Map 'text' to 'chunk_text'
+                'text': chunk_data['text'],  # Keep consistent field name
                 'chunk_index': chunk_data['chunk_index'],
                 'start_char': chunk_data.get('char_start_index', 0),
                 'end_char': chunk_data.get('char_end_index', len(chunk_data['text']))
@@ -1688,7 +1688,7 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
         
         for chunk in chunks:
             chunk_uuid = chunk['chunk_uuid']
-            chunk_text = chunk['chunk_text']
+            chunk_text = chunk.get('chunk_text', chunk.get('text', ''))
             
             # Extract entities from chunk
             result = self.entity_service.extract_entities_from_chunk(
@@ -1697,7 +1697,7 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
                 document_uuid=document_uuid
             )
             
-            if result.status == ProcessingResultStatus.SUCCESS:
+            if result['status'] == ProcessingResultStatus.SUCCESS:
                 all_entity_mentions.extend(result.entities)
         
         # Save entity mentions to database
@@ -1832,8 +1832,38 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             
             # Get chunks from cache
             chunks_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
-            chunks_data = redis_manager.get_dict(chunks_key) or {}
-            chunks = chunks_data.get('chunks', [])
+            chunks = redis_manager.get_cached(chunks_key) or []
+            
+            # If no chunks in cache, get from database
+            if not chunks:
+                logger.warning(f"No chunks in cache for {document_uuid}, fetching from database")
+                session = next(self.db_manager.get_session())
+                try:
+                    from sqlalchemy import text as sql_text
+                    chunks_query = sql_text("""
+                        SELECT chunk_uuid, document_uuid, chunk_index, text, 
+                               start_char_index, end_char_index, metadata
+                        FROM document_chunks
+                        WHERE document_uuid = :doc_uuid
+                        ORDER BY chunk_index
+                    """)
+                    
+                    chunks_results = session.execute(chunks_query, {'doc_uuid': str(document_uuid)}).fetchall()
+                    
+                    chunks = []
+                    for row in chunks_results:
+                        chunks.append({
+                            'chunk_uuid': str(row.chunk_uuid),
+                            'document_uuid': str(row.document_uuid),
+                            'chunk_index': row.chunk_index,
+                            'text': row.text,
+                            'start_char': row.start_char_index,
+                            'end_char': row.end_char_index,
+                            'metadata': row.metadata or {}
+                        })
+                    logger.info(f"Retrieved {len(chunks)} chunks from database")
+                finally:
+                    session.close()
             
             # Get entity mentions from cache or DB
             entity_mentions_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
@@ -2313,7 +2343,7 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
                         {
                             'mention_uuid': mention_uuid,
                             'canonical_uuid': str(canonical_uuid),
-                            'text': next((m['text'] for m in entity_mentions if str(m.get('mention_uuid', '')) == mention_uuid), ''),
+                            'text': next((m.get('entity_text', '') for m in entity_mentions if str(m.get('mention_uuid', '')) == mention_uuid), ''),
                             'canonical_name': next((c['canonical_name'] for c in resolution_result['canonical_entities'] 
                                                    if str(c['canonical_entity_uuid']) == str(canonical_uuid)), '')
                         }
@@ -2350,8 +2380,38 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         
         # Get chunks from cache
         chunks_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
-        chunks_data = redis_manager.get_dict(chunks_key) or {}
-        chunks = chunks_data.get('chunks', [])
+        chunks = redis_manager.get_cached(chunks_key) or []
+        
+        # If no chunks in cache, get from database
+        if not chunks:
+            logger.warning(f"No chunks in cache for {document_uuid}, fetching from database")
+            session = next(self.db_manager.get_session())
+            try:
+                from sqlalchemy import text as sql_text
+                chunks_query = sql_text("""
+                    SELECT chunk_uuid, document_uuid, chunk_index, text_content, 
+                           start_char, end_char, metadata
+                    FROM document_chunks
+                    WHERE document_uuid = :doc_uuid
+                    ORDER BY chunk_index
+                """)
+                
+                chunks_results = session.execute(chunks_query, {'doc_uuid': str(document_uuid)}).fetchall()
+                
+                chunks = []
+                for row in chunks_results:
+                    chunks.append({
+                        'chunk_uuid': str(row.chunk_uuid),
+                        'document_uuid': str(row.document_uuid),
+                        'chunk_index': row.chunk_index,
+                        'text': row.text_content,  # Note: field name difference
+                        'start_char': row.start_char,
+                        'end_char': row.end_char,
+                        'metadata': row.metadata or {}
+                    })
+                logger.info(f"Retrieved {len(chunks)} chunks from database")
+            finally:
+                session.close()
         
         # Get updated entity mentions from database with ALL required fields
         session = next(self.db_manager.get_session())
@@ -2488,32 +2548,32 @@ def build_document_relationships(self, document_uuid: str, document_data: Dict[s
             document_uuid=document_uuid
         )
         
-        if result.status == ProcessingResultStatus.SUCCESS:
+        if result['status'] == ProcessingResultStatus.SUCCESS:
             # Cache relationships with Redis Acceleration
             if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
                 cache_key = f"doc:relationships:{document_uuid}"
-                relationships_data = [r.dict() for r in result.staged_relationships]
+                relationships_data = result['staged_relationships']
                 redis_manager.set_with_ttl(cache_key, relationships_data, ttl=86400)
                 logger.info(f"Redis Acceleration: Cached {len(relationships_data)} relationships for {document_uuid}")
             
             update_document_state(document_uuid, "relationships", "completed", {
-                "relationship_count": result.total_relationships,
+                "relationship_count": result['total_relationships'],
                 "relationship_types": "structural"  # Only structural relationships at this stage
             })
             
             # Finalize the pipeline
             finalize_document_pipeline.apply_async(
-                args=[document_uuid, len(chunks), len(canonical_entities), result.total_relationships]
+                args=[document_uuid, len(chunks), len(canonical_entities), result['total_relationships']]
             )
             
             return {
-                'total_relationships': result.total_relationships,
-                'staged_relationships': [r.dict() for r in result.staged_relationships],
+                'total_relationships': result['total_relationships'],
+                'staged_relationships': result['staged_relationships'],
                 'relationship_types': 'structural',
-                'summary': f"Staged {result.total_relationships} structural relationships"
+                'summary': f"Staged {result['total_relationships']} structural relationships"
             }
         else:
-            raise Exception(f"Relationship building failed: {result.error_message}")
+            raise Exception(f"Relationship building failed: {result['error_message']}")
             
     except Exception as e:
         logger.error(f"Relationship building failed for {document_uuid}: {e}")
