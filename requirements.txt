@@ -29,6 +29,10 @@ simplejson==3.19.2
 nltk==3.8.1
 tiktoken==0.5.2
 
+# CLI and monitoring
+rich==13.7.0
+click==8.1.7
+
 # Monitoring
 # cloudwatch==1.1.2  # Not needed, using boto3 for CloudWatch
 

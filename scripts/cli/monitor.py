@@ -110,13 +110,38 @@ class UnifiedMonitor:
     def get_pipeline_stats(self) -> Dict:
         """Get comprehensive pipeline statistics."""
         try:
-            # Get all documents with detailed info
-            response = self.supabase.table('source_documents').select(
-                'id', 'document_uuid', 'original_file_name', 'celery_status', 
-                'celery_task_id', 'intake_timestamp', 'last_modified_at', 'error_message',
-                'textract_job_status', 'detected_file_type', 'project_fk_id',
-                'ocr_metadata_json'
-            ).order('last_modified_at', desc=True).execute()
+            # Get all documents with detailed info from RDS
+            from scripts.rds_utils import execute_query
+            
+            query = """
+            SELECT 
+                id, document_uuid, original_file_name, status as celery_status,
+                celery_task_id, created_at as intake_timestamp, updated_at as last_modified_at,
+                error_message, textract_job_status, detected_file_type, project_fk_id,
+                ocr_metadata_json
+            FROM source_documents
+            ORDER BY updated_at DESC
+            """
+            
+            results = execute_query(query)
+            
+            # Convert to expected format
+            response_data = []
+            for row in results:
+                doc = dict(row)
+                # Convert datetime objects to ISO format strings
+                if doc.get('intake_timestamp'):
+                    doc['intake_timestamp'] = doc['intake_timestamp'].isoformat() + 'Z'
+                if doc.get('last_modified_at'):
+                    doc['last_modified_at'] = doc['last_modified_at'].isoformat() + 'Z'
+                response_data.append(doc)
+            
+            # Simulate the old response.data structure
+            class FakeResponse:
+                def __init__(self, data):
+                    self.data = data
+            
+            response = FakeResponse(response_data)
             
             status_counts = Counter()
             file_type_counts = Counter()
@@ -143,8 +168,8 @@ class UnifiedMonitor:
                 if status == 'processing':
                     processing_docs.append(doc)
                     # Check if stuck
-                    updated = datetime.fromisoformat(doc['last_modified_at'].replace('Z', '+00:00'))
-                    if updated < stuck_threshold:
+                    updated = self._parse_datetime(doc['last_modified_at'])
+                    if updated and updated < stuck_threshold:
                         stuck_docs.append(doc)
                 
                 # Track failed documents and categorize by stage
@@ -161,8 +186,8 @@ class UnifiedMonitor:
                 
                 # Track recently processed documents
                 if doc.get('last_modified_at'):
-                    updated = datetime.fromisoformat(doc['last_modified_at'].replace('Z', '+00:00'))
-                    if updated > recent_threshold and status in ['completed', 'failed']:
+                    updated = self._parse_datetime(doc['last_modified_at'])
+                    if updated and updated > recent_threshold and status in ['completed', 'failed']:
                         recently_processed.append({
                             'uuid': doc['document_uuid'],
                             'file': doc['original_file_name'],
@@ -174,10 +199,11 @@ class UnifiedMonitor:
                 # Calculate processing times for completed
                 elif status == 'completed':
                     try:
-                        created = datetime.fromisoformat(doc['intake_timestamp'].replace('Z', '+00:00'))
-                        updated = datetime.fromisoformat(doc['last_modified_at'].replace('Z', '+00:00'))
-                        processing_time = (updated - created).total_seconds()
-                        processing_times.append(processing_time)
+                        created = self._parse_datetime(doc['intake_timestamp'])
+                        updated = self._parse_datetime(doc['last_modified_at'])
+                        if created and updated:
+                            processing_time = (updated - created).total_seconds()
+                            processing_times.append(processing_time)
                     except:
                         pass
             
@@ -211,36 +237,52 @@ class UnifiedMonitor:
             return {'error': str(e)}
     
     def _determine_processing_stage(self, document_uuid: str) -> str:
-        """Determine the processing stage of a document."""
+        """Determine the processing stage of a document using RDS."""
         try:
-            # Check if document node exists
-            doc_node = self.supabase.table('neo4j_documents').select('id').eq('documentId', document_uuid).execute()
-            if not doc_node.data:
+            from scripts.rds_utils import execute_query
+            
+            # Check if document chunks exist
+            chunks_query = """
+            SELECT COUNT(*) as chunk_count 
+            FROM document_chunks 
+            WHERE document_uuid = %s
+            """
+            chunks_result = execute_query(chunks_query, (document_uuid,))
+            chunk_count = chunks_result[0]['chunk_count'] if chunks_result else 0
+            
+            if chunk_count == 0:
                 return 'ocr'
             
-            # Check if chunks exist
-            chunks = self.supabase.table('neo4j_chunks').select('id').eq('document_uuid', document_uuid).limit(1).execute()
-            if not chunks.data:
-                return 'document_creation'
-            
             # Check if entities exist
-            # Get chunks first to find entity mentions
-            chunks = self.supabase.table('neo4j_chunks').select('chunkId').eq('document_uuid', document_uuid).execute()
-            if chunks.data:
-                chunk_uuids = [c['chunkId'] for c in chunks.data]
-                entities = self.supabase.table('neo4j_entity_mentions').select('id').in_('chunk_uuid', chunk_uuids).limit(1).execute()
-            else:
-                entities = {'data': []}
-            if not entities.data:
+            entities_query = """
+            SELECT COUNT(*) as entity_count 
+            FROM entity_mentions em
+            JOIN document_chunks dc ON em.chunk_uuid = dc.chunk_uuid
+            WHERE dc.document_uuid = %s
+            """
+            entities_result = execute_query(entities_query, (document_uuid,))
+            entity_count = entities_result[0]['entity_count'] if entities_result else 0
+            
+            if entity_count == 0:
                 return 'chunking'
             
             # Check if relationships exist
-            relationships = self.supabase.table('neo4j_relationships_staging').select('id').eq('from_node_id', document_uuid).limit(1).execute()
-            if not relationships.data:
+            relationships_query = """
+            SELECT COUNT(*) as rel_count 
+            FROM entity_relationships er
+            JOIN entity_mentions em1 ON er.from_entity_id = em1.entity_id
+            JOIN document_chunks dc ON em1.chunk_uuid = dc.chunk_uuid
+            WHERE dc.document_uuid = %s
+            """
+            relationships_result = execute_query(relationships_query, (document_uuid,))
+            rel_count = relationships_result[0]['rel_count'] if relationships_result else 0
+            
+            if rel_count == 0:
                 return 'entity_extraction'
             
             return 'relationship_building'
-        except:
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not determine processing stage for {document_uuid}: {e}[/yellow]")
             return 'unknown'
             
     def _determine_failure_stage(self, doc: Dict) -> str:
@@ -431,6 +473,91 @@ class UnifiedMonitor:
                 'error': str(e)
             }
     
+    def _read_batch_progress(self, key: str) -> Dict:
+        """Read batch progress data, handling both JSON string and hash formats."""
+        try:
+            import json
+            # Try to get as JSON string first (new format)
+            data = self.redis_client.get(key)
+            if data:
+                return json.loads(data)
+        except Exception:
+            pass
+        
+        try:
+            # Fallback to hash format (old format)
+            raw_data = self.redis_client.hgetall(key)
+            batch_data = {}
+            for field, value in raw_data.items():
+                # Try to parse JSON values
+                try:
+                    batch_data[field] = json.loads(value)
+                except:
+                    batch_data[field] = value
+            return batch_data
+        except Exception:
+            return {}
+
+    def get_batch_stats(self) -> Dict:
+        """Get batch processing statistics."""
+        if not self.redis_available:
+            return {
+                'available': False,
+                'error': 'Redis not available'
+            }
+        
+        try:
+            from scripts.config import REDIS_PREFIX_BATCH
+            from scripts.batch_metrics import BatchMetricsCollector
+            
+            # Get active batches
+            batch_pattern = f"{REDIS_PREFIX_BATCH}progress:*"
+            active_batches = []
+            completed_batches = []
+            
+            for key in self.redis_client.scan_iter(match=batch_pattern, count=100):
+                try:
+                    batch_data = self._read_batch_progress(key)
+                    
+                    if batch_data:
+                        batch_id = key.split(':')[-1]
+                        batch_data['batch_id'] = batch_id
+                        
+                        if batch_data.get('status') == 'processing':
+                            active_batches.append(batch_data)
+                        elif batch_data.get('status') == 'completed':
+                            completed_batches.append(batch_data)
+                except Exception as e:
+                    console.print(f"[yellow]Error reading batch {key}: {e}[/yellow]")
+            
+            # Get metrics for last 24 hours
+            collector = BatchMetricsCollector()
+            end_time = datetime.utcnow()
+            start_time = end_time - timedelta(hours=24)
+            
+            batch_metrics = collector.get_batch_metrics(start_time, end_time)
+            stage_metrics = collector.get_stage_metrics(start_time, end_time)
+            error_summary = collector.get_error_summary(hours=1)
+            
+            # Sort batches by start time
+            active_batches.sort(key=lambda x: x.get('started_at', ''), reverse=True)
+            completed_batches.sort(key=lambda x: x.get('completed_at', ''), reverse=True)
+            
+            return {
+                'available': True,
+                'active_batches': active_batches[:10],  # Limit to 10 most recent
+                'completed_batches': completed_batches[:10],
+                'metrics_24h': batch_metrics,
+                'stage_performance': stage_metrics,
+                'recent_errors': error_summary
+            }
+            
+        except Exception as e:
+            return {
+                'available': False,
+                'error': str(e)
+            }
+    
     def get_textract_jobs(self) -> Dict:
         """Get pending Textract jobs status."""
         try:
@@ -445,7 +572,7 @@ class UnifiedMonitor:
                 sd.textract_job_status,
                 sd.textract_start_time,
                 sd.textract_page_count,
-                sd.processing_status
+                sd.status
             FROM source_documents sd
             WHERE sd.textract_job_status IN ('IN_PROGRESS', 'SUBMITTED')
                OR (sd.textract_job_id IS NOT NULL AND sd.textract_job_status IS NULL)
@@ -458,10 +585,8 @@ class UnifiedMonitor:
             now = datetime.now(timezone.utc)
             
             for row in results:
-                start_time = row.get('textract_start_time')
+                start_time = self._parse_datetime(row.get('textract_start_time'))
                 if start_time:
-                    if isinstance(start_time, str):
-                        start_time = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                     duration = (now - start_time).total_seconds()
                 else:
                     duration = 0
@@ -483,6 +608,37 @@ class UnifiedMonitor:
             console.print(f"[red]Error getting Textract jobs: {e}[/red]")
             return {'pending_count': 0, 'jobs': []}
     
+    def _parse_datetime(self, datetime_str: str) -> datetime:
+        """Safely parse datetime string handling various formats."""
+        if not datetime_str:
+            return None
+        
+        try:
+            # If it's already a datetime object, return it
+            if isinstance(datetime_str, datetime):
+                return datetime_str
+            
+            # Handle string formats
+            if datetime_str.endswith('Z'):
+                # Remove Z and parse as UTC
+                dt_str = datetime_str[:-1]
+                if '+00:00' in dt_str:
+                    # Already has timezone info, just remove Z
+                    return datetime.fromisoformat(dt_str)
+                else:
+                    # Add UTC timezone
+                    return datetime.fromisoformat(dt_str + '+00:00')
+            elif '+00:00' in datetime_str:
+                # Already has timezone, parse directly
+                return datetime.fromisoformat(datetime_str)
+            else:
+                # No timezone info, assume UTC
+                dt = datetime.fromisoformat(datetime_str)
+                return dt.replace(tzinfo=timezone.utc)
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not parse datetime '{datetime_str}': {e}[/yellow]")
+            return None
+
     def format_duration(self, seconds: float) -> str:
         """Format duration in seconds to human-readable string."""
         if seconds < 60:
@@ -515,6 +671,7 @@ def live(refresh, once):
         celery_stats = monitor.get_celery_stats()
         redis_stats = monitor.get_redis_stats()
         textract_jobs = monitor.get_textract_jobs()
+        batch_stats = monitor.get_batch_stats()
         
         # Create layout
         layout = Layout()
@@ -607,8 +764,11 @@ def live(refresh, once):
                     filename = filename[:27] + "..."
                 
                 # Calculate duration
-                created = datetime.fromisoformat(doc['intake_timestamp'].replace('Z', '+00:00'))
-                duration = (datetime.now(timezone.utc) - created).total_seconds()
+                created = monitor._parse_datetime(doc['intake_timestamp'])
+                if created:
+                    duration = (datetime.now(timezone.utc) - created).total_seconds()
+                else:
+                    duration = 0
                 
                 stage = monitor._determine_processing_stage(doc['document_uuid'])
                 proc_table.add_row(filename, stage, monitor.format_duration(duration))
@@ -640,9 +800,10 @@ def live(refresh, once):
         right_content.split_column(
             Layout(name="workers", size=10),
             Layout(name="queues", size=8),
+            Layout(name="batches", size=12),
             Layout(name="textract", size=10),
-            Layout(name="stage_errors", size=10),
-            Layout(name="redis")
+            Layout(name="stage_errors", size=8),
+            Layout(name="redis", size=6)
         )
         
         # Workers
@@ -675,6 +836,46 @@ def live(refresh, once):
             queue_table.add_row("All queues empty", "-")
         
         right_content["queues"].update(Panel(queue_table, title="📥 Queues", box=box.ROUNDED))
+        
+        # Batch processing stats
+        batch_stats = monitor.get_batch_stats()
+        if batch_stats.get('available'):
+            batch_table = Table(box=box.SIMPLE)
+            batch_table.add_column("Batch Type", style="cyan", width=20)
+            batch_table.add_column("Count", style="magenta", width=10)
+            
+            # Show active batches
+            active_count = len(batch_stats.get('active_batches', []))
+            if active_count > 0:
+                batch_table.add_row("🔄 Active Batches", str(active_count))
+                
+                # Show first 3 active batches
+                for batch in batch_stats.get('active_batches', [])[:3]:
+                    batch_id_short = batch.get('batch_id', '')[:8] + "..."
+                    priority = batch.get('priority', 'normal')
+                    total = batch.get('total', 0)
+                    completed = batch.get('completed', 0)
+                    progress = (completed / total * 100) if total > 0 else 0
+                    
+                    batch_table.add_row(
+                        f"  └─ {batch_id_short} ({priority})",
+                        f"{completed}/{total} ({progress:.0f}%)"
+                    )
+            else:
+                batch_table.add_row("No active batches", "-")
+            
+            # Show 24h metrics summary
+            metrics_24h = batch_stats.get('metrics_24h', {}).get('summary', {})
+            if metrics_24h:
+                batch_table.add_row("", "")  # Empty row
+                batch_table.add_row("📊 Last 24 Hours", "")
+                batch_table.add_row("  └─ Total Batches", str(metrics_24h.get('total_batches', 0)))
+                batch_table.add_row("  └─ Documents", str(metrics_24h.get('total_documents', 0)))
+                batch_table.add_row("  └─ Success Rate", f"{metrics_24h.get('overall_success_rate', 0):.1f}%")
+            
+            right_content["batches"].update(Panel(batch_table, title="📦 Batch Processing", box=box.ROUNDED))
+        else:
+            right_content["batches"].update(Panel("Batch stats not available", title="📦 Batch Processing", box=box.ROUNDED))
         
         # Textract jobs
         if textract_jobs.get('pending_count', 0) > 0:
@@ -814,7 +1015,7 @@ def pipeline():
         type_table.add_column("Type", style="cyan")
         type_table.add_column("Count", style="magenta")
         
-        for file_type, count in sorted(stats['file_type_counts'].items()):
+        for file_type, count in sorted(stats['file_type_counts'].items(), key=lambda x: x[0] or 'unknown'):
             type_table.add_row(file_type or "unknown", str(count))
         
         console.print(type_table)
@@ -923,6 +1124,10 @@ def redis_cache():
 @click.argument('document_uuid')
 def document(document_uuid):
     """Show detailed status for a specific document by UUID."""
+    console.print("[yellow]This command is temporarily disabled during migration from Supabase to RDS.[/yellow]")
+    console.print("Use the 'live' command for real-time monitoring instead.")
+    return
+    
     monitor = UnifiedMonitor()
     
     try:
@@ -1014,6 +1219,10 @@ def document(document_uuid):
 @click.option('--stage', help='Specific stage to start from (for retry)')
 def control(action, document_uuid, stage):
     """Control individual document processing (stop/start/retry)."""
+    console.print("[yellow]This command is temporarily disabled during migration from Supabase to RDS.[/yellow]")
+    console.print("Use Celery commands directly for worker control.")
+    return
+    
     monitor = UnifiedMonitor()
     
     try:
@@ -1232,6 +1441,10 @@ def textract(check_interval, once):
 @click.option('--document-id', required=True, help='Document ID or UUID to diagnose')
 def diagnose_chunking(document_id):
     """Diagnose chunking issues for a specific document."""
+    console.print("[yellow]This command is temporarily disabled during migration from Supabase to RDS.[/yellow]")
+    console.print("Use the 'live' command for real-time monitoring instead.")
+    return
+    
     monitor = UnifiedMonitor()
     
     try:
@@ -1461,6 +1674,181 @@ def diagnose_chunking(document_id):
         traceback.print_exc()
 
 @cli.command()
+@click.argument('document_uuids', nargs=-1, required=True)
+@click.option('--refresh', '-r', default=5, help='Refresh interval in seconds')
+@click.option('--once', is_flag=True, help='Run once and exit')
+def documents(document_uuids, refresh, once):
+    """Monitor multiple documents by UUID."""
+    console.print("[yellow]This command is temporarily disabled during migration from Supabase to RDS.[/yellow]")
+    console.print("Use the 'live' command for real-time monitoring instead.")
+    return
+    
+    monitor = UnifiedMonitor()
+    
+    def show_documents_status():
+        """Display status for multiple documents."""
+        console.clear()
+        console.print('[bold cyan]📊 Multi-Document Pipeline Monitor[/bold cyan]')
+        console.print(f'Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        console.print(f'Monitoring {len(document_uuids)} documents\n')
+        
+        # Get document status from database
+        from scripts.db import engine
+        from sqlalchemy import text
+        
+        with engine.connect() as conn:
+            # Get document status
+            uuid_list = "','".join(document_uuids)
+            query = f"""
+                SELECT 
+                    document_uuid,
+                    file_name,
+                    status,
+                    celery_task_id,
+                    textract_job_id,
+                    textract_job_status,
+                    ocr_completed_at,
+                    raw_extracted_text IS NOT NULL as has_text,
+                    error_message
+                FROM source_documents
+                WHERE document_uuid IN ('{uuid_list}')
+                ORDER BY file_name
+            """
+            
+            result = conn.execute(text(query))
+            documents = result.fetchall()
+            
+            if not documents:
+                console.print("[red]No documents found with the provided UUIDs[/red]")
+                return
+            
+            # Status counts
+            status_counts = {'pending': 0, 'processing': 0, 'ocr_in_progress': 0, 
+                            'ocr_complete': 0, 'completed': 0, 'failed': 0}
+            
+            # Document status table
+            doc_table = Table(title="Document Status", box=box.ROUNDED)
+            doc_table.add_column("File", style="cyan", width=40)
+            doc_table.add_column("Status", style="yellow", width=15)
+            doc_table.add_column("OCR", style="green", width=12)
+            doc_table.add_column("Textract Job", style="blue", width=15)
+            doc_table.add_column("Error", style="red", width=30)
+            
+            for row in documents:
+                doc_uuid = row[0]
+                file_name = row[1][:37] + '...' if len(row[1]) > 37 else row[1]
+                status = row[2]
+                has_textract = bool(row[4])
+                has_text = row[7]
+                error_msg = row[8][:27] + '...' if row[8] and len(row[8]) > 27 else row[8]
+                
+                status_counts[status] = status_counts.get(status, 0) + 1
+                
+                # Status icon
+                if status == 'completed':
+                    status_icon = '✓ ' + status
+                elif status in ['processing', 'ocr_in_progress']:
+                    status_icon = '⏳ ' + status
+                elif status == 'failed':
+                    status_icon = '✗ ' + status
+                else:
+                    status_icon = '· ' + status
+                
+                # OCR status
+                ocr_status = '✓ Complete' if row[6] else '⏳ Processing' if has_textract else '· Pending'
+                
+                # Textract status
+                textract_status = row[5] if has_textract else '-'
+                
+                doc_table.add_row(file_name, status_icon, ocr_status, textract_status, error_msg or '')
+            
+            console.print(doc_table)
+            
+            # Summary
+            console.print(f"\n[bold]Summary:[/bold]")
+            console.print(f"  Pending: {status_counts.get('pending', 0)}")
+            console.print(f"  Processing/OCR: {status_counts.get('processing', 0) + status_counts.get('ocr_in_progress', 0)}")
+            console.print(f"  Completed: {status_counts.get('completed', 0)}")
+            console.print(f"  Failed: {status_counts.get('failed', 0)}")
+            
+            # Processing stages
+            console.print("\n[bold]Processing Stages:[/bold]")
+            
+            query = f"""
+                SELECT 
+                    sd.document_uuid,
+                    sd.file_name,
+                    pt.task_type,
+                    pt.status,
+                    pt.created_at,
+                    pt.completed_at
+                FROM processing_tasks pt
+                JOIN source_documents sd ON pt.document_id = sd.document_uuid
+                WHERE sd.document_uuid IN ('{uuid_list}')
+                ORDER BY sd.file_name, pt.created_at
+            """
+            
+            result = conn.execute(text(query))
+            tasks = result.fetchall()
+            
+            # Group by document
+            doc_tasks = {}
+            for task in tasks:
+                doc_uuid = task[0]
+                if doc_uuid not in doc_tasks:
+                    doc_tasks[doc_uuid] = []
+                doc_tasks[doc_uuid].append(task)
+            
+            # Show pipeline stages for each document
+            stages = ['ocr', 'chunking', 'entity_extraction', 'entity_resolution', 
+                     'relationship_extraction', 'finalization']
+            
+            stage_table = Table(box=box.SIMPLE)
+            stage_table.add_column("Document", style="cyan", width=35)
+            for stage in stages:
+                stage_table.add_column(stage.replace('_', ' ').title()[:10], style="yellow", width=10)
+            
+            for doc in documents[:10]:  # Limit to 10 docs for display
+                doc_uuid = doc[0]
+                file_name = doc[1][:32] + '...' if len(doc[1]) > 32 else doc[1]
+                
+                row_data = [file_name]
+                doc_task_list = doc_tasks.get(doc_uuid, [])
+                
+                for stage in stages:
+                    stage_task = next((t for t in doc_task_list if t[2] == stage), None)
+                    if stage_task:
+                        if stage_task[3] == 'completed':
+                            row_data.append('✓')
+                        elif stage_task[3] == 'processing':
+                            row_data.append('⏳')
+                        elif stage_task[3] == 'failed':
+                            row_data.append('✗')
+                        else:
+                            row_data.append('·')
+                    else:
+                        row_data.append('-')
+                
+                stage_table.add_row(*row_data)
+            
+            console.print(stage_table)
+    
+    # Run monitoring
+    if once:
+        show_documents_status()
+    else:
+        with Live(refresh_per_second=1/refresh) as live:
+            while True:
+                try:
+                    show_documents_status()
+                    time.sleep(refresh)
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    console.print(f"[red]Error: {e}[/red]")
+                    time.sleep(refresh)
+
+@cli.command()
 @click.option('--output-format', '-f', type=click.Choice(['json', 'text']), default='text', help='Output format')
 def health(output_format):
     """System health check."""
@@ -1471,14 +1859,15 @@ def health(output_format):
         'components': {}
     }
     
-    # Check Supabase
+    # Check RDS Database
     try:
-        monitor.supabase.table('source_documents').select('id').limit(1).execute()
-        health_status['components']['supabase'] = {'status': 'healthy', 'message': 'Connected'}
-        supabase_ok = True
+        from scripts.rds_utils import execute_query
+        execute_query("SELECT 1")
+        health_status['components']['database'] = {'status': 'healthy', 'message': 'RDS Connected'}
+        database_ok = True
     except Exception as e:
-        health_status['components']['supabase'] = {'status': 'unhealthy', 'message': str(e)}
-        supabase_ok = False
+        health_status['components']['database'] = {'status': 'unhealthy', 'message': str(e)}
+        database_ok = False
     
     # Check Redis
     if monitor.redis_available:
@@ -1509,7 +1898,7 @@ def health(output_format):
         celery_ok = False
     
     # Overall status
-    all_healthy = supabase_ok and redis_ok and celery_ok
+    all_healthy = database_ok and redis_ok and celery_ok
     health_status['overall'] = 'healthy' if all_healthy else 'unhealthy'
     
     if output_format == 'json':
