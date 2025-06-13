@@ -115,12 +115,28 @@ class UnifiedMonitor:
             
             query = """
             SELECT 
-                id, document_uuid, original_file_name, status as celery_status,
-                celery_task_id, created_at as intake_timestamp, updated_at as last_modified_at,
-                error_message, textract_job_status, detected_file_type, project_fk_id,
-                ocr_metadata_json
-            FROM source_documents
-            ORDER BY updated_at DESC
+                sd.id, 
+                sd.document_uuid, 
+                sd.original_file_name, 
+                sd.status,
+                sd.created_at, 
+                sd.updated_at,
+                sd.error_message, 
+                sd.file_type as detected_file_type, 
+                sd.project_uuid,
+                pt.task_type as current_stage,
+                pt.status as stage_status,
+                tj.job_id as textract_job_id,
+                tj.status as textract_job_status
+            FROM source_documents sd
+            LEFT JOIN processing_tasks pt ON sd.document_uuid = pt.document_id 
+                AND pt.created_at = (
+                    SELECT MAX(created_at) 
+                    FROM processing_tasks 
+                    WHERE document_id = sd.document_uuid
+                )
+            LEFT JOIN textract_jobs tj ON sd.document_uuid = tj.document_uuid
+            ORDER BY sd.updated_at DESC
             """
             
             results = execute_query(query)
@@ -130,10 +146,10 @@ class UnifiedMonitor:
             for row in results:
                 doc = dict(row)
                 # Convert datetime objects to ISO format strings
-                if doc.get('intake_timestamp'):
-                    doc['intake_timestamp'] = doc['intake_timestamp'].isoformat() + 'Z'
-                if doc.get('last_modified_at'):
-                    doc['last_modified_at'] = doc['last_modified_at'].isoformat() + 'Z'
+                if doc.get('created_at'):
+                    doc['created_at'] = doc['created_at'].isoformat() + 'Z'
+                if doc.get('updated_at'):
+                    doc['updated_at'] = doc['updated_at'].isoformat() + 'Z'
                 response_data.append(doc)
             
             # Simulate the old response.data structure
@@ -157,7 +173,7 @@ class UnifiedMonitor:
             recent_threshold = now - timedelta(minutes=5)
             
             for doc in response.data:
-                status = doc.get('celery_status', 'unknown')
+                status = doc.get('status', 'unknown')
                 status_counts[status] += 1
                 
                 # Count file types
@@ -168,7 +184,7 @@ class UnifiedMonitor:
                 if status == 'processing':
                     processing_docs.append(doc)
                     # Check if stuck
-                    updated = self._parse_datetime(doc['last_modified_at'])
+                    updated = self._parse_datetime(doc['updated_at'])
                     if updated and updated < stuck_threshold:
                         stuck_docs.append(doc)
                 
@@ -185,8 +201,8 @@ class UnifiedMonitor:
                     })
                 
                 # Track recently processed documents
-                if doc.get('last_modified_at'):
-                    updated = self._parse_datetime(doc['last_modified_at'])
+                if doc.get('updated_at'):
+                    updated = self._parse_datetime(doc['updated_at'])
                     if updated and updated > recent_threshold and status in ['completed', 'failed']:
                         recently_processed.append({
                             'uuid': doc['document_uuid'],
@@ -199,8 +215,8 @@ class UnifiedMonitor:
                 # Calculate processing times for completed
                 elif status == 'completed':
                     try:
-                        created = self._parse_datetime(doc['intake_timestamp'])
-                        updated = self._parse_datetime(doc['last_modified_at'])
+                        created = self._parse_datetime(doc['created_at'])
+                        updated = self._parse_datetime(doc['updated_at'])
                         if created and updated:
                             processing_time = (updated - created).total_seconds()
                             processing_times.append(processing_time)
@@ -266,13 +282,13 @@ class UnifiedMonitor:
             if entity_count == 0:
                 return 'chunking'
             
-            # Check if relationships exist
+            # Check if relationships exist (using correct table name)
             relationships_query = """
             SELECT COUNT(*) as rel_count 
-            FROM entity_relationships er
-            JOIN entity_mentions em1 ON er.from_entity_id = em1.entity_id
-            JOIN document_chunks dc ON em1.chunk_uuid = dc.chunk_uuid
-            WHERE dc.document_uuid = %s
+            FROM relationship_staging rs
+            JOIN canonical_entities ce ON rs.source_entity_uuid = ce.canonical_entity_uuid
+            JOIN entity_mentions em ON ce.canonical_entity_uuid = em.canonical_entity_uuid
+            WHERE em.document_uuid = %s
             """
             relationships_result = execute_query(relationships_query, (document_uuid,))
             rel_count = relationships_result[0]['rel_count'] if relationships_result else 0
@@ -426,31 +442,50 @@ class UnifiedMonitor:
             total_ops = keyspace_hits + keyspace_misses
             hit_rate = (keyspace_hits / total_ops * 100) if total_ops > 0 else 0
             
-            # Count keys by pattern (with timeout)
+            # Count keys by pattern (with timeout) - all on DB 0
             cache_patterns = {
-                'chunks': 'chunks:*',
-                'entities': 'entity_mentions:*',
-                'projects': 'project:*',
-                'documents': 'doc:*',
-                'ocr_cache': 'ocr:*',
-                'celery_tasks': 'celery-task-meta-*'
+                'document_states': 'doc:state:*',
+                'ocr_results': 'doc:ocr:*',
+                'chunks': 'doc:chunks:*',
+                'entity_mentions': 'doc:entity_mentions:*',
+                'canonical_entities': 'doc:canonical_entities:*',
+                'batch_progress': 'batch:progress:*',
+                'rate_limits': 'rate:limit:*',
+                'metrics': 'metrics:*'
             }
             
             key_counts = {}
             total_keys = 0
+            active_batches = 0
+            rate_limited_endpoints = 0
             
             for name, pattern in cache_patterns.items():
                 try:
                     # Use SCAN with small count to avoid blocking
                     count = 0
-                    for _ in self.redis_client.scan_iter(match=pattern, count=100):
+                    for key in self.redis_client.scan_iter(match=pattern, count=100):
                         count += 1
                         if count > 1000:  # Limit to prevent hanging
                             count = f"{count}+"
                             break
+                        
+                        # Check for active batches
+                        if name == 'batch_progress' and isinstance(count, int) and count <= 100:
+                            try:
+                                data = self.redis_client.get(key)
+                                if data:
+                                    import json
+                                    batch_data = json.loads(data)
+                                    if batch_data.get('status') == 'processing':
+                                        active_batches += 1
+                            except:
+                                pass
+                                
                     key_counts[name] = count
                     if isinstance(count, int):
                         total_keys += count
+                        if name == 'rate_limits':
+                            rate_limited_endpoints = count
                 except:
                     key_counts[name] = 'N/A'
                     
@@ -465,6 +500,8 @@ class UnifiedMonitor:
                 'evicted_keys': info.get('evicted_keys', 0),
                 'key_counts': key_counts,
                 'total_keys': total_keys,
+                'active_batches': active_batches,
+                'rate_limited_endpoints': rate_limited_endpoints,
                 'uptime_days': info.get('uptime_in_days', 0)
             }
         except Exception as e:
@@ -639,6 +676,111 @@ class UnifiedMonitor:
             console.print(f"[yellow]Warning: Could not parse datetime '{datetime_str}': {e}[/yellow]")
             return None
 
+    def get_ocr_status(self) -> Dict:
+        """Track Textract job status."""
+        try:
+            from scripts.rds_utils import execute_query
+            
+            query = """
+            SELECT 
+                status,
+                COUNT(*) as count,
+                AVG(EXTRACT(EPOCH FROM (NOW() - created_at))) as avg_wait_time
+            FROM textract_jobs
+            WHERE created_at > NOW() - INTERVAL '1 hour'
+            GROUP BY status
+            """
+            
+            results = execute_query(query)
+            ocr_stats = {
+                'active_jobs': 0,
+                'completed_jobs': 0,
+                'failed_jobs': 0,
+                'avg_wait_time': 0
+            }
+            
+            for row in results:
+                status = row.get('status', '')
+                count = row.get('count', 0)
+                
+                if status in ['PENDING', 'IN_PROGRESS']:
+                    ocr_stats['active_jobs'] += count
+                elif status == 'SUCCEEDED':
+                    ocr_stats['completed_jobs'] = count
+                elif status == 'FAILED':
+                    ocr_stats['failed_jobs'] = count
+                    
+                if row.get('avg_wait_time'):
+                    ocr_stats['avg_wait_time'] = max(ocr_stats['avg_wait_time'], row['avg_wait_time'])
+            
+            return ocr_stats
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not get OCR status: {e}[/yellow]")
+            return {
+                'active_jobs': 0,
+                'completed_jobs': 0,
+                'failed_jobs': 0,
+                'avg_wait_time': 0
+            }
+    
+    def identify_bottlenecks(self) -> Dict:
+        """Identify where documents are getting stuck."""
+        try:
+            from scripts.rds_utils import execute_query
+            
+            # Check for stuck OCR jobs
+            stuck_ocr_query = """
+            SELECT COUNT(*) as count
+            FROM processing_tasks pt
+            JOIN textract_jobs tj ON pt.document_id = tj.document_uuid
+            WHERE pt.task_type = 'extract_text'
+            AND pt.status = 'completed'
+            AND tj.status IN ('PENDING', 'IN_PROGRESS')
+            AND tj.created_at < NOW() - INTERVAL '30 minutes'
+            """
+            
+            stuck_ocr_result = execute_query(stuck_ocr_query)
+            stuck_ocr_count = stuck_ocr_result[0]['count'] if stuck_ocr_result else 0
+            
+            # Check for missing chunk tasks
+            missing_chunks_query = """
+            SELECT COUNT(*) as count
+            FROM source_documents sd
+            LEFT JOIN document_chunks dc ON sd.document_uuid = dc.document_uuid
+            WHERE sd.status = 'pending'
+            AND dc.chunk_uuid IS NULL
+            AND sd.created_at < NOW() - INTERVAL '1 hour'
+            """
+            
+            missing_chunks_result = execute_query(missing_chunks_query)
+            missing_chunks_count = missing_chunks_result[0]['count'] if missing_chunks_result else 0
+            
+            # Check for batch processor errors
+            batch_errors_query = """
+            SELECT task_type, error_message, COUNT(*) as count
+            FROM processing_tasks
+            WHERE status = 'failed'
+            AND created_at > NOW() - INTERVAL '1 hour'
+            GROUP BY task_type, error_message
+            ORDER BY count DESC
+            LIMIT 5
+            """
+            
+            batch_errors_result = execute_query(batch_errors_query)
+            
+            return {
+                'stuck_ocr_jobs': stuck_ocr_count,
+                'missing_chunks': missing_chunks_count,
+                'recent_errors': batch_errors_result or []
+            }
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not identify bottlenecks: {e}[/yellow]")
+            return {
+                'stuck_ocr_jobs': 0,
+                'missing_chunks': 0,
+                'recent_errors': []
+            }
+
     def format_duration(self, seconds: float) -> str:
         """Format duration in seconds to human-readable string."""
         if seconds < 60:
@@ -764,7 +906,7 @@ def live(refresh, once):
                     filename = filename[:27] + "..."
                 
                 # Calculate duration
-                created = monitor._parse_datetime(doc['intake_timestamp'])
+                created = monitor._parse_datetime(doc['created_at'])
                 if created:
                     duration = (datetime.now(timezone.utc) - created).total_seconds()
                 else:
@@ -798,12 +940,14 @@ def live(refresh, once):
         # Right side - System stats
         right_content = Layout()
         right_content.split_column(
-            Layout(name="workers", size=10),
-            Layout(name="queues", size=8),
-            Layout(name="batches", size=12),
-            Layout(name="textract", size=10),
-            Layout(name="stage_errors", size=8),
-            Layout(name="redis", size=6)
+            Layout(name="ocr_status", size=7),
+            Layout(name="bottlenecks", size=8),
+            Layout(name="workers", size=8),
+            Layout(name="queues", size=6),
+            Layout(name="batches", size=10),
+            Layout(name="textract", size=8),
+            Layout(name="stage_errors", size=6),
+            Layout(name="redis", size=5)
         )
         
         # Workers
@@ -820,6 +964,30 @@ def live(refresh, once):
         
         if not celery_stats.get('workers'):
             worker_table.add_row("No workers", "-", "-")
+        
+        # OCR Status
+        ocr_table = Table(box=box.SIMPLE)
+        ocr_table.add_column("Metric", style="cyan")
+        ocr_table.add_column("Value", style="yellow")
+        ocr_table.add_row("Active Jobs", str(ocr_status['active_jobs']))
+        ocr_table.add_row("Completed", str(ocr_status['completed_jobs']))
+        ocr_table.add_row("Failed", str(ocr_status['failed_jobs']))
+        ocr_table.add_row("Avg Wait", f"{ocr_status['avg_wait_time']:.1f}s")
+        right_content["ocr_status"].update(Panel(ocr_table, title="🔍 OCR Processing", box=box.ROUNDED))
+        
+        # Bottleneck Detection
+        if bottlenecks['stuck_ocr_jobs'] > 0 or bottlenecks['missing_chunks'] > 0:
+            bottleneck_text = Text()
+            bottleneck_text.append("⚠️  ISSUES DETECTED:\n", style="bold red")
+            if bottlenecks['stuck_ocr_jobs'] > 0:
+                bottleneck_text.append(f"• {bottlenecks['stuck_ocr_jobs']} OCR jobs stuck\n", style="red")
+            if bottlenecks['missing_chunks'] > 0:
+                bottleneck_text.append(f"• {bottlenecks['missing_chunks']} documents missing chunks\n", style="red")
+            if bottlenecks['recent_errors']:
+                bottleneck_text.append(f"• {len(bottlenecks['recent_errors'])} error types\n", style="red")
+            right_content["bottlenecks"].update(Panel(bottleneck_text, title="🚨 Bottlenecks", box=box.ROUNDED, border_style="red"))
+        else:
+            right_content["bottlenecks"].update(Panel("✅ No bottlenecks detected", title="🚨 Bottlenecks", box=box.ROUNDED, border_style="green"))
         
         right_content["workers"].update(Panel(worker_table, title="👷 Workers", box=box.ROUNDED))
         
@@ -1258,30 +1426,14 @@ def control(action, document_uuid, stage):
                 console.print(f"[yellow]Document is already processing.[/yellow]")
                 return
                 
-            # Import and submit OCR task
+            # Import and submit processing task
             from scripts.pdf_tasks import process_pdf_document
-            # from scripts.ocr_extraction import detect_file_category  # Not needed - file_category unused
-            
-            # Determine the best file path to use
-            # Priority: S3 key > original_file_path > original_file_name
-            if doc.get('s3_key'):
-                # Construct S3 URI from the key
-                from scripts.config import S3_PRIMARY_DOCUMENT_BUCKET
-                file_path = f"s3://{S3_PRIMARY_DOCUMENT_BUCKET}/{doc['s3_key']}"
-                console.print(f"[dim]Using S3 URI: {file_path}[/dim]")
-            else:
-                # Use the original_file_path if available, otherwise use original_file_name
-                file_path = doc.get('original_file_path') or doc['original_file_name']
-                console.print(f"[dim]Using file path: {file_path}[/dim]")
             
             # Submit to Celery
-            task = process_ocr.delay(
+            task = process_pdf_document.delay(
                 document_uuid=doc['document_uuid'],
-                source_doc_sql_id=doc['id'],
-                file_path=file_path,
-                file_name=doc['original_file_name'].split('/')[-1],
-                detected_file_type=doc.get('detected_file_type', '.pdf'),
-                project_sql_id=doc['project_fk_id']
+                project_uuid=doc.get('project_uuid', ''),
+                options={}
             )
             
             # Update document with task ID

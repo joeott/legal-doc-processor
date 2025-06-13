@@ -1,6 +1,17 @@
 """
 Batch Processing Framework - Orchestrates document processing in organized batches.
 
+DEPRECATION WARNING: This module is deprecated as of 2025-06-13.
+Please use scripts.batch_tasks instead, which provides:
+- Simpler priority-based batch processing
+- Correct async OCR handling
+- Better Celery integration
+
+Migration guide:
+- Replace BatchProcessor() with functions from batch_tasks
+- Use create_document_records() + submit_batch() instead of submit_batch_for_processing()
+- Use get_batch_status() for monitoring
+
 This service handles:
 - Batch manifest creation and management
 - Batch job submission to Celery queues
