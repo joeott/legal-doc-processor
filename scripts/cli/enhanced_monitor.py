@@ -30,6 +30,7 @@ from scripts.batch_processor import BatchProcessor
 from scripts.validation import OCRValidator, EntityValidator, PipelineValidator
 from scripts.db import DatabaseManager
 from scripts.logging_config import get_logger
+from scripts.cache import get_redis_manager
 
 console = Console()
 logger = get_logger(__name__)
@@ -42,6 +43,7 @@ class EnhancedMonitor:
         self.db_manager = DatabaseManager(validate_conformance=False)
         self.status_manager = StatusManager()
         self.batch_processor = BatchProcessor()
+        self.redis_manager = get_redis_manager()
         self.ocr_validator = OCRValidator(self.db_manager)
         self.entity_validator = EntityValidator(self.db_manager)
         self.pipeline_validator = PipelineValidator(self.db_manager)
@@ -194,6 +196,260 @@ class EnhancedMonitor:
         """Get comprehensive batch summary."""
         return self.batch_processor.get_batch_summary(batch_id)
     
+    def get_all_active_batches(self) -> List[Dict[str, Any]]:
+        """Get all currently active batches using Redis batch tracking."""
+        if not self.redis_manager.is_available():
+            return []
+        
+        try:
+            # Scan for batch progress keys
+            pattern = "batch:progress:*"
+            batch_keys = self.redis_manager.scan_keys(pattern)
+            
+            active_batches = []
+            for batch_key in batch_keys:
+                batch_data = self.redis_manager.hgetall(batch_key)
+                if batch_data and batch_data.get('status') in ['processing', 'initialized']:
+                    batch_id = batch_key.replace('batch:progress:', '')
+                    
+                    # Get detailed progress
+                    progress = self.batch_processor.monitor_batch_progress(batch_id)
+                    if progress:
+                        active_batches.append({
+                            'batch_id': batch_id,
+                            'status': batch_data.get('status'),
+                            'total_documents': progress.total_documents,
+                            'completed_documents': progress.completed_documents,
+                            'completion_percentage': progress.completion_percentage,
+                            'elapsed_minutes': progress.elapsed_minutes,
+                            'estimated_completion': progress.estimated_completion
+                        })
+            
+            # Sort by creation time (newest first)
+            active_batches.sort(key=lambda x: x.get('elapsed_minutes', 0), reverse=True)
+            return active_batches[:10]  # Return top 10 most recent
+            
+        except Exception as e:
+            logger.error(f"Error getting active batches: {e}")
+            return []
+    
+    def get_batch_performance_metrics(self) -> Dict[str, Any]:
+        """Get aggregated batch performance metrics."""
+        if not self.redis_manager.is_available():
+            return {}
+        
+        try:
+            # Scan for completed batches in the last 24 hours
+            pattern = "batch:progress:*"
+            batch_keys = self.redis_manager.scan_keys(pattern)
+            
+            metrics = {
+                'total_batches_24h': 0,
+                'completed_batches_24h': 0,
+                'failed_batches_24h': 0,
+                'avg_processing_time_minutes': 0,
+                'avg_documents_per_batch': 0,
+                'total_documents_processed_24h': 0,
+                'success_rate_percentage': 0,
+                'throughput_docs_per_hour': 0
+            }
+            
+            completed_batches = []
+            failed_batches = []
+            total_docs = 0
+            total_time = 0
+            
+            cutoff_time = datetime.now() - timedelta(hours=24)
+            
+            for batch_key in batch_keys:
+                batch_data = self.redis_manager.hgetall(batch_key)
+                if not batch_data:
+                    continue
+                
+                started_at_str = batch_data.get('started_at')
+                if not started_at_str:
+                    continue
+                
+                try:
+                    started_at = datetime.fromisoformat(started_at_str.replace('Z', '+00:00'))
+                    if started_at.replace(tzinfo=None) < cutoff_time:
+                        continue
+                except ValueError:
+                    continue
+                
+                metrics['total_batches_24h'] += 1
+                total_docs += int(batch_data.get('total', 0))
+                
+                status = batch_data.get('status')
+                completed_at_str = batch_data.get('completed_at')
+                
+                if status == 'completed' and completed_at_str:
+                    metrics['completed_batches_24h'] += 1
+                    completed_batches.append(batch_data)
+                    
+                    # Calculate processing time
+                    try:
+                        completed_at = datetime.fromisoformat(completed_at_str.replace('Z', '+00:00'))
+                        processing_time = (completed_at.replace(tzinfo=None) - started_at.replace(tzinfo=None)).total_seconds() / 60
+                        total_time += processing_time
+                    except ValueError:
+                        pass
+                        
+                elif status == 'failed':
+                    metrics['failed_batches_24h'] += 1
+                    failed_batches.append(batch_data)
+            
+            # Calculate averages
+            if metrics['completed_batches_24h'] > 0:
+                metrics['avg_processing_time_minutes'] = round(total_time / metrics['completed_batches_24h'], 1)
+            
+            if metrics['total_batches_24h'] > 0:
+                metrics['avg_documents_per_batch'] = round(total_docs / metrics['total_batches_24h'], 1)
+                metrics['success_rate_percentage'] = round(
+                    (metrics['completed_batches_24h'] / metrics['total_batches_24h']) * 100, 1
+                )
+            
+            metrics['total_documents_processed_24h'] = total_docs
+            
+            # Calculate throughput (docs per hour)
+            if total_time > 0:
+                metrics['throughput_docs_per_hour'] = round((total_docs / total_time) * 60, 1)
+            
+            return metrics
+            
+        except Exception as e:
+            logger.error(f"Error calculating batch performance metrics: {e}")
+            return {}
+    
+    def create_batch_dashboard(self) -> Layout:
+        """Create a batch-focused monitoring dashboard."""
+        layout = Layout()
+        layout.split_column(
+            Layout(name="header", size=3),
+            Layout(name="main"),
+            Layout(name="footer", size=3)
+        )
+        
+        # Header with batch summary
+        batch_metrics = self.get_batch_performance_metrics()
+        header_text = Text()
+        header_text.append("🚀 Batch Processing Dashboard\n", style="bold cyan")
+        header_text.append(f"24h: {batch_metrics.get('total_batches_24h', 0)} batches, ", style="white")
+        header_text.append(f"{batch_metrics.get('total_documents_processed_24h', 0)} docs, ", style="green")
+        header_text.append(f"{batch_metrics.get('success_rate_percentage', 0)}% success", style="yellow")
+        
+        layout["header"].update(Panel(header_text, box=box.ROUNDED))
+        
+        # Main content split
+        layout["main"].split_row(
+            Layout(name="active_batches"),
+            Layout(name="metrics_and_performance")
+        )
+        
+        # Active batches table
+        active_batches = self.get_all_active_batches()
+        batch_table = Table(title="Active Batches", box=box.SIMPLE)
+        batch_table.add_column("Batch ID", style="cyan")
+        batch_table.add_column("Status", style="yellow")
+        batch_table.add_column("Progress", style="green")
+        batch_table.add_column("Docs", style="white")
+        batch_table.add_column("ETA", style="magenta")
+        
+        if active_batches:
+            for batch in active_batches[:8]:  # Show top 8
+                batch_id_short = batch['batch_id'][-12:]
+                status = batch['status']
+                progress = f"{batch['completion_percentage']:.1f}%"
+                docs = f"{batch['completed_documents']}/{batch['total_documents']}"
+                
+                eta = "Unknown"
+                if batch.get('estimated_completion'):
+                    try:
+                        eta_time = datetime.fromisoformat(batch['estimated_completion'].replace('Z', '+00:00'))
+                        eta = eta_time.strftime('%H:%M')
+                    except:
+                        pass
+                
+                status_style = "green" if status == "processing" else "yellow"
+                batch_table.add_row(
+                    batch_id_short,
+                    f"[{status_style}]{status}[/{status_style}]",
+                    progress,
+                    docs,
+                    eta
+                )
+        else:
+            batch_table.add_row("No active batches", "-", "-", "-", "-")
+        
+        layout["active_batches"].update(Panel(batch_table, title="📊 Active Batches", box=box.ROUNDED))
+        
+        # Metrics and performance
+        metrics_layout = Layout()
+        metrics_layout.split_column(
+            Layout(name="performance"),
+            Layout(name="system_health")
+        )
+        
+        # Performance metrics
+        perf_table = Table(box=box.SIMPLE)
+        perf_table.add_column("Metric", style="cyan")
+        perf_table.add_column("Value", style="green")
+        
+        perf_table.add_row("Avg Processing Time", f"{batch_metrics.get('avg_processing_time_minutes', 0):.1f}m")
+        perf_table.add_row("Avg Docs/Batch", f"{batch_metrics.get('avg_documents_per_batch', 0):.1f}")
+        perf_table.add_row("Throughput", f"{batch_metrics.get('throughput_docs_per_hour', 0):.1f} docs/hr")
+        perf_table.add_row("Success Rate", f"{batch_metrics.get('success_rate_percentage', 0):.1f}%")
+        
+        metrics_layout["performance"].update(Panel(perf_table, title="📈 Performance", box=box.ROUNDED))
+        
+        # System health indicators
+        health_text = Text()
+        redis_status = "🟢 Online" if self.redis_manager.is_available() else "🔴 Offline"
+        health_text.append(f"Redis: {redis_status}\n", style="green" if self.redis_manager.is_available() else "red")
+        
+        # Check database connection
+        try:
+            # Quick database test
+            for session in self.db_manager.get_session():
+                session.execute("SELECT 1")
+                db_status = "🟢 Online"
+                break
+        except:
+            db_status = "🔴 Offline"
+        
+        health_text.append(f"Database: {db_status}\n", style="green" if "Online" in db_status else "red")
+        health_text.append(f"Cache Hit Rate: {self._get_cache_hit_rate():.1f}%", style="yellow")
+        
+        metrics_layout["system_health"].update(Panel(health_text, title="🏥 System Health", box=box.ROUNDED))
+        
+        layout["metrics_and_performance"].update(metrics_layout)
+        
+        # Footer
+        footer_text = Text(f"Updated: {datetime.now().strftime('%H:%M:%S')} | Press Ctrl+C to exit", style="dim")
+        layout["footer"].update(Panel(footer_text, box=box.ROUNDED))
+        
+        return layout
+    
+    def _get_cache_hit_rate(self) -> float:
+        """Get Redis cache hit rate."""
+        try:
+            if not self.redis_manager.is_available():
+                return 0.0
+            
+            # Get Redis info
+            client = self.redis_manager.get_client()
+            info = client.info()
+            
+            hits = info.get('keyspace_hits', 0)
+            misses = info.get('keyspace_misses', 0)
+            
+            if hits + misses > 0:
+                return (hits / (hits + misses)) * 100
+            return 0.0
+            
+        except Exception:
+            return 0.0
+    
     def validate_documents(self, doc_ids: List[str], validation_type: str = "pipeline") -> Dict[str, Any]:
         """Run validation on documents."""
         if validation_type == "ocr":
@@ -256,6 +512,38 @@ def live(refresh, once):
             except KeyboardInterrupt:
                 pass
         console.print("\n[green]Enhanced monitoring stopped.[/green]")
+
+
+@cli.command()
+@click.option('--refresh', '-r', default=5, help='Refresh interval in seconds')
+@click.option('--once', is_flag=True, help='Run once and exit')
+def batch_dashboard(refresh, once):
+    """Live batch processing dashboard with performance metrics."""
+    monitor = EnhancedMonitor()
+    
+    def create_dashboard():
+        """Create the batch dashboard."""
+        try:
+            return monitor.create_batch_dashboard()
+        except Exception as e:
+            logger.error(f"Error creating batch dashboard: {e}")
+            # Return simple error panel
+            layout = Layout()
+            error_text = Text(f"Batch Dashboard Error: {e}", style="red")
+            layout.update(Panel(error_text, title="Error", box=box.ROUNDED))
+            return layout
+    
+    if once:
+        console.print(create_dashboard())
+    else:
+        with Live(create_dashboard(), refresh_per_second=1, console=console) as live:
+            try:
+                while True:
+                    time.sleep(refresh)
+                    live.update(create_dashboard())
+            except KeyboardInterrupt:
+                pass
+        console.print("\n[green]Batch monitoring stopped.[/green]")
 
 
 @cli.command()

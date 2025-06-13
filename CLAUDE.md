@@ -25,6 +25,11 @@ psql -h localhost -p 5433 -U app_user -d legal_doc_processing -f scripts/create_
 # Start Celery worker (all queues)
 celery -A scripts.celery_app worker --loglevel=info --queues=default,ocr,text,entity,graph,cleanup &
 
+# Start batch processing workers (priority-specific)
+celery -A scripts.celery_app worker -Q batch.high -n batch-high@%h --concurrency=4 &
+celery -A scripts.celery_app worker -Q batch.normal -n batch-normal@%h --concurrency=2 &
+celery -A scripts.celery_app worker -Q batch.low -n batch-low@%h --concurrency=1 &
+
 # Kill existing workers before restart
 ps aux | grep "[c]elery" | awk '{print $2}' | xargs -r kill -9
 
@@ -75,6 +80,9 @@ python test_single_doc/test_document.py
 
 # Monitor batch processing
 python monitor_batch_processing.py
+
+# Run batch processing tests
+./scripts/run_batch_tests.sh
 ```
 
 ### Database Operations
@@ -118,10 +126,13 @@ Document Upload → OCR → Chunking → Entity Extraction → Entity Resolution
 ### Core Components
 
 #### Task Orchestration (Celery)
-- **scripts/celery_app.py**: Celery configuration with Redis broker/backend
+- **scripts/celery_app.py**: Celery configuration with Redis broker/backend, priority queue support
 - **scripts/pdf_tasks.py**: Main pipeline tasks (6 stages)
-- Queues: `default`, `ocr`, `text`, `entity`, `graph`, `cleanup`
+- **scripts/batch_tasks.py**: Priority-based batch processing (high/normal/low)
+- **scripts/batch_recovery.py**: Intelligent error recovery with retry strategies
+- Queues: `default`, `ocr`, `text`, `entity`, `graph`, `cleanup`, `batch.high`, `batch.normal`, `batch.low`
 - Memory limit: 512MB per worker process
+- Priority levels: 0-9 (9 highest)
 
 #### Data Layer
 - **scripts/models.py**: Consolidated Pydantic models (single source of truth)
@@ -130,6 +141,8 @@ Document Upload → OCR → Chunking → Entity Extraction → Entity Resolution
   - Field names match exact database column names
 - **scripts/db.py**: SQLAlchemy database operations
 - **scripts/cache.py**: Redis caching with automatic expiration
+- **scripts/cache_warmer.py**: Pre-processing cache optimization for batch operations
+- **scripts/batch_metrics.py**: Time-series metrics collection in Redis
 
 #### Processing Services
 - **scripts/ocr_extraction.py**: PDF text extraction with multiple fallbacks
@@ -169,17 +182,48 @@ Be aware of these field name differences between models and database:
 - ProcessingTaskMinimal: `document_id` (NOT `document_uuid`), `task_type` (NOT `stage`)
 - All models use UUID for id fields, not integers
 
-## Known Issues to Fix
+## Batch Processing
 
-1. **CacheKeys.DOC_CANONICAL missing** - Add this attribute to CacheKeys class in scripts/cache.py
-2. **ProcessingTaskMinimal.id type** - Should be Optional[UUID], not Optional[int]
-3. **ModelFactory import error** - Remove import from pdf_tasks.py line 1260
+### Submit Batch with Priority
+```python
+from scripts.batch_tasks import submit_batch
+
+# Submit high priority batch
+result = submit_batch(
+    documents=[{'document_uuid': 'uuid', 'file_path': 's3://path'}],
+    project_uuid='project-id',
+    priority='high',  # 'high', 'normal', 'low'
+    options={'warm_cache': True}
+)
+```
+
+### Monitor Batch Progress
+```python
+from scripts.batch_tasks import get_batch_status
+
+status = get_batch_status.apply_async(args=[batch_id]).get()
+print(f"Progress: {status['progress_percentage']}%")
+```
+
+### Recover Failed Documents
+```python
+from scripts.batch_recovery import recover_failed_batch
+
+recovery = recover_failed_batch.apply_async(
+    args=[batch_id],
+    kwargs={'options': {'max_retries': 3}}
+).get()
+```
 
 ## Memory Management Guidelines
 
-- All tests must be saved ONLY to /opt/legal-doc-processor/tests
-- Before ANY test is created, search the /opt/legal-doc-processor/tests directory and identify if other scripts are attempting to implement a similar function
-- If similar tests exist, use those tests or update them to suit present needs and environment
+- Always test the production scripts
+- Only create test scripts when you really need to isolate something
+- Save all test scripts in /tests/
+- Always search for tests in /tests/ before creating new test scripts
+- All scripts MUST have a purpose
+- Test using production documents from /opt/legal-doc-processor/input_docs/Paul, Michael (Acuity)
+- Robustly and frequently create detailed, sequentially numbered notes (new notes higher number) in ai_docs
 
 ## Environment Configuration
 
@@ -207,6 +251,10 @@ OPENAI_MODEL=gpt-4o-mini
 # Deployment
 DEPLOYMENT_STAGE=1
 SKIP_CONFORMANCE_CHECK=true  # Currently bypassed for Minimal models
+
+# Batch Processing
+REDIS_PREFIX_BATCH=batch:
+REDIS_PREFIX_METRICS=metrics:
 ```
 
 ## Recent Architecture Changes
@@ -215,6 +263,7 @@ SKIP_CONFORMANCE_CHECK=true  # Currently bypassed for Minimal models
 2. **Redis Acceleration** - Implemented comprehensive caching strategy
 3. **Deprecated Scripts Removal** - scripts/core/* utilities moved to scripts/utils/* and scripts/validation/*
 4. **Minimal Models Strategy** - Using models with "Minimal" suffix to match exact database schema
+5. **Batch Processing Enhancement** - Added priority queues, error recovery, metrics, and cache warming
 
 ## Development Context
 

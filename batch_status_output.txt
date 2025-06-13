@@ -1,0 +1,168 @@
+WARNING:scripts.config:CONFORMANCE VALIDATION BYPASSED - FOR TESTING ONLY
+INFO:scripts.config:Using minimal models for reduced conformance requirements
+INFO:scripts.config:EFFECTIVE_DATABASE_URL: postgresql://app_user:LegalDoc2025%5C%21Secure@database1.cuviucyodbeg.us-east-1.rds.amazonaws.com:5432/legal_doc_processing?sslmode=require
+INFO:botocore.credentials:Found credentials in environment variables.
+INFO:scripts.config:S3 bucket samu-docs-private-upload is in region us-east-2
+WARNING:scripts.config:Region mismatch: AWS_DEFAULT_REGION=us-east-1, S3_BUCKET_REGION=us-east-2
+INFO:scripts.config:Textract will use S3_BUCKET_REGION for consistency
+WARNING:scripts.db:Skipping conformance validation due to SKIP_CONFORMANCE_CHECK=true
+ERROR:__main__:Error checking batch status: (psycopg2.errors.UndefinedColumn) column "document_id" does not exist
+LINE 3:                 WHERE document_id = '8e3d88d0-8dd6-44ee-8556...
+                              ^
+HINT:  Perhaps you meant to reference the column "entity_mentions.document_uuid".
+
+[SQL: 
+                SELECT COUNT(*) FROM entity_mentions 
+                WHERE document_id = %(doc_id)s
+            ]
+[parameters: {'doc_id': UUID('8e3d88d0-8dd6-44ee-8556-522a93ded07a')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column "document_id" does not exist
+LINE 3:                 WHERE document_id = '8e3d88d0-8dd6-44ee-8556...
+                              ^
+HINT:  Perhaps you meant to reference the column "entity_mentions.document_uuid".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/legal-doc-processor/check_batch_completion_status.py", line 313, in <module>
+    check_batch_status()
+  File "/opt/legal-doc-processor/check_batch_completion_status.py", line 188, in check_batch_status
+    entity_result = session.execute(text("""
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2199, in _execute_internal
+    result = conn.execute(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/legal-doc-processor/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "document_id" does not exist
+LINE 3:                 WHERE document_id = '8e3d88d0-8dd6-44ee-8556...
+                              ^
+HINT:  Perhaps you meant to reference the column "entity_mentions.document_uuid".
+
+[SQL: 
+                SELECT COUNT(*) FROM entity_mentions 
+                WHERE document_id = %(doc_id)s
+            ]
+[parameters: {'doc_id': UUID('8e3d88d0-8dd6-44ee-8556-522a93ded07a')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Deployment Stage: 1 - Cloud-only (OpenAI/Textract)
+WARNING: SUPABASE_URL or SUPABASE_ANON_KEY environment variables are not set.
+The application will likely fail when trying to connect to the database.
+Please set these environment variables before running the application.
+
+================================================================================
+PAUL MICHAEL ACUITY BATCH STATUS CHECK (Project ID: 18)
+================================================================================
+
+Found 20 documents in project
+--------------------------------------------------------------------------------
+
+[1] Document: 2069b6ef-ea16-43f1-931f-989bb6f0152a
+    Filename: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf
+    Created: 2025-06-12 02:09:45.916764+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/2069b6ef-ea16-43f1-931f-989bb6f0152a.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[2] Document: 5232dd8d-7492-4bb7-b6ef-096a0ad21c8d
+    Filename: Paul, Michael - Plaintiff Acuity Amend Disclosure Stmt 9-23-24.pdf
+    Created: 2025-06-12 02:09:45.994343+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/5232dd8d-7492-4bb7-b6ef-096a0ad21c8d.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[3] Document: ab57ec50-0e26-4788-af48-a63f2833bfe8
+    Filename: Paul, Michael - Plaintiff Acuity Disclosure Stmt 9-20-24.pdf
+    Created: 2025-06-12 02:09:46.054410+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/ab57ec50-0e26-4788-af48-a63f2833bfe8.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[4] Document: 8c3421ec-71a6-44cc-9f92-106942a80b6f
+    Filename: Paul, Michael - Riverdale Disclosure Stmt 10-25-24.pdf
+    Created: 2025-06-12 02:09:46.169568+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/8c3421ec-71a6-44cc-9f92-106942a80b6f.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[5] Document: a112f74e-5313-4fd9-a65b-ac279b9e3cc3
+    Filename: Paul, Michael - Wombat Corp Disclosure Stmt 10-23-24.pdf
+    Created: 2025-06-12 02:09:46.227131+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/a112f74e-5313-4fd9-a65b-ac279b9e3cc3.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[6] Document: bf57a33c-9cfe-4c01-9c06-7ad573fc91e4
+    Filename: amended complaint for declaratory judgment.pdf
+    Created: 2025-06-12 02:09:46.281845+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/bf57a33c-9cfe-4c01-9c06-7ad573fc91e4.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[7] Document: 033ef904-deee-4a74-9ba0-3b3572036e3f
+    Filename: WOMBAT 000454-000784.pdf
+    Created: 2025-06-12 02:09:57.398008+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/033ef904-deee-4a74-9ba0-3b3572036e3f.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[8] Document: 08f33d74-292c-4bed-a45d-86ba45315dc2
+    Filename: Paul, Michael - Initial Disclosures - FINAL 1.27.25.pdf
+    Created: 2025-06-12 02:09:57.515210+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/08f33d74-292c-4bed-a45d-86ba45315dc2.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[9] Document: b5522c35-6a18-4b3f-936e-e891d3f64150
+    Filename: WOMBAT 000001-000356.pdf
+    Created: 2025-06-12 02:09:57.811048+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/b5522c35-6a18-4b3f-936e-e891d3f64150.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[10] Document: 17c374da-252e-4adc-b3ed-5f49e25eb296
+    Filename: WOMBAT 000396-000445.pdf
+    Created: 2025-06-12 02:09:57.965417+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/17c374da-252e-4adc-b3ed-5f49e25eb296.pdf
+    ⚠️  NO PROCESSING TASKS FOUND
+
+[11] Document: 8e3d88d0-8dd6-44ee-8556-522a93ded07a
+    Filename: Paul, Michael - Lora Prop Disclosure Stmt 10-21-24.pdf
+    Created: 2025-06-12 02:10:42.802040+00:00
+    Status: pending
+    S3 Location: s3://samu-docs-private-upload/documents/8e3d88d0-8dd6-44ee-8556-522a93ded07a.pdf
+
+    Processing Tasks (4 total):
+    ⏸️  OCR Extraction: Not started
+    ⏸️  Text Chunking: Not started
+    ✅ Entity Extraction: completed
+       Duration: 17.8s
+    ✅ Entity Resolution: completed
+       Duration: 0.1s
+    ⏸️  Relationship Extraction: Not started
+    ⏸️  Finalization: Not started
+
+    Data Summary:
+    • Chunks: 4

@@ -80,7 +80,14 @@
       "Bash(rg:*)",
       "Bash(jq:*)",
       "Bash(git rm:*)",
-      "Bash(test -f .env)"
+      "Bash(test -f .env)",
+      "Bash(DEPLOYMENT_STAGE=2 SKIP_CONFORMANCE_CHECK=true python3 verify_fixes.py)",
+      "Bash(DEPLOYMENT_STAGE=3 SKIP_CONFORMANCE_CHECK=true python3 verify_fixes.py)",
+      "Bash(DEPLOYMENT_STAGE=3 SKIP_CONFORMANCE_CHECK=true DATABASE_URL=\"postgresql://app_user:LegalDoc2025%5C%21Secure@database1.cuviucyodbeg.us-east-1.rds.amazonaws.com:5432/legal_doc_processing?sslmode=require\" python3 verify_fixes.py)",
+      "Bash(./start_all_workers.sh:*)",
+      "Bash(./monitor_workers.sh:*)",
+      "Bash(./scripts/monitoring/monitor_workers.sh:*)",
+      "Bash(psql:*)"
     ],
     "deny": []
   }

@@ -64,7 +64,7 @@ def create_document_with_validation(
                 s3_bucket, s3_key, status, created_at
             ) VALUES (
                 :doc_uuid, :project_id, :filename, :filename,
-                :s3_bucket, :s3_key, 'uploaded', NOW()
+                :s3_bucket, :s3_key, 'pending', NOW()
             )
             RETURNING id
         """)

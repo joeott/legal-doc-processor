@@ -36,6 +36,15 @@ from scripts.cache import get_redis_manager, redis_cache
 
 logger = logging.getLogger(__name__)
 
+# Custom exceptions for Textract processing
+class InvalidS3ObjectException(Exception):
+    """Raised when S3 object is invalid or inaccessible"""
+    pass
+
+class UnsupportedDocumentException(Exception):
+    """Raised when document format is not supported"""
+    pass
+
 # CloudWatch logging integration
 _cloudwatch_logger = None
 

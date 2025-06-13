@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "exported_at": "2025-06-11T23:52:15.397971Z",
+    "connection_status": "unknown"
+  },
+  "keys": [],
+  "summary": {
+    "total_keys": 0,
+    "key_patterns": {},
+    "memory_usage": 0
+  },
+  "errors": [
+    "Redis export error: Timeout connecting to server"
+  ]
+}

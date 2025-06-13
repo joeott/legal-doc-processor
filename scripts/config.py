@@ -330,7 +330,25 @@ else:
     REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
-REDIS_DB = int(os.getenv("REDIS_DB", "0"))
+REDIS_DB = int(os.getenv("REDIS_DB", "0"))  # Default/legacy database
+
+# Redis Database Configuration
+# Note: Redis Cloud only supports DB 0, so we use prefix-based separation
+REDIS_DB_BROKER = int(os.getenv("REDIS_DB_BROKER", "0"))      # All services use DB 0
+REDIS_DB_RESULTS = int(os.getenv("REDIS_DB_RESULTS", "0"))    # with different prefixes
+REDIS_DB_CACHE = int(os.getenv("REDIS_DB_CACHE", "0"))        
+REDIS_DB_RATE_LIMIT = int(os.getenv("REDIS_DB_RATE_LIMIT", "0"))  
+REDIS_DB_BATCH = int(os.getenv("REDIS_DB_BATCH", "0"))        
+REDIS_DB_METRICS = int(os.getenv("REDIS_DB_METRICS", "0"))    
+
+# Redis Key Prefixes for logical separation
+REDIS_PREFIX_BROKER = "broker:"      # Celery broker data
+REDIS_PREFIX_RESULTS = "results:"    # Celery task results
+REDIS_PREFIX_CACHE = "cache:"        # Application cache
+REDIS_PREFIX_BATCH = "batch:"        # Batch processing
+REDIS_PREFIX_METRICS = "metrics:"    # Performance metrics
+REDIS_PREFIX_RATE = "rate:"          # Rate limiting
+
 REDIS_PASSWORD = os.getenv("REDIS_PW") or os.getenv("REDIS_PASSWORD")
 REDIS_USERNAME = os.getenv("REDIS_USERNAME")
 # Redis Cloud doesn't require SSL on this port (confirmed by testing)
@@ -389,6 +407,38 @@ def get_redis_config_for_stage(stage: str) -> dict:
 
 # Apply stage-specific Redis configuration
 REDIS_CONFIG = get_redis_config_for_stage(DEPLOYMENT_STAGE)
+
+# Helper function to get database-specific Redis configuration
+def get_redis_db_config(db_name: str = 'cache') -> dict:
+    """
+    Get Redis configuration for a specific database.
+    
+    Args:
+        db_name: Database name ('broker', 'results', 'cache', 'batch', 'metrics', 'rate_limit')
+        
+    Returns:
+        Redis configuration dict with appropriate database number
+    """
+    db_mapping = {
+        'broker': REDIS_DB_BROKER,
+        'results': REDIS_DB_RESULTS,
+        'cache': REDIS_DB_CACHE,
+        'rate_limit': REDIS_DB_RATE_LIMIT,
+        'batch': REDIS_DB_BATCH,
+        'metrics': REDIS_DB_METRICS,
+        'default': REDIS_DB  # Legacy support
+    }
+    
+    if db_name not in db_mapping:
+        raise ValueError(f"Unknown Redis database: {db_name}")
+    
+    config = REDIS_CONFIG.copy()
+    config['db'] = db_mapping[db_name]
+    config['password'] = REDIS_PASSWORD
+    config['username'] = REDIS_USERNAME
+    config['decode_responses'] = REDIS_DECODE_RESPONSES
+    
+    return config
 
 # Redis Optimization Settings
 REDIS_ENABLE_OPTIMIZATION = os.getenv("REDIS_ENABLE_OPTIMIZATION", "true").lower() in ("true", "1", "yes")

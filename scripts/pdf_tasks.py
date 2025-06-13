@@ -110,6 +110,27 @@ class DocumentCircuitBreaker:
         self.failure_counts.pop(document_uuid, None)
         self.failure_times.pop(document_uuid, None)
         self.blocked_until.pop(document_uuid, None)
+        logger.info(f"Circuit breaker reset for document {document_uuid}")
+    
+    def get_state(self, document_uuid: str) -> dict:
+        """Get current state for debugging."""
+        with self.lock:
+            now = time.time()
+            state = 'CLOSED'
+            
+            if self.blocked_until.get(document_uuid, 0) > now:
+                state = 'OPEN'
+            elif self.failure_counts.get(document_uuid, 0) >= self.threshold:
+                state = 'HALF_OPEN'
+            
+            return {
+                'document_uuid': document_uuid,
+                'state': state,
+                'failures': self.failure_counts.get(document_uuid, 0),
+                'last_failure': self.failure_times.get(document_uuid),
+                'blocked_until': self.blocked_until.get(document_uuid),
+                'time_until_reset': max(0, self.blocked_until.get(document_uuid, 0) - now)
+            }
 
 # Initialize global circuit breaker
 circuit_breaker = DocumentCircuitBreaker()
@@ -256,6 +277,85 @@ def log_task_execution(func):
             raise
     
     return wrapper
+
+
+def track_task_execution(task_type: str):
+    """Decorator to track task execution in processing_tasks table."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, document_uuid: str, *args, **kwargs):
+            logger.info(f"🎯 Task tracking decorator executing for {task_type} on document {document_uuid}")
+            
+            from sqlalchemy import text
+            db_manager = getattr(self, 'db_manager', DatabaseManager())
+            session = next(db_manager.get_session())
+            
+            # Create task record using raw SQL
+            try:
+                result = session.execute(text("""
+                    INSERT INTO processing_tasks (
+                        id, document_id, task_type, status, 
+                        celery_task_id, started_at, retry_count, created_at
+                    ) VALUES (
+                        gen_random_uuid(), :doc_id, :task_type, :status,
+                        :celery_id, NOW(), :retry_count, NOW()
+                    )
+                    RETURNING id
+                """), {
+                    'doc_id': document_uuid,
+                    'task_type': task_type,
+                    'status': ProcessingStatus.PROCESSING.value,
+                    'celery_id': self.request.id if hasattr(self, 'request') else None,
+                    'retry_count': self.request.retries if hasattr(self, 'request') else 0
+                })
+                task_id = result.scalar()
+                session.commit()
+                logger.info(f"Created processing_task record for {task_type} with id {task_id}")
+                
+                # Execute the actual task
+                try:
+                    result = func(self, document_uuid, *args, **kwargs)
+                    
+                    # Update task as completed
+                    session.execute(text("""
+                        UPDATE processing_tasks 
+                        SET status = :status, completed_at = NOW(), updated_at = NOW()
+                        WHERE id = :task_id
+                    """), {
+                        'status': ProcessingStatus.COMPLETED.value,
+                        'task_id': task_id
+                    })
+                    session.commit()
+                    logger.info(f"Updated processing_task {task_id} to completed")
+                    
+                    return result
+                    
+                except Exception as e:
+                    # Update task as failed
+                    session.execute(text("""
+                        UPDATE processing_tasks 
+                        SET status = :status, completed_at = NOW(), 
+                            error_message = :error, updated_at = NOW()
+                        WHERE id = :task_id
+                    """), {
+                        'status': ProcessingStatus.FAILED.value,
+                        'task_id': task_id,
+                        'error': str(e)[:500]  # Truncate long errors
+                    })
+                    session.commit()
+                    logger.error(f"Updated processing_task {task_id} to failed: {str(e)}")
+                    raise
+                    
+            except Exception as e:
+                logger.error(f"Failed to create processing_task record: {str(e)}")
+                session.rollback()
+                # Still execute the task even if tracking fails
+                return func(self, document_uuid, *args, **kwargs)
+            finally:
+                session.close()
+                
+        return wrapper
+    return decorator
 
 
 # Circuit breaker for document validation
@@ -514,24 +614,19 @@ def get_entities_from_db(document_uuid: str) -> List[Dict]:
 
 # Large file handling functions
 def check_file_size(file_path: str) -> float:
-    """Check file size in MB."""
+    """Check file size in MB without downloading."""
     if file_path.startswith('s3://'):
-        # For S3 files, use boto3 to check size
-        import boto3
+        # Use streaming utility for S3 files
+        from scripts.utils.s3_streaming import S3StreamingDownloader
         from urllib.parse import urlparse
         
         parsed = urlparse(file_path)
         bucket = parsed.netloc
         key = parsed.path.lstrip('/')
         
-        s3_client = boto3.client('s3')
-        try:
-            response = s3_client.head_object(Bucket=bucket, Key=key)
-            size_bytes = response['ContentLength']
-            return size_bytes / (1024 * 1024)  # Convert to MB
-        except Exception as e:
-            logger.error(f"Error checking S3 file size: {e}")
-            return 0
+        downloader = S3StreamingDownloader()
+        size_bytes = downloader.get_file_size(bucket, key)
+        return size_bytes / (1024 * 1024)  # Convert to MB
     else:
         # Local file
         if os.path.exists(file_path):
@@ -580,30 +675,32 @@ def split_large_pdf(file_path: str, document_uuid: str, max_size_mb: int = 400) 
     
     parts = []
     temp_dir = None
+    pdf_doc = None
     
     try:
         # Create temporary directory for parts
         temp_dir = tempfile.mkdtemp(prefix=f"pdf_split_{document_uuid}_")
         
-        # Load PDF with retry logic for S3 downloads
+        # Load PDF with streaming for S3 files
         if file_path.startswith('s3://'):
-            # Download from S3 with retry
+            # Use streaming download to avoid memory issues
+            from scripts.utils.s3_streaming import S3StreamingDownloader
             from urllib.parse import urlparse
+            
             parsed = urlparse(file_path)
             bucket = parsed.netloc
             key = parsed.path.lstrip('/')
             
-            def download_from_s3():
-                s3_client = boto3.client('s3')
-                response = s3_client.get_object(Bucket=bucket, Key=key)
-                return response['Body'].read()
+            downloader = S3StreamingDownloader()
             
-            pdf_bytes = retry_with_backoff(download_from_s3, max_attempts=3)
+            # Download to a persistent temp file (not in context manager)
+            temp_pdf_path = os.path.join(temp_dir, f"{document_uuid}_source.pdf")
+            downloader.download_to_file(bucket, key, temp_pdf_path)
             
-            # Open PDF from bytes
-            pdf_doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            # Open PDF from downloaded file
+            pdf_doc = fitz.open(temp_pdf_path)
         else:
-            # Open local file
+            # Open local file directly
             pdf_doc = fitz.open(file_path)
         
         total_pages = pdf_doc.page_count
@@ -658,8 +755,6 @@ def split_large_pdf(file_path: str, document_uuid: str, max_size_mb: int = 400) 
             page_start = page_end
             part_num += 1
         
-        pdf_doc.close()
-        
         logger.info(f"Successfully split PDF into {len(parts)} parts")
         return parts
         
@@ -667,6 +762,10 @@ def split_large_pdf(file_path: str, document_uuid: str, max_size_mb: int = 400) 
         logger.error(f"Error splitting PDF: {e}")
         raise
     finally:
+        # Clean up
+        if pdf_doc:
+            pdf_doc.close()
+        
         # Clean up temporary directory
         if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
@@ -839,6 +938,23 @@ def poll_pdf_parts(self, document_uuid: str, job_infos: List[Dict[str, Any]]) ->
             'method': 'textract_multipart'
         })
         
+        # Cache OCR result
+        try:
+            from scripts.config import REDIS_OCR_CACHE_TTL
+            ocr_cache_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid)
+            ocr_data = {
+                'text': full_text,
+                'length': len(full_text),
+                'extracted_at': datetime.now().isoformat(),
+                'method': 'textract_multipart',
+                'parts': len(job_infos),
+                'pages': total_pages
+            }
+            redis_manager.store_dict(ocr_cache_key, ocr_data, ttl=REDIS_OCR_CACHE_TTL)
+            logger.info(f"✅ Cached OCR result for document {document_uuid} (multipart)")
+        except Exception as e:
+            logger.error(f"Failed to cache OCR result: {str(e)}")
+        
         # Continue pipeline
         continue_pipeline_after_ocr.apply_async(
             args=[document_uuid, full_text]
@@ -875,6 +991,7 @@ def poll_pdf_parts(self, document_uuid: str, job_infos: List[Dict[str, Any]]) ->
 @app.task(bind=True, base=PDFTask, max_retries=3, default_retry_delay=60, queue='ocr')
 @log_task_execution
 @validate_task_params({'document_uuid': str, 'file_path': str})
+@track_task_execution('ocr')
 def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict[str, Any]:
     """
     Extract text from PDF document using OCR with circuit breaker.
@@ -898,6 +1015,27 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
         raise RuntimeError(f"Processing blocked: {reason}")
     
     logger.info(f"Starting OCR extraction for document {document_uuid}")
+    
+    # Check file size and add routing metadata
+    if file_path and file_path.startswith('s3://'):
+        try:
+            file_size_mb = check_file_size(file_path)
+            logger.info(f"Document {document_uuid} file size: {file_size_mb:.1f}MB")
+            
+            # Route large files differently
+            if file_size_mb > 400:  # 400MB threshold
+                logger.warning(f"Large file detected: {file_size_mb:.1f}MB. Using streaming approach.")
+                # Add metadata for downstream processing
+                self.request.kwargs['large_file'] = True
+                self.request.kwargs['file_size_mb'] = file_size_mb
+                
+                # Consider resetting circuit breaker if it was triggered by memory issues
+                cb_state = circuit_breaker.get_state(document_uuid)
+                if cb_state['failures'] > 0 and cb_state['state'] == 'OPEN':
+                    logger.info("Resetting circuit breaker for large file retry with streaming")
+                    circuit_breaker.reset(document_uuid)
+        except Exception as e:
+            logger.warning(f"Could not check file size: {e}")
     
     # Redis Acceleration: Check cache first
     from scripts.config import REDIS_ACCELERATION_ENABLED
@@ -1160,6 +1298,7 @@ def extract_text_from_document(self, document_uuid: str, file_path: str) -> Dict
 # Text Processing Tasks
 @app.task(bind=True, base=PDFTask, max_retries=3, default_retry_delay=60, queue='text')
 @log_task_execution
+@track_task_execution('chunking')
 def chunk_document_text(self, document_uuid: str, text: str, chunk_size: int = 1000, 
                        overlap: int = 200) -> List[Dict[str, Any]]:
     """
@@ -1470,6 +1609,7 @@ def _calculate_end_char(chunks: List[str], index: int, overlap: int) -> int:
 # Entity Tasks
 @app.task(bind=True, base=PDFTask, max_retries=3, default_retry_delay=60, queue='entity')
 @log_task_execution
+@track_task_execution('entity_extraction')
 def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Extract entities from document chunks with full validation.
@@ -1598,11 +1738,41 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
                 # Continue with pipeline even if save fails
         
         # Cache results with Redis Acceleration
+        logger.info(f"Redis caching check: REDIS_ACCELERATION_ENABLED={REDIS_ACCELERATION_ENABLED}, is_redis_healthy={redis_manager.is_redis_healthy()}")
         if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
-            cache_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
-            mentions_data = [m.dict() for m in all_entity_mentions]
-            redis_manager.set_with_ttl(cache_key, mentions_data, ttl=86400)
-            logger.info(f"Redis Acceleration: Cached {len(mentions_data)} entity mentions for {document_uuid}")
+            try:
+                # Cache with DOC_ENTITY_MENTIONS key
+                cache_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
+                mentions_data = [m.dict() for m in all_entity_mentions]
+                if redis_manager.set_with_ttl(cache_key, mentions_data, ttl=86400):
+                    logger.info(f"✅ Redis Acceleration: Cached {len(mentions_data)} entity mentions for {document_uuid}")
+                else:
+                    logger.error(f"❌ Failed to cache entity mentions for {document_uuid}")
+                
+                # Also cache with DOC_ALL_EXTRACTED_MENTIONS key for compatibility
+                all_mentions_key = CacheKeys.format_key(CacheKeys.DOC_ALL_EXTRACTED_MENTIONS, document_uuid=document_uuid)
+                all_mentions_data = {
+                    'mentions': [
+                        {
+                            'entity_uuid': str(m.mention_uuid) if hasattr(m, 'mention_uuid') else str(uuid.uuid4()),
+                            'text': m.text if hasattr(m, 'text') else m.entity_text,
+                            'entity_type': m.type if hasattr(m, 'type') else m.entity_type,
+                            'chunk_uuid': str(m.attributes.get('chunk_uuid', '')) if hasattr(m, 'attributes') else '',
+                            'confidence_score': m.confidence if hasattr(m, 'confidence') else m.confidence_score
+                        }
+                        for m in all_entity_mentions
+                    ],
+                    'total_count': len(all_entity_mentions),
+                    'extracted_at': datetime.now().isoformat()
+                }
+                if redis_manager.store_dict(all_mentions_key, all_mentions_data, ttl=REDIS_ENTITY_CACHE_TTL):
+                    logger.info(f"✅ Redis Acceleration: Cached all extracted mentions for {document_uuid}")
+                else:
+                    logger.error(f"❌ Failed to cache all extracted mentions for {document_uuid}")
+            except Exception as e:
+                logger.error(f"❌ Exception during entity caching for {document_uuid}: {str(e)}", exc_info=True)
+        else:
+            logger.warning(f"⚠️ Redis caching skipped for {document_uuid}: REDIS_ACCELERATION_ENABLED={REDIS_ACCELERATION_ENABLED}, is_redis_healthy={redis_manager.is_redis_healthy()}")
         
         update_document_state(document_uuid, "entity_extraction", "completed", {
             "mention_count": len(all_entity_mentions),
@@ -1630,6 +1800,7 @@ def extract_entities_from_chunks(self, document_uuid: str, chunks: List[Dict[str
 
 @app.task(bind=True, base=PDFTask, max_retries=3, default_retry_delay=60, queue='entity')
 @log_task_execution
+@track_task_execution('entity_resolution')
 def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Resolve entity mentions to canonical entities.
@@ -1652,11 +1823,73 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
         cached_entities = redis_manager.get_cached(cache_key)
         if cached_entities:
             logger.info(f"Redis Acceleration: Using cached canonical entities for {document_uuid}")
-            # Chain to next stage - relationship building
-            build_document_relationships.apply_async(
-                args=[document_uuid],
-                queue='graph'
-            )
+            
+            # Get required data for relationship building
+            metadata_key = f"doc:metadata:{document_uuid}"
+            stored_metadata = redis_manager.get_dict(metadata_key) or {}
+            project_uuid = stored_metadata.get('project_uuid')
+            document_metadata = stored_metadata.get('document_metadata', {})
+            
+            # Get chunks from cache
+            chunks_key = CacheKeys.DOC_CHUNKS.format(document_uuid=document_uuid)
+            chunks_data = redis_manager.get_dict(chunks_key) or {}
+            chunks = chunks_data.get('chunks', [])
+            
+            # Get entity mentions from cache or DB
+            entity_mentions_key = CacheKeys.format_key(CacheKeys.DOC_ENTITY_MENTIONS, document_uuid=document_uuid)
+            entity_mentions_list = redis_manager.get_cached(entity_mentions_key)
+            if not entity_mentions_list:
+                # Fallback to getting from DB
+                session = next(self.db_manager.get_session())
+                try:
+                    from sqlalchemy import text as sql_text
+                    mentions_query = sql_text("""
+                        SELECT em.*, ce.canonical_name as canonical_name
+                        FROM entity_mentions em
+                        LEFT JOIN canonical_entities ce ON em.canonical_entity_uuid = ce.canonical_entity_uuid
+                        WHERE em.document_uuid = :doc_uuid
+                    """)
+                    
+                    mentions_results = session.execute(mentions_query, {'doc_uuid': str(document_uuid)}).fetchall()
+                    
+                    entity_mentions_list = []
+                    for row in mentions_results:
+                        entity_mentions_list.append({
+                            'mention_uuid': str(row.mention_uuid),
+                            'chunk_uuid': str(row.chunk_uuid),
+                            'document_uuid': str(row.document_uuid),
+                            'entity_text': row.entity_text,
+                            'entity_type': row.entity_type,
+                            'start_char': row.start_char,
+                            'end_char': row.end_char,
+                            'confidence_score': row.confidence_score,
+                            'canonical_entity_uuid': str(row.canonical_entity_uuid) if row.canonical_entity_uuid else None,
+                            'canonical_name': row.canonical_name
+                        })
+                finally:
+                    session.close()
+            
+            # Ensure document_uuid is in metadata
+            if 'document_uuid' not in document_metadata:
+                document_metadata['document_uuid'] = document_uuid
+            
+            # Chain to next stage - relationship building with all required parameters
+            if project_uuid and chunks and cached_entities:
+                logger.info(f"Triggering relationship building with {len(cached_entities)} cached canonical entities")
+                build_document_relationships.apply_async(
+                    args=[
+                        document_uuid,
+                        document_metadata,
+                        project_uuid,
+                        chunks,
+                        entity_mentions_list,
+                        cached_entities
+                    ],
+                    queue='graph'
+                )
+            else:
+                logger.warning(f"Missing required data for relationship building: project_uuid={project_uuid}, chunks={len(chunks) if chunks else 0}, entities={len(cached_entities)}")
+            
             return {
                 'status': 'completed',
                 'canonical_count': len(cached_entities),
@@ -2063,10 +2296,45 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
             raise
         
         # Update cache with resolved entities using Redis Acceleration
+        logger.info(f"Redis caching check for resolution: REDIS_ACCELERATION_ENABLED={REDIS_ACCELERATION_ENABLED}, is_redis_healthy={redis_manager.is_redis_healthy()}")
         if REDIS_ACCELERATION_ENABLED and redis_manager.is_redis_healthy():
-            cache_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid)
-            redis_manager.set_with_ttl(cache_key, resolution_result['canonical_entities'], ttl=86400)
-            logger.info(f"Redis Acceleration: Cached {len(resolution_result['canonical_entities'])} canonical entities for {document_uuid}")
+            try:
+                # Cache canonical entities
+                cache_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=document_uuid)
+                if redis_manager.set_with_ttl(cache_key, resolution_result['canonical_entities'], ttl=86400):
+                    logger.info(f"✅ Redis Acceleration: Cached {len(resolution_result['canonical_entities'])} canonical entities for {document_uuid}")
+                else:
+                    logger.error(f"❌ Failed to cache canonical entities for {document_uuid}")
+                
+                # Cache resolved mentions mapping
+                resolved_key = CacheKeys.format_key(CacheKeys.DOC_RESOLVED_MENTIONS, document_uuid=document_uuid)
+                resolved_data = {
+                    'resolved_mentions': [
+                        {
+                            'mention_uuid': mention_uuid,
+                            'canonical_uuid': str(canonical_uuid),
+                            'text': next((m['text'] for m in entity_mentions if str(m.get('mention_uuid', '')) == mention_uuid), ''),
+                            'canonical_name': next((c['canonical_name'] for c in resolution_result['canonical_entities'] 
+                                                   if str(c['canonical_entity_uuid']) == str(canonical_uuid)), '')
+                        }
+                        for mention_uuid, canonical_uuid in resolution_result['mention_to_canonical'].items()
+                    ],
+                    'resolution_stats': {
+                        'total_mentions': resolution_result['total_mentions'],
+                        'resolved_count': updated_count,
+                        'canonical_entities': len(resolution_result['canonical_entities']),
+                        'deduplication_rate': resolution_result['deduplication_rate']
+                    },
+                    'resolved_at': datetime.now().isoformat()
+                }
+                if redis_manager.store_dict(resolved_key, resolved_data, ttl=REDIS_ENTITY_CACHE_TTL):
+                    logger.info(f"✅ Redis Acceleration: Cached resolved mentions for {document_uuid}")
+                else:
+                    logger.error(f"❌ Failed to cache resolved mentions for {document_uuid}")
+            except Exception as e:
+                logger.error(f"❌ Exception during resolution caching for {document_uuid}: {str(e)}", exc_info=True)
+        else:
+            logger.warning(f"⚠️ Redis caching skipped for resolution {document_uuid}: REDIS_ACCELERATION_ENABLED={REDIS_ACCELERATION_ENABLED}, is_redis_healthy={redis_manager.is_redis_healthy()}")
         
         update_document_state(document_uuid, "entity_resolution", "completed", {
             "resolved_count": updated_count,
@@ -2154,6 +2422,7 @@ def resolve_document_entities(self, document_uuid: str, entity_mentions: List[Di
 # Graph Tasks
 @app.task(bind=True, base=PDFTask, max_retries=3, default_retry_delay=60, queue='graph')
 @log_task_execution
+@track_task_execution('relationship_building')
 def build_document_relationships(self, document_uuid: str, document_data: Dict[str, Any],
                                project_uuid: str, chunks: List[Dict[str, Any]],
                                entity_mentions: List[Dict[str, Any]],
@@ -2407,6 +2676,25 @@ def poll_textract_job(self, document_uuid: str, job_id: str) -> Dict[str, Any]:
                 "method": "AWS Textract (Textractor v2)"
             })
             
+            # Cache OCR result
+            try:
+                from scripts.config import REDIS_OCR_CACHE_TTL
+                redis_manager = get_redis_manager()
+                ocr_cache_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid)
+                ocr_data = {
+                    'text': extracted_text,
+                    'length': len(extracted_text),
+                    'extracted_at': datetime.now().isoformat(),
+                    'method': 'textract',
+                    'job_id': job_id,
+                    'pages': metadata.get('pages', 0) if metadata else 0,
+                    'confidence': metadata.get('confidence', 0.0) if metadata else 0.0
+                }
+                redis_manager.store_dict(ocr_cache_key, ocr_data, ttl=REDIS_OCR_CACHE_TTL)
+                logger.info(f"✅ Cached OCR result for document {document_uuid} (single document)")
+            except Exception as e:
+                logger.error(f"Failed to cache OCR result: {str(e)}")
+            
             # Trigger the rest of the pipeline
             continue_pipeline_after_ocr.apply_async(
                 args=[document_uuid, extracted_text]
@@ -2460,7 +2748,7 @@ def poll_textract_job(self, document_uuid: str, job_id: str) -> Dict[str, Any]:
 
 
 # Pipeline continuation task
-@app.task(bind=True, base=PDFTask, queue='default')
+@app.task(bind=True, base=PDFTask, name='continue_pipeline_after_ocr', queue='default')
 @log_task_execution
 def continue_pipeline_after_ocr(self, document_uuid: str, text: str) -> Dict[str, Any]:
     """
@@ -2493,6 +2781,24 @@ def continue_pipeline_after_ocr(self, document_uuid: str, text: str) -> Dict[str
             "text_length": len(text)
         })
         
+        # Cache OCR result
+        try:
+            from scripts.config import REDIS_OCR_CACHE_TTL
+            ocr_cache_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=document_uuid)
+            ocr_data = {
+                'text': text,
+                'length': len(text),
+                'extracted_at': datetime.now().isoformat(),
+                'method': 'textract'
+            }
+            success = redis_manager.store_dict(ocr_cache_key, ocr_data, ttl=REDIS_OCR_CACHE_TTL)
+            if success:
+                logger.info(f"✅ Successfully cached OCR result for document {document_uuid}")
+            else:
+                logger.error(f"❌ Failed to cache OCR result for document {document_uuid}")
+        except Exception as e:
+            logger.error(f"❌ Exception caching OCR result for document {document_uuid}: {str(e)}", exc_info=True)
+        
         # Start chunking - it will trigger the rest of the pipeline
         chunk_task = chunk_document_text.apply_async(
             args=[document_uuid, text]
@@ -2519,6 +2825,7 @@ def continue_pipeline_after_ocr(self, document_uuid: str, text: str) -> Dict[str
 # Pipeline finalization task
 @app.task(bind=True, base=PDFTask, queue='default')
 @log_task_execution
+@track_task_execution('finalization')
 def finalize_document_pipeline(self, document_uuid: str, chunk_count: int, entity_count: int, relationship_count: int) -> Dict[str, Any]:
     """
     Finalize document processing pipeline and update final state.

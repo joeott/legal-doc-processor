@@ -23,10 +23,12 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationIn
 # Import configuration
 from scripts.config import (
     REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DB,
+    REDIS_DB_CACHE, REDIS_DB_BATCH, REDIS_DB_METRICS, REDIS_DB_RATE_LIMIT,
     USE_REDIS_CACHE, REDIS_MAX_CONNECTIONS, REDIS_USERNAME, REDIS_SSL,
     REDIS_SOCKET_KEEPALIVE, REDIS_SOCKET_KEEPALIVE_OPTIONS, REDIS_DECODE_RESPONSES,
     REDIS_CONFIG, REDIS_LOCK_TIMEOUT, REDIS_OCR_CACHE_TTL, REDIS_LLM_CACHE_TTL,
-    REDIS_ENTITY_CACHE_TTL, REDIS_STRUCTURED_CACHE_TTL, REDIS_CHUNK_CACHE_TTL
+    REDIS_ENTITY_CACHE_TTL, REDIS_STRUCTURED_CACHE_TTL, REDIS_CHUNK_CACHE_TTL,
+    get_redis_db_config
 )
 
 logger = logging.getLogger(__name__)
@@ -36,15 +38,18 @@ logger.setLevel(logging.DEBUG)  # Enable debug for cache operations
 # ========== Cache Keys ==========
 
 class CacheKeys:
-    """Centralized cache key definitions and templates."""
+    """Centralized cache key definitions and templates with Redis Cloud prefix support."""
     
-    # Document processing keys
-    DOC_STATE = "doc:state:{document_uuid}"
-    DOC_OCR_RESULT = "doc:ocr:{document_uuid}"
-    DOC_ENTITIES = "doc:entities:{document_uuid}:{chunk_id}"
-    DOC_STRUCTURED = "doc:structured:{document_uuid}:{chunk_id}"
-    DOC_CHUNKS = "doc:chunks:{document_uuid}"
-    DOC_PROCESSING_LOCK = "doc:lock:{document_uuid}"
+    # Import prefixes from config
+    from scripts.config import REDIS_PREFIX_CACHE, REDIS_PREFIX_BATCH, REDIS_PREFIX_METRICS, REDIS_PREFIX_RATE
+    
+    # Document processing keys (all in cache namespace for Redis Cloud compatibility)
+    DOC_STATE = f"{REDIS_PREFIX_CACHE}doc:state:{{document_uuid}}"
+    DOC_OCR_RESULT = f"{REDIS_PREFIX_CACHE}doc:ocr:{{document_uuid}}"
+    DOC_ENTITIES = f"{REDIS_PREFIX_CACHE}doc:entities:{{document_uuid}}:{{chunk_id}}"
+    DOC_STRUCTURED = f"{REDIS_PREFIX_CACHE}doc:structured:{{document_uuid}}:{{chunk_id}}"
+    DOC_CHUNKS = f"{REDIS_PREFIX_CACHE}doc:chunks:{{document_uuid}}"
+    DOC_PROCESSING_LOCK = f"{REDIS_PREFIX_CACHE}doc:lock:{{document_uuid}}"
     
     # Enhanced Redis optimization keys
     DOC_CHUNKS_LIST = "doc:chunks_list:{document_uuid}"
@@ -286,10 +291,18 @@ class CacheMetrics:
 # ========== Redis Manager ==========
 
 class RedisManager:
-    """Manages Redis connections and provides utility methods."""
+    """
+    Manages Redis connections and provides utility methods.
+    Supports multiple databases for different purposes:
+    - cache: Application cache (documents, chunks, entities)
+    - batch: Batch processing metadata
+    - metrics: Performance metrics
+    - rate_limit: Rate limiting
+    """
     
     _instance = None
-    _pool = None
+    _pool = None  # Legacy single pool for backward compatibility
+    _pools = {}   # New multi-database pools
     _lock = threading.Lock()
     
     def __new__(cls):
@@ -338,16 +351,90 @@ class RedisManager:
                 # Initialize cache metrics
                 self._metrics = CacheMetrics(self)
                 
+                # Initialize multi-database pools
+                self._initialize_multi_db_pools()
+                
             except Exception as e:
                 logger.error(f"Failed to connect to Redis: {e}")
                 self._pool = None
                 self._metrics = None
     
-    def get_client(self) -> redis.Redis:
-        """Get Redis client from connection pool."""
-        if not USE_REDIS_CACHE or self._pool is None:
+    def _initialize_multi_db_pools(self):
+        """Initialize connection pools for multiple databases."""
+        if not USE_REDIS_CACHE:
+            return
+            
+        databases = {
+            'cache': REDIS_DB_CACHE,
+            'batch': REDIS_DB_BATCH,
+            'metrics': REDIS_DB_METRICS,
+            'rate_limit': REDIS_DB_RATE_LIMIT
+        }
+        
+        for db_name, db_num in databases.items():
+            try:
+                # Get database-specific config
+                db_config = get_redis_db_config(db_name)
+                
+                # Build connection parameters
+                pool_params = {
+                    'host': db_config.get('host', REDIS_HOST),
+                    'port': db_config.get('port', REDIS_PORT),
+                    'db': db_num,
+                    'password': db_config.get('password', REDIS_PASSWORD),
+                    'decode_responses': db_config.get('decode_responses', REDIS_DECODE_RESPONSES),
+                    'max_connections': REDIS_MAX_CONNECTIONS // len(databases),  # Distribute connections
+                    'socket_keepalive': REDIS_SOCKET_KEEPALIVE,
+                    'socket_keepalive_options': REDIS_SOCKET_KEEPALIVE_OPTIONS,
+                }
+                
+                # Add username if provided
+                username = db_config.get('username', REDIS_USERNAME)
+                if username:
+                    pool_params['username'] = username
+                
+                # Add SSL parameters if configured
+                if db_config.get('ssl', REDIS_SSL):
+                    pool_params['connection_class'] = redis.SSLConnection
+                    pool_params['ssl_cert_reqs'] = db_config.get('ssl_cert_reqs', 'none')
+                    pool_params['ssl_check_hostname'] = False
+                
+                # Create pool
+                self._pools[db_name] = redis.ConnectionPool(**pool_params)
+                
+                # Test connection
+                test_client = redis.Redis(connection_pool=self._pools[db_name])
+                test_client.ping()
+                logger.info(f"Redis database '{db_name}' (DB {db_num}) connected successfully")
+                
+            except Exception as e:
+                logger.error(f"Failed to connect to Redis database '{db_name}': {e}")
+                self._pools[db_name] = None
+    
+    def get_client(self, database: str = 'default') -> redis.Redis:
+        """
+        Get Redis client from connection pool.
+        
+        Args:
+            database: Database name ('default', 'cache', 'batch', 'metrics', 'rate_limit')
+            
+        Returns:
+            Redis client instance
+        """
+        if not USE_REDIS_CACHE:
             raise RuntimeError("Redis is not configured or disabled")
-        return redis.Redis(connection_pool=self._pool)
+            
+        # Use legacy pool for 'default' or backward compatibility
+        if database == 'default' or database not in self._pools:
+            if self._pool is None:
+                raise RuntimeError("Redis is not configured or disabled")
+            return redis.Redis(connection_pool=self._pool)
+        
+        # Use multi-database pool
+        pool = self._pools.get(database)
+        if pool is None:
+            raise RuntimeError(f"Redis database '{database}' is not configured")
+        return redis.Redis(connection_pool=pool)
     
     @property
     def redis_client(self) -> redis.Redis:
@@ -363,6 +450,42 @@ class RedisManager:
             return True
         except:
             return False
+    
+    def get_cache_client(self) -> redis.Redis:
+        """Get Redis client for cache database (documents, chunks, entities)."""
+        return self.get_client('cache')
+    
+    def get_batch_client(self) -> redis.Redis:
+        """Get Redis client for batch processing database."""
+        return self.get_client('batch')
+    
+    def get_metrics_client(self) -> redis.Redis:
+        """Get Redis client for metrics database."""
+        return self.get_client('metrics')
+    
+    def get_rate_limit_client(self) -> redis.Redis:
+        """Get Redis client for rate limiting database."""
+        return self.get_client('rate_limit')
+    
+    def _get_database_for_key(self, key: str) -> str:
+        """
+        Determine which database to use based on key pattern.
+        
+        Args:
+            key: Redis key
+            
+        Returns:
+            Database name ('cache', 'batch', 'metrics', 'rate_limit')
+        """
+        if key.startswith(('batch:', 'batch_')):
+            return 'batch'
+        elif key.startswith(('metrics:', 'metric_', 'stats:')):
+            return 'metrics'
+        elif key.startswith(('rate:', 'limit:')):
+            return 'rate_limit'
+        else:
+            # Default to cache database for document data
+            return 'cache'
     
     def generate_cache_key(self, prefix: str, *args, **kwargs) -> str:
         """Generate a cache key from prefix and arguments."""
@@ -393,7 +516,9 @@ class RedisManager:
             return None
         
         try:
-            client = self.get_client()
+            # Determine which database to use based on key pattern
+            database = self._get_database_for_key(key)
+            client = self.get_client(database)
             value = client.get(key)
             
             if value is None:
@@ -425,7 +550,9 @@ class RedisManager:
             return False
         
         try:
-            client = self.get_client()
+            # Determine which database to use based on key pattern
+            database = self._get_database_for_key(key)
+            client = self.get_client(database)
             
             # Serialize value
             if isinstance(value, BaseModel):
@@ -840,6 +967,294 @@ class RedisManager:
     def get_cached_canonical_entities(self, key: str) -> Optional[Dict[str, Any]]:
         """Get cached canonical entities. Alias for get_dict."""
         return self.get_dict(key)
+    
+    # ========== Enhanced Batch Processing Operations ==========
+    # Methods specifically designed for batch processing optimization
+    
+    def batch_update_document_states(self, updates: List[Tuple[str, str, str, Dict]]) -> bool:
+        """
+        Update multiple document states atomically using pipeline.
+        
+        Args:
+            updates: List of (document_uuid, stage, status, metadata) tuples
+            
+        Returns:
+            bool: True if all updates succeeded, False otherwise
+        """
+        if not self.is_available() or not updates:
+            return False
+        
+        try:
+            client = self.get_client()
+            
+            with client.pipeline() as pipe:
+                for document_uuid, stage, status, metadata in updates:
+                    state_key = CacheKeys.format_key(CacheKeys.DOC_STATE, document_uuid=document_uuid)
+                    
+                    # Create state data for this stage
+                    state_data = {
+                        stage: {
+                            'status': status,
+                            'timestamp': datetime.now().isoformat(),
+                            'metadata': metadata
+                        }
+                    }
+                    
+                    # Update the hash field for this stage
+                    pipe.hset(state_key, stage, json.dumps(state_data[stage]))
+                    pipe.expire(state_key, 86400)  # 24 hour TTL
+                
+                # Execute all updates atomically
+                results = pipe.execute()
+                
+                # Check if all operations succeeded
+                success = all(results[i::2] for i in range(0, len(results), 2))  # Every other result (hset operations)
+                
+                if success:
+                    logger.debug(f"Successfully updated {len(updates)} document states")
+                else:
+                    logger.warning(f"Some document state updates failed")
+                
+                return success
+                
+        except Exception as e:
+            logger.error(f"Batch document state update failed: {e}")
+            return False
+    
+    def batch_cache_documents(self, documents: List[Dict[str, Any]], ttl: int = 86400) -> bool:
+        """
+        Cache multiple documents efficiently using pipeline.
+        
+        Args:
+            documents: List of document dictionaries with caching data
+            ttl: Time to live in seconds (default: 24 hours)
+            
+        Returns:
+            bool: True if caching succeeded, False otherwise
+        """
+        if not self.is_available() or not documents:
+            return False
+        
+        try:
+            client = self.get_client()
+            
+            with client.pipeline() as pipe:
+                cached_count = 0
+                
+                for doc in documents:
+                    doc_uuid = doc.get('document_uuid')
+                    if not doc_uuid:
+                        logger.warning("Document missing UUID, skipping cache")
+                        continue
+                    
+                    # Cache OCR result if available
+                    if 'ocr_text' in doc:
+                        ocr_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=doc_uuid)
+                        ocr_data = {
+                            'text': doc['ocr_text'],
+                            'length': len(doc['ocr_text']),
+                            'extracted_at': datetime.now().isoformat(),
+                            'metadata': doc.get('ocr_metadata', {}),
+                            'method': doc.get('ocr_method', 'unknown')
+                        }
+                        pipe.setex(ocr_key, ttl, json.dumps(ocr_data))
+                        cached_count += 1
+                    
+                    # Cache chunks if available
+                    if 'chunks' in doc:
+                        chunks_key = CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=doc_uuid)
+                        chunks_data = {
+                            'chunks': doc['chunks'],
+                            'chunk_count': len(doc['chunks']),
+                            'created_at': datetime.now().isoformat()
+                        }
+                        pipe.setex(chunks_key, ttl, json.dumps(chunks_data))
+                        cached_count += 1
+                    
+                    # Cache entity mentions if available
+                    if 'entity_mentions' in doc:
+                        mentions_key = CacheKeys.format_key(CacheKeys.DOC_ALL_EXTRACTED_MENTIONS, document_uuid=doc_uuid)
+                        mentions_data = {
+                            'mentions': doc['entity_mentions'],
+                            'mention_count': len(doc['entity_mentions']),
+                            'extracted_at': datetime.now().isoformat()
+                        }
+                        pipe.setex(mentions_key, ttl, json.dumps(mentions_data))
+                        cached_count += 1
+                    
+                    # Cache canonical entities if available
+                    if 'canonical_entities' in doc:
+                        canonical_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=doc_uuid)
+                        canonical_data = {
+                            'entities': doc['canonical_entities'],
+                            'entity_count': len(doc['canonical_entities']),
+                            'resolved_at': datetime.now().isoformat()
+                        }
+                        pipe.setex(canonical_key, ttl, json.dumps(canonical_data))
+                        cached_count += 1
+                
+                # Execute all cache operations atomically
+                results = pipe.execute()
+                
+                logger.info(f"Batch cached {cached_count} data items for {len(documents)} documents")
+                return True
+                
+        except Exception as e:
+            logger.error(f"Batch document caching failed: {e}")
+            return False
+    
+    def batch_get_document_cache(self, document_uuids: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        Efficiently retrieve cached data for multiple documents.
+        
+        Args:
+            document_uuids: List of document UUIDs to retrieve cache for
+            
+        Returns:
+            Dict mapping document_uuid to cached data
+        """
+        if not self.is_available() or not document_uuids:
+            return {}
+        
+        try:
+            client = self.get_client()
+            
+            # Build all cache keys
+            cache_keys = []
+            key_map = {}  # Map index to (document_uuid, cache_type)
+            
+            for doc_uuid in document_uuids:
+                # OCR cache
+                ocr_key = CacheKeys.format_key(CacheKeys.DOC_OCR_RESULT, document_uuid=doc_uuid)
+                cache_keys.append(ocr_key)
+                key_map[len(cache_keys) - 1] = (doc_uuid, 'ocr')
+                
+                # Chunks cache
+                chunks_key = CacheKeys.format_key(CacheKeys.DOC_CHUNKS, document_uuid=doc_uuid)
+                cache_keys.append(chunks_key)
+                key_map[len(cache_keys) - 1] = (doc_uuid, 'chunks')
+                
+                # Entity mentions cache
+                mentions_key = CacheKeys.format_key(CacheKeys.DOC_ALL_EXTRACTED_MENTIONS, document_uuid=doc_uuid)
+                cache_keys.append(mentions_key)
+                key_map[len(cache_keys) - 1] = (doc_uuid, 'mentions')
+                
+                # Canonical entities cache
+                canonical_key = CacheKeys.format_key(CacheKeys.DOC_CANONICAL_ENTITIES, document_uuid=doc_uuid)
+                cache_keys.append(canonical_key)
+                key_map[len(cache_keys) - 1] = (doc_uuid, 'canonical')
+            
+            # Get all values in one round trip
+            cached_values = client.mget(cache_keys)
+            
+            # Organize results by document
+            result = {}
+            for i, value in enumerate(cached_values):
+                doc_uuid, cache_type = key_map[i]
+                
+                if doc_uuid not in result:
+                    result[doc_uuid] = {}
+                
+                if value is not None:
+                    try:
+                        result[doc_uuid][cache_type] = json.loads(value)
+                    except json.JSONDecodeError:
+                        result[doc_uuid][cache_type] = value
+                else:
+                    result[doc_uuid][cache_type] = None
+            
+            logger.debug(f"Retrieved cache data for {len(document_uuids)} documents")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Batch document cache retrieval failed: {e}")
+            return {}
+    
+    def execute_lua_script(self, script: str, keys: List[str], args: List[str], database: str = 'cache') -> Any:
+        """
+        Execute a Lua script atomically in Redis.
+        
+        Args:
+            script: Lua script to execute
+            keys: Redis keys the script will access
+            args: Arguments to pass to the script
+            database: Database to execute script in
+            
+        Returns:
+            Script execution result
+        """
+        if not self.is_available():
+            return None
+        
+        try:
+            # Use specified database or determine from first key
+            if keys and database == 'cache':
+                database = self._get_database_for_key(keys[0])
+            client = self.get_client(database)
+            return client.eval(script, len(keys), *keys, *args)
+        except Exception as e:
+            logger.error(f"Lua script execution failed: {e}")
+            return None
+    
+    def atomic_batch_progress_update(self, batch_id: str, document_uuid: str, 
+                                   old_status: str, new_status: str) -> bool:
+        """
+        Atomically update batch progress using Lua script.
+        
+        Args:
+            batch_id: Batch identifier
+            document_uuid: Document being updated
+            old_status: Previous status
+            new_status: New status
+            
+        Returns:
+            bool: True if update succeeded
+        """
+        if not self.is_available():
+            return False
+        
+        # Lua script for atomic batch progress update
+        lua_script = """
+        local progress_key = KEYS[1]
+        local old_status = ARGV[1]
+        local new_status = ARGV[2]
+        local timestamp = ARGV[3]
+        
+        -- Decrement old status count
+        redis.call('hincrby', progress_key, old_status, -1)
+        
+        -- Increment new status count
+        redis.call('hincrby', progress_key, new_status, 1)
+        
+        -- Update timestamp
+        redis.call('hset', progress_key, 'last_updated', timestamp)
+        
+        -- Check if batch is completed
+        local completed = tonumber(redis.call('hget', progress_key, 'completed') or 0)
+        local failed = tonumber(redis.call('hget', progress_key, 'failed') or 0)
+        local total = tonumber(redis.call('hget', progress_key, 'total') or 0)
+        
+        if completed + failed >= total then
+            redis.call('hset', progress_key, 'status', 'completed')
+            redis.call('hset', progress_key, 'completed_at', timestamp)
+        end
+        
+        return redis.status_reply('OK')
+        """
+        
+        progress_key = f"batch:progress:{batch_id}"
+        timestamp = datetime.now().isoformat()
+        
+        try:
+            result = self.execute_lua_script(
+                lua_script, 
+                [progress_key], 
+                [old_status, new_status, timestamp]
+            )
+            return result is not None
+        except Exception as e:
+            logger.error(f"Atomic batch progress update failed for {batch_id}: {e}")
+            return False
 
 
 # ========== Cache Manager ==========
